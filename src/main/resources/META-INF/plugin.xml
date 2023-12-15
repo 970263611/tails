@@ -1,0 +1,26 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>com.dahuaboke</id>
+    <name>tails</name>
+    <vendor>dahua</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <resource-bundle>messages.TailsBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij">
+<!--        <toolWindow id="windowFactory" anchor="right"-->
+<!--                    factoryClass="com.dahuaboke.tails.TailsToolWindowFactory"/>-->
+        <notificationGroup displayType="BALLOON" id="transportNotification" isLogByDefault="false"/>
+        <applicationConfigurable parentId="tools" instance="com.dahuaboke.tails.TailConfiguration"
+                                 id="tailsConfiguration" displayName="tails"/>
+    </extensions>
+
+    <actions>
+        <action id="transportAction" class="com.dahuaboke.tails.action.TailsTransportAction" text="tails action"
+                description="tails action">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="alt P"/>
+        </action>
+    </actions>
+</idea-plugin>
