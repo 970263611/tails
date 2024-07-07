@@ -1,7 +1,6 @@
-[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
-
 # transportPluginForIdea
 
+[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 ![Build](https://github.com/970263611/transportPluginForIdea/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
