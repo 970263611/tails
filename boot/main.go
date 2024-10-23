@@ -1,9 +1,15 @@
 package main
 
 import (
+	"basic/tool/log_config"
 	"basic/tool/net"
 	"fmt"
 )
+
+func init() {
+	config := log_config.LogConfig{OutType: 0}
+	config.Init()
+}
 
 func main() {
 	handlers := make(map[string]func(req map[string]any) (resp []byte))
