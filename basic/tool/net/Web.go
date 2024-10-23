@@ -2,7 +2,7 @@ package net
 
 import (
 	"encoding/json"
-	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -16,7 +16,7 @@ func Web(port int, handlers map[string]func(req map[string]any) (resp []byte)) {
 		http.HandleFunc(k, handler)
 	}
 	portStr := strconv.Itoa(port)
-	fmt.Println("Web will start at " + portStr)
+	log.Info("Web will start at " + portStr)
 	http.ListenAndServe(":"+portStr, nil)
 }
 
@@ -28,12 +28,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	maps := mergeMaps(mapChange(r.Form, false), mapChange(params, true))
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println("Error reading request body", err)
+		log.Error("Error reading request body", err)
 	}
 	var p3 map[string]any
 	err = json.Unmarshal(body, &p3)
 	if err != nil {
-		fmt.Println(w, "Error parsing JSON", err)
+		log.Error(w, "Error parsing JSON", err)
 	}
 	result := mergeMaps(maps, p3)
 	resp := f(result)
