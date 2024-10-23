@@ -23,9 +23,6 @@ func Web(port int, handlers map[string]func(req map[string]any) (resp []byte)) {
 func handler(w http.ResponseWriter, r *http.Request) {
 	uri := r.URL.Path
 	f := hs[uri]
-	if f == nil {
-		return
-	}
 	params := r.URL.Query()
 	r.ParseForm()
 	maps := mergeMaps(mapChange(r.Form, false), mapChange(params, true))
