@@ -5,3 +5,6 @@ var components = map[string]Component{}
 
 // Cache 缓存数据区
 var cache = map[string]any{}
+
+// Config 配置信息
+var config = map[string]any{}
