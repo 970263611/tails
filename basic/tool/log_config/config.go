@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type LogConfig struct {
@@ -19,9 +20,9 @@ type LogConfig struct {
 	//日志保留天数
 	MaxAge int `default:90`
 	//是否需要压缩滚动日志, 使用的 gzip 压缩，缺省为 false。
-	Compress bool `default:"true"`
+	Compress bool `default:true`
 	//日志级别
-	Level log.Level `default:log.InfoLevel`
+	Level string `default:info`
 	//0仅控制台输出 1仅日志文件输出 2控制台和日志文件输出
 	OutType int `default:1`
 }
@@ -42,7 +43,7 @@ func (f *CustomFormatter) Format(entry *log.Entry) ([]byte, error) {
 func (cfg *LogConfig) Init() {
 	log.SetReportCaller(true)
 	log.SetFormatter(&CustomFormatter{})
-	log.SetLevel(cfg.Level)
+	log.SetLevel(logLevel(cfg.Level))
 	logger := &lumberjack.Logger{
 		Filename:   cfg.Filename,
 		MaxSize:    cfg.MaxSize,
@@ -58,4 +59,24 @@ func (cfg *LogConfig) Init() {
 	default:
 		log.SetOutput(io.MultiWriter(logger, os.Stdout))
 	}
+}
+
+func logLevel(level string) (l log.Level) {
+	switch strings.ToUpper(level) {
+	case "PANIC":
+		l = log.PanicLevel
+	case "FATAL":
+		l = log.FatalLevel
+	case "ERROR":
+		l = log.ErrorLevel
+	case "WARN":
+		l = log.WarnLevel
+	case "DEBUG":
+		l = log.DebugLevel
+	case "TRACE":
+		l = log.TraceLevel
+	default:
+		l = log.InfoLevel
+	}
+	return
 }
