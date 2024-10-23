@@ -2,7 +2,12 @@ module basic
 
 go 1.22.1
 
-require gorm.io/driver/postgres v1.5.9
+require (
+	github.com/sirupsen/logrus v1.9.3
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
+	gorm.io/driver/postgres v1.5.9
+	gorm.io/gorm v1.25.10
+)
 
 require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -13,6 +18,6 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	gorm.io/gorm v1.25.10 // indirect
 )
