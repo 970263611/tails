@@ -22,7 +22,7 @@ type DbConfig struct {
 func CreateBaseDbByDbConfig(dbConfig DbConfig) (*BaseDb, error) {
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable search_path=%s TimeZone=Asia/Shanghai",
 		dbConfig.Host, dbConfig.Port, dbConfig.Username, dbConfig.Password, dbConfig.Dbname, dbConfig.SearchPath)
-	return ConnectionByDsn(dsn)
+	return CreateBaseDbByDsn(dsn)
 }
 
 func CreateBaseDbByDsn(dsn string) (*BaseDb, error) {
