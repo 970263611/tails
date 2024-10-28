@@ -3,7 +3,7 @@ package net
 import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 )
@@ -26,7 +26,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	r.ParseForm()
 	maps := mergeMaps(mapChange(r.Form, false), mapChange(params, true))
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Error("Error reading request body", err)
 	}
