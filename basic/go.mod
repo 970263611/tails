@@ -5,6 +5,7 @@ go 1.22.1
 require (
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/sirupsen/logrus v1.9.3
+	golang.org/x/text v0.14.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.10
@@ -22,5 +23,4 @@ require (
 	golang.org/x/crypto v0.17.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
 )
