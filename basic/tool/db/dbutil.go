@@ -16,10 +16,10 @@ type DbConfig struct {
 	Username   string
 	Password   string
 	Dbname     string
-	SearchPath string
+	SearchPath string `default:public`
 }
 
-func CreateBaseDbByDbConfig(dbConfig DbConfig) (*BaseDb, error) {
+func CreateBaseDbByDbConfig(dbConfig *DbConfig) (*BaseDb, error) {
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable search_path=%s TimeZone=Asia/Shanghai",
 		dbConfig.Host, dbConfig.Port, dbConfig.Username, dbConfig.Password, dbConfig.Dbname, dbConfig.SearchPath)
 	return CreateBaseDbByDsn(dsn)
