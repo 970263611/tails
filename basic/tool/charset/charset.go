@@ -15,6 +15,10 @@ const (
 	HZGB2312
 )
 
+/*
+*
+字符集转换
+*/
 func Convert(data []byte, from, to Charset) ([]byte, error) {
 	if from == to {
 		return data, nil

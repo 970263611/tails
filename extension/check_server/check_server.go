@@ -6,8 +6,10 @@ import (
 	"time"
 )
 
-func Register() func(req map[string]any) (resp []byte) {
-	return doHandler
+const name = "check_server"
+
+func Register() (key string, f func(req map[string]any) (resp []byte), metaData any) {
+	return name, doHandler, nil
 }
 
 func doHandler(req map[string]any) (resp []byte) {
