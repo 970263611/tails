@@ -6,7 +6,7 @@ import (
 )
 
 func TestCreateBaseDbByDbConfig(t *testing.T) {
-	dbConfig := DbConfig{"127.0.0.1", 15431, "postgres", "postgres", "postgres", "public"}
+	dbConfig := &DbConfig{"127.0.0.1", 15431, "postgres", "postgres", "postgres", "public"}
 	conn, err := CreateBaseDbByDbConfig(dbConfig)
 	if err != nil {
 		t.Logf("connet error %v", err.Error())
