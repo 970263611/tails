@@ -5,10 +5,10 @@ import (
 	"runtime"
 )
 
-const name = "command_exec"
+const key = "command_exec"
 
 func Register() (key string, f func(req map[string]any) (resp []byte), metaData any) {
-	return name, doHandler, nil
+	return key, doHandler, nil
 }
 
 func doHandler(req map[string]any) (resp []byte) {
