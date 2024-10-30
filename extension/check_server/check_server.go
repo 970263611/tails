@@ -47,7 +47,7 @@ func (c *CheckServer) Do(commands []string) (resp []byte) {
 			i++
 			if i < length {
 				p, err := strconv.Atoi(commands[i])
-				if err != nil || p > 65535 {
+				if err != nil || p > 65535 || p < 0 {
 					return []byte("port is not valid")
 				}
 				port = p
