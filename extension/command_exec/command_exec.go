@@ -1,18 +1,34 @@
 package command_exec
 
 import (
+	"basic"
 	commandtool "basic/tool/command"
+	"math"
 	"runtime"
 )
 
-const key = "command_exec"
+type CommandExec struct{}
 
-func Register() (key string, f func(req map[string]any) (resp []byte), metaData any) {
-	return key, doHandler, nil
+func GetInstance() basic.Component {
+	return &CommandExec{}
 }
 
-func doHandler(req map[string]any) (resp []byte) {
-	commandStr := req["command"].(string)
+func (c CommandExec) GetOrder() int {
+	return math.MaxInt64
+}
+
+func (c CommandExec) Register() *basic.ComponentMeta {
+	meta := &basic.ComponentMeta{
+		Key:       "command_exec",
+		Describe:  "",
+		Component: c,
+	}
+	return meta
+}
+
+func (c CommandExec) Do(commands []string) (resp []byte) {
+	//commandStr := req["command"].(string)
+	commandStr := ""
 	var result string
 	var err error
 	if runtime.GOOS == "windows" {

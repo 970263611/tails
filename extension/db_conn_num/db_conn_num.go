@@ -1,31 +1,39 @@
 package db_conn_num
 
 import (
+	"basic"
 	dbtool "basic/tool/db"
+	"math"
 	"strconv"
 )
 
-const name = "db_conn_num"
+type DbConnNum struct{}
 
-var params_map = map[string]string{
-	"host":     "string",
-	"port":     "int",
-	"username": "string",
-	"password": "string",
-	"dbname":   "string",
+func GetInstance() basic.Component {
+	return &DbConnNum{}
 }
 
-func Register() (key string, f func(req map[string]any) (resp []byte), metaData any) {
-	return name, doHandler, nil
+func (d DbConnNum) GetOrder() int {
+	return math.MaxInt64
 }
 
-func doHandler(req map[string]any) (resp []byte) {
-	host := req["host"].(string)
-	port := req["port"].(int)
-	username := req["username"].(string)
-	password := req["password"].(string)
-	dbname := req["dbname"].(string)
-	dbBase, err := dbtool.CreateBaseDbByDbConfig(&dbtool.DbConfig{Host: host, Port: port, Username: username, Password: password, Dbname: dbname})
+func (d DbConnNum) Register() *basic.ComponentMeta {
+	meta := &basic.ComponentMeta{
+		Key:       "db_conn_num",
+		Describe:  "",
+		Component: d,
+	}
+	return meta
+}
+
+func (d DbConnNum) Do(commands []string) (resp []byte) {
+	//host := req["host"].(string)
+	//port := req["port"].(int)
+	//username := req["username"].(string)
+	//password := req["password"].(string)
+	//dbname := req["dbname"].(string)
+	//dbBase, err := dbtool.CreateBaseDbByDbConfig(&dbtool.DbConfig{Host: host, Port: port, Username: username, Password: password, Dbname: dbname})
+	dbBase, err := dbtool.CreateBaseDbByDbConfig(&dbtool.DbConfig{})
 	if err != nil {
 		return []byte("connect database fail, " + err.Error())
 	}
