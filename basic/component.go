@@ -1,17 +1,20 @@
 package basic
 
-type Key string
-
-type Describe string
-
 type Component interface {
 	GetOrder() int
-	Register() *ComponentMeta
+	Register(gc *Context) *ComponentMeta
 	Do(commands []string) (resp []byte)
 }
 
 type ComponentMeta struct {
-	Key
-	Describe
 	Component
+	Key      string
+	Describe string
+}
+
+func Assemble(list []Component) {
+	for _, v := range list {
+		cm := v.Register(globalContext)
+		globalContext.Components[cm.Key] = cm
+	}
 }

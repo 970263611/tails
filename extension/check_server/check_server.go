@@ -20,7 +20,7 @@ func (c *CheckServer) GetOrder() int {
 	return math.MaxInt64
 }
 
-func (c *CheckServer) Register() *basic.ComponentMeta {
+func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
 	meta := &basic.ComponentMeta{
 		Key:       "check_server",
 		Describe:  "",

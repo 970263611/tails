@@ -17,7 +17,7 @@ func (d DbConnNum) GetOrder() int {
 	return math.MaxInt64
 }
 
-func (d DbConnNum) Register() *basic.ComponentMeta {
+func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 	meta := &basic.ComponentMeta{
 		Key:       "db_conn_num",
 		Describe:  "",

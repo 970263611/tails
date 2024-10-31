@@ -7,9 +7,8 @@ import (
 	"extension/db_conn_num"
 )
 
-var list = make([]basic.Component, 0)
-
 func init() {
+	var list = make([]basic.Component, 0)
 	list = append(list, check_server.GetInstance())
 	list = append(list, command_exec.GetInstance())
 	list = append(list, db_conn_num.GetInstance())
@@ -21,8 +20,5 @@ func init() {
 			}
 		}
 	}
-	for _, v := range list {
-		cm := v.Register()
-		basic.Register(cm.Key, cm)
-	}
+	basic.Assemble(list)
 }

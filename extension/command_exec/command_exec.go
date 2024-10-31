@@ -17,7 +17,7 @@ func (c CommandExec) GetOrder() int {
 	return math.MaxInt64
 }
 
-func (c CommandExec) Register() *basic.ComponentMeta {
+func (c CommandExec) Register(globalContext *basic.Context) *basic.ComponentMeta {
 	meta := &basic.ComponentMeta{
 		Key:       "command_exec",
 		Describe:  "",

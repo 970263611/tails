@@ -6,7 +6,7 @@ import (
 
 func Servlet(key string, commands []string) []byte {
 	log.Info("call component '" + key + "'")
-	c := components[Key(key)]
+	c := globalContext.Components[key]
 	if c == nil {
 		result := "component '" + key + "' not found"
 		log.Error(result)
