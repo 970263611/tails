@@ -3,6 +3,7 @@ package command_exec
 import (
 	"basic"
 	commandtool "basic/tool/command"
+	log "github.com/sirupsen/logrus"
 	"math"
 	"runtime"
 )
@@ -27,8 +28,22 @@ func (c CommandExec) Register(globalContext *basic.Context) *basic.ComponentMeta
 }
 
 func (c CommandExec) Do(commands []string) (resp []byte) {
-	//commandStr := req["command"].(string)
-	commandStr := ""
+	var commandStr string
+	length := len(commands)
+	for i := 0; i < length; i++ {
+		switch commands[i] {
+		case "-c":
+			i++
+			if i < length {
+				commandStr = commands[i]
+			}
+		default:
+			continue
+		}
+	}
+	if commandStr == "" {
+		return []byte("parameter error")
+	}
 	var result string
 	var err error
 	if runtime.GOOS == "windows" {
@@ -37,6 +52,7 @@ func (c CommandExec) Do(commands []string) (resp []byte) {
 		result, err = commandtool.ExecCmdByStr(commandStr)
 	}
 	if err != nil {
+		log.Error("exec command '" + commandStr + "' error, errmsg: " + err.Error())
 		return []byte("command exec error : " + err.Error())
 	}
 	return []byte(result)
