@@ -2,11 +2,11 @@ package check_server
 
 import (
 	"basic"
-	othertool "basic/tool/other"
+	"basic/tool/other"
+	"errors"
 	"fmt"
 	"math"
 	"net"
-	"strconv"
 	"time"
 )
 
@@ -21,50 +21,42 @@ func (c *CheckServer) GetOrder() int {
 }
 
 func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
-	params := []*basic.Parameter{
-		&basic.Parameter{basic.STRING, "-h", "host", true, nil, -1, -1, "", "IP地址"},
-		&basic.Parameter{basic.INT, "-p", "port", true, nil, 0, 65535, "", "端口号"},
+	p1 := basic.Parameter{
+		ParamType:    basic.STRING,
+		CommandName:  "-h",
+		StandardName: "host",
+		Required:     true,
+		CheckMethod: func(s string) error {
+			if !othertool.CheckIp(s) {
+				errors.New("port is not valid")
+			}
+			return nil
+		},
+		Describe: "",
 	}
-	meta := &basic.ComponentMeta{
+	p2 := basic.Parameter{
+		ParamType:    basic.INT,
+		CommandName:  "-p",
+		StandardName: "host",
+		Required:     true,
+		CheckMethod: func(s string) error {
+			if !othertool.CheckPortByString(s) {
+				errors.New("port is not valid")
+			}
+			return nil
+		},
+		Describe: "",
+	}
+	return &basic.ComponentMeta{
 		Key:       "check_server",
 		Describe:  "",
-		Params:    params,
+		Params:    []basic.Parameter{p1, p2},
 		Component: c,
 	}
-	return meta
 }
 
-func (c *CheckServer) Do(commands []string) (resp []byte) {
-	var host string
-	var port = -1
-	length := len(commands)
-	for i := 0; i < length; i++ {
-		switch commands[i] {
-		case "-h":
-			i++
-			if i < length {
-				host = commands[i]
-				if !othertool.IsValidIP(host) {
-					return []byte("ip is not valid")
-				}
-			}
-		case "-p":
-			i++
-			if i < length {
-				p, err := strconv.Atoi(commands[i])
-				if err != nil || p > 65535 || p < 0 {
-					return []byte("port is not valid")
-				}
-				port = p
-			}
-		default:
-			continue
-		}
-	}
-	if len(host) == 0 || port < 0 {
-		return []byte("parameter error")
-	}
-	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", host, port), 3*time.Second)
+func (c *CheckServer) Do(params map[string]any) (resp []byte) {
+	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", params["host"].(string), params["port"].(int)), 3*time.Second)
 	if err != nil {
 		return []byte("disconnected")
 	}
