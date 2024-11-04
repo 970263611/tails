@@ -41,6 +41,9 @@ func (f *CustomFormatter) Format(entry *log.Entry) ([]byte, error) {
 }
 
 func (cfg *LogConfig) Init() {
+	if cfg.Filename == "" {
+		cfg.Filename = "./logs/all.log"
+	}
 	log.SetReportCaller(true)
 	log.SetFormatter(&CustomFormatter{})
 	log.SetLevel(logLevel(cfg.Level))

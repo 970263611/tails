@@ -6,9 +6,8 @@ import (
 )
 
 func TestDoHandler(t *testing.T) {
-	params := map[string]any{
-		"command": "dir",
-	}
-	resp := doHandler(params)
-	fmt.Println(string(resp))
+	params := []string{"-c", "dir C:\\Windows"}
+	ins := GetInstance()
+	bytes := ins.Do(params)
+	fmt.Println(string(bytes))
 }

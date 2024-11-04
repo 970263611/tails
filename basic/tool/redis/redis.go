@@ -29,9 +29,9 @@ func CreateRedisClient(addr, password string, db int) *RedisClient {
 */
 func CreateRedisClientByOptions(opt *redis.Options) *RedisClient {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Addr:     opt.Addr,
+		Password: opt.Password, // no password set
+		DB:       opt.DB,       // use default DB
 	})
 	return &RedisClient{rdb, context.Background()}
 }

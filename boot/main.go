@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	config := log_config.LogConfig{OutType: 0}
+	config := log_config.LogConfig{OutType: 1}
 	config.Init()
 }
 

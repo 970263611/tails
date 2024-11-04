@@ -21,9 +21,14 @@ func (c *CheckServer) GetOrder() int {
 }
 
 func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
+	params := []*basic.Parameter{
+		&basic.Parameter{basic.STRING, "-h", "host", true, nil, -1, -1, "", "IP地址"},
+		&basic.Parameter{basic.INT, "-p", "port", true, nil, 0, 65535, "", "端口号"},
+	}
 	meta := &basic.ComponentMeta{
 		Key:       "check_server",
 		Describe:  "",
+		Params:    params,
 		Component: c,
 	}
 	return meta
