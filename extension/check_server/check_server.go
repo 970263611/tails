@@ -32,7 +32,7 @@ func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMet
 			}
 			return nil
 		},
-		Describe: "",
+		Describe: "服务的ip地址",
 	}
 	p2 := basic.Parameter{
 		ParamType:    basic.INT,
@@ -49,7 +49,7 @@ func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMet
 	}
 	return &basic.ComponentMeta{
 		Key:       "check_server",
-		Describe:  "",
+		Describe:  "服务的端口",
 		Params:    []basic.Parameter{p1, p2},
 		Component: c,
 	}

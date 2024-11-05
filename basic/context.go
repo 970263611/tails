@@ -11,3 +11,26 @@ var globalContext = &Context{
 	Cache:      make(map[string]any),
 	Config:     make(map[string]any),
 }
+
+/*
+*
+调用Register方法
+*/
+func Assemble(list []Component) {
+	for _, v := range list {
+		cm := v.Register(globalContext)
+		globalContext.Components[cm.Key] = cm
+	}
+}
+
+func FindParameterType(componentKey string, commandName string) ParamType {
+	componentMeta, ok := globalContext.Components[componentKey]
+	if ok {
+		for _, value := range componentMeta.Params {
+			if value.CommandName == commandName {
+				return value.ParamType
+			}
+		}
+	}
+	return -1
+}
