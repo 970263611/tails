@@ -34,3 +34,11 @@ func FindParameterType(componentKey string, commandName string) ParamType {
 	}
 	return -1
 }
+
+/*
+*
+方法帮助
+*/
+func Help(key string) []byte {
+	return nil
+}

@@ -10,21 +10,25 @@ import (
 	"strings"
 )
 
-type LogConfig struct {
+type logConfig struct {
 	//文件路径，精确到文件名,文件路径所涉及文件夹需提前创建 例:/home/tails/logs/all.log
 	Filename string
 	//单个日志文件大小单位MB
-	MaxSize int `default:50`
+	MaxSize int
 	//已过期文件最多保留数量
-	MaxBackups int `default:10`
+	MaxBackups int
 	//日志保留天数
-	MaxAge int `default:90`
+	MaxAge int
 	//是否需要压缩滚动日志, 使用的 gzip 压缩，缺省为 false。
-	Compress bool `default:true`
+	Compress bool
 	//日志级别
-	Level string `default:info`
+	Level string
 	//0仅控制台输出 1仅日志文件输出 2控制台和日志文件输出
-	OutType int `default:1`
+	OutType int
+}
+
+func NewLogConfig() *logConfig {
+	return &logConfig{"", 50, 10, 90, true, "info", 1}
 }
 
 /*
@@ -40,7 +44,7 @@ func (f *CustomFormatter) Format(entry *log.Entry) ([]byte, error) {
 	return []byte(fmt.Sprintf("[%s] [%s] [%s:%d %s] %s\n", timestamp, entry.Level, fName, entry.Caller.Line, entry.Caller.Function, entry.Message)), nil
 }
 
-func (cfg *LogConfig) Init() {
+func (cfg *logConfig) Init() {
 	if cfg.Filename == "" {
 		cfg.Filename = "./logs/all.log"
 	}

@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+	REGEX_IP            = "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+	REGEX_DASE_AND_WORD = "^-\\p{L}+"
 )
 
 /*
@@ -31,7 +32,7 @@ func RangeValidate(val, min, max int) bool {
 }
 
 func CheckIp(ip string) bool {
-	return RegularValidate(ip, IP_REGEX)
+	return RegularValidate(ip, REGEX_IP)
 }
 
 func CheckPortByString(port string) bool {

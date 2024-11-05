@@ -2,14 +2,16 @@ package main
 
 import (
 	"basic"
+	"basic/log_config"
 	_ "basic/onload"
-	"basic/tool/log_config"
 	"fmt"
 	"os"
 )
 
 func init() {
-	config := log_config.LogConfig{OutType: 1}
+	//初始化日志配置
+	config := log_config.NewLogConfig()
+	config.OutType = 0
 	config.Init()
 }
 
