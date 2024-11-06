@@ -44,7 +44,7 @@ func (f *CustomFormatter) Format(entry *log.Entry) ([]byte, error) {
 	return []byte(fmt.Sprintf("[%s] [%s] [%s:%d %s] %s\n", timestamp, entry.Level, fName, entry.Caller.Line, entry.Caller.Function, entry.Message)), nil
 }
 
-func (cfg *logConfig) Init() {
+func Init(cfg *logConfig) {
 	if cfg.Filename == "" {
 		cfg.Filename = "./logs/all.log"
 	}
