@@ -3,6 +3,7 @@ package basic
 import (
 	othertool "basic/tool/other"
 	"errors"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -14,35 +15,73 @@ func Servlet(commands []string, isSystem bool) []byte {
 	//解析命令行为map
 	maps, err := commandsToMap(commands)
 	if err != nil {
-		log.Errorf("commandToMap error : %v", err)
+		msg := fmt.Sprintf("入参解析失败 ： %v", err)
+		log.Error(msg)
 		return []byte(err.Error())
 	}
-	//如果存在--help，则该参数优先级最高
-	helpKey, ok := maps["--help"]
-	if ok {
-		return Help(helpKey)
+	bytes, flag := systemParamExec(maps)
+	if flag {
+		return bytes
 	}
 	key, ok := maps["componentKey"]
 	if !ok {
-		log.Errorf("missing component name : %v", key)
-		return []byte("missing component name")
+		msg := "入参未指定组件名称"
+		log.Error(msg)
+		return []byte(msg)
 	}
-	log.Info("call component '" + key + "'")
 	//找到对应组件
 	c, ok := globalContext.Components[key]
 	if !ok {
-		result := "component '" + key + "' not found"
-		log.Error(result)
-		return []byte(result)
+		msg := fmt.Sprintf("组件 %v 不存在", key)
+		log.Error(msg)
+		return []byte(msg)
 	}
 	//参数验证
 	params, err := c.Check(maps)
 	if err != nil {
-		log.Errorf("param check error : %v", err)
-		return []byte(err.Error())
+		msg := fmt.Sprintf("参数验证失败 : %v", err)
+		log.Error(msg)
+		return []byte(msg)
 	}
 	//组件功能执行
 	return c.Do(params)
+}
+
+/*
+*
+系统参数列表
+*/
+var systemParam = []Parameter{
+	Parameter{
+		ParamType:    NO_VALUE,
+		CommandName:  "--help",
+		StandardName: "",
+		Required:     false,
+		Describe:     "帮助",
+	},
+	Parameter{
+		ParamType:    STRING,
+		CommandName:  "--path",
+		StandardName: "",
+		Required:     false,
+		CheckMethod: func(s string) error {
+			if s == "" {
+				return errors.New("配置文件路径为空")
+			}
+			if !othertool.FileExists(s) {
+				msg := "配置文件不存在"
+				log.Error(msg)
+				return errors.New(msg)
+			}
+			if !othertool.IsFileReadable(s) {
+				msg := "配置文件不可读"
+				log.Error(msg)
+				return errors.New(msg)
+			}
+			return nil
+		},
+		Describe: "帮助",
+	},
 }
 
 /*
@@ -74,8 +113,14 @@ func commandsToMap(commands []string) (map[string]string, error) {
 	//入参解析
 	for i := 0; i < len(params); i++ {
 		str := params[i]
-		//参数必定以-开头，后面跟若干字母
-		if othertool.RegularValidate(str, othertool.REGEX_DASE_AND_WORD) {
+		//系统参数必定以--开头，后面跟若干字母
+		if othertool.RegularValidate(str, othertool.REGEX_2DASE_AND_WORD) {
+			if FindParameterType(componentKey, str) != NO_VALUE {
+				i++
+				maps[str] = params[i]
+			}
+			//组件参数必定以-开头，后面跟若干字母
+		} else if othertool.RegularValidate(str, othertool.REGEX_DASE_AND_WORD) {
 			p := str[1:]
 			//只有单一参数才能跟值
 			if len(p) == 1 {
@@ -89,7 +134,7 @@ func commandsToMap(commands []string) (map[string]string, error) {
 				}
 			}
 		} else {
-			return nil, errors.New("params error")
+			return nil, errors.New("参数错误")
 		}
 	}
 	return maps, nil
@@ -107,21 +152,41 @@ func Assemble(list []Component) {
 }
 
 func FindParameterType(componentKey string, commandName string) ParamType {
-	componentMeta, ok := globalContext.Components[componentKey]
-	if ok {
-		for _, value := range componentMeta.Params {
+	if componentKey == "" {
+		for _, value := range systemParam {
 			if value.CommandName == commandName {
 				return value.ParamType
+			}
+		}
+	} else {
+		componentMeta, ok := globalContext.Components[componentKey]
+		if ok {
+			for _, value := range componentMeta.Params {
+				if value.CommandName == commandName {
+					return value.ParamType
+				}
 			}
 		}
 	}
 	return -1
 }
 
+func systemParamExec(maps map[string]string) ([]byte, bool) {
+	val, ok := maps["--help"]
+	if ok {
+		return Help(val)
+	}
+	val, ok = maps["--path"]
+	if ok {
+		return LoadConfig(val)
+	}
+	return nil, false
+}
+
 /*
 *
 方法帮助
 */
-func Help(key string) []byte {
-	return nil
+func Help(key string) ([]byte, bool) {
+	return nil, true
 }

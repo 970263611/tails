@@ -28,7 +28,7 @@ func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMet
 		Required:     true,
 		CheckMethod: func(s string) error {
 			if !othertool.CheckIp(s) {
-				errors.New("port is not valid")
+				return errors.New("IP不合法")
 			}
 			return nil
 		},
@@ -37,11 +37,11 @@ func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMet
 	p2 := basic.Parameter{
 		ParamType:    basic.INT,
 		CommandName:  "-p",
-		StandardName: "host",
+		StandardName: "port",
 		Required:     true,
 		CheckMethod: func(s string) error {
 			if !othertool.CheckPortByString(s) {
-				errors.New("port is not valid")
+				return errors.New("端口不合法")
 			}
 			return nil
 		},
@@ -59,8 +59,8 @@ func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMet
 func (c *CheckServer) Do(params map[string]any) (resp []byte) {
 	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", params["host"].(string), params["port"].(int)), 3*time.Second)
 	if err != nil {
-		return []byte("disconnected")
+		return []byte("服务不存在")
 	}
 	defer conn.Close()
-	return []byte("connected")
+	return []byte("服务连接成功")
 }

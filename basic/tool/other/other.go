@@ -2,13 +2,15 @@ package othertool
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strconv"
 )
 
 const (
-	REGEX_IP            = "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
-	REGEX_DASE_AND_WORD = "^-\\p{L}+"
+	REGEX_IP             = "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+	REGEX_DASE_AND_WORD  = "^-\\p{L}+"
+	REGEX_2DASE_AND_WORD = "^--[a-zA-Z]+"
 )
 
 /*
@@ -45,4 +47,21 @@ func CheckPortByString(port string) bool {
 
 func CheckPort(port int) bool {
 	return RangeValidate(port, 0, 65535)
+}
+
+func FileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+func IsFileReadable(filename string) bool {
+	file, err := os.Open(filename)
+	if err != nil {
+		return false
+	}
+	defer file.Close()
+	return true
 }

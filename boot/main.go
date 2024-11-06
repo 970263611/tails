@@ -5,7 +5,6 @@ import (
 	"basic/log_config"
 	_ "basic/onload"
 	"fmt"
-	"os"
 )
 
 func init() {
@@ -16,7 +15,8 @@ func init() {
 }
 
 func main() {
-	args := os.Args
+	//args := os.Args
+	args := []string{"main.go", "check_server", "-h", "127.0.0.1", "-p", "154431", "--path", "config.yml"}
 	//调用component，并打印
 	bytes := basic.Servlet(args, false)
 	fmt.Println(string(bytes))

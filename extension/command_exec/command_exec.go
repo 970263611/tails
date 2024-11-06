@@ -52,7 +52,7 @@ func (c CommandExec) Do(params map[string]any) (resp []byte) {
 	}
 	if err != nil {
 		log.Error("exec command '" + commandStr + "' error, errmsg: " + err.Error())
-		return []byte("command exec error : " + err.Error())
+		return []byte("命令行执行失败 : " + err.Error())
 	}
 	return []byte(result)
 }

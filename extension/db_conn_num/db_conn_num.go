@@ -27,7 +27,7 @@ func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 		Required:     true,
 		CheckMethod: func(s string) error {
 			if !othertool.CheckIp(s) {
-				errors.New("ip is not valid")
+				return errors.New("ip is not valid")
 			}
 			return nil
 		},
@@ -36,11 +36,11 @@ func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 	p2 := basic.Parameter{
 		ParamType:    basic.INT,
 		CommandName:  "-p",
-		StandardName: "host",
+		StandardName: "port",
 		Required:     true,
 		CheckMethod: func(s string) error {
 			if !othertool.CheckPortByString(s) {
-				errors.New("port is not valid")
+				return errors.New("port is not valid")
 			}
 			return nil
 		},
@@ -55,15 +55,15 @@ func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 	}
 	p4 := basic.Parameter{
 		ParamType:    basic.STRING,
-		CommandName:  "-u",
-		StandardName: "username",
+		CommandName:  "-P",
+		StandardName: "password",
 		Required:     true,
 		Describe:     "",
 	}
 	p5 := basic.Parameter{
 		ParamType:    basic.STRING,
-		CommandName:  "-w",
-		StandardName: "password",
+		CommandName:  "-d",
+		StandardName: "dbname",
 		Required:     true,
 		Describe:     "",
 	}
