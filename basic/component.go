@@ -1,8 +1,15 @@
 package basic
 
+type ComponentType int
+
+const (
+	EXECUTE ComponentType = iota
+	SYSTEM
+)
+
 type Component interface {
 	GetOrder() int
-	Register(gc *Context) *ComponentMeta
+	Register(c *Context) *ComponentMeta
 	Do(param map[string]any) (resp []byte)
 }
 
@@ -11,6 +18,7 @@ type Component interface {
 组件
 */
 type ComponentMeta struct {
+	ComponentType
 	Component
 	Key      string
 	Describe string

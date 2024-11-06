@@ -48,10 +48,11 @@ func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMet
 		Describe: "",
 	}
 	return &basic.ComponentMeta{
-		Key:       "check_server",
-		Describe:  "服务的端口",
-		Params:    []basic.Parameter{p1, p2},
-		Component: c,
+		ComponentType: basic.EXECUTE,
+		Key:           "check_server",
+		Describe:      "服务的端口",
+		Params:        []basic.Parameter{p1, p2},
+		Component:     c,
 	}
 }
 

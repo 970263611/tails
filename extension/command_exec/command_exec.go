@@ -28,10 +28,11 @@ func (c CommandExec) Register(globalContext *basic.Context) *basic.ComponentMeta
 		Describe:     "",
 	}
 	return &basic.ComponentMeta{
-		Key:       "command_exec",
-		Describe:  "",
-		Component: c,
-		Params:    []basic.Parameter{p1},
+		ComponentType: basic.EXECUTE,
+		Key:           "command_exec",
+		Describe:      "",
+		Component:     c,
+		Params:        []basic.Parameter{p1},
 	}
 }
 
