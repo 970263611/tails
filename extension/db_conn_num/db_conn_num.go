@@ -75,10 +75,11 @@ func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 		Describe:     "",
 	}
 	return &basic.ComponentMeta{
-		Key:       "db_conn_num",
-		Describe:  "",
-		Component: d,
-		Params:    []basic.Parameter{p1, p2, p3, p4, p5, p6},
+		ComponentType: basic.EXECUTE,
+		Key:           "db_conn_num",
+		Describe:      "",
+		Component:     d,
+		Params:        []basic.Parameter{p1, p2, p3, p4, p5, p6},
 	}
 }
 

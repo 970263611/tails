@@ -10,7 +10,7 @@ import (
 *
 组件分发
 */
-func Servlet(commands []string) []byte {
+func Servlet(commands []string, isSystem bool) []byte {
 	//解析命令行为map
 	maps, err := commandsToMap(commands)
 	if err != nil {
@@ -93,4 +93,35 @@ func commandsToMap(commands []string) (map[string]string, error) {
 		}
 	}
 	return maps, nil
+}
+
+/*
+*
+调用Register方法
+*/
+func Assemble(list []Component) {
+	for _, v := range list {
+		cm := v.Register(globalContext)
+		globalContext.Components[cm.Key] = cm
+	}
+}
+
+func FindParameterType(componentKey string, commandName string) ParamType {
+	componentMeta, ok := globalContext.Components[componentKey]
+	if ok {
+		for _, value := range componentMeta.Params {
+			if value.CommandName == commandName {
+				return value.ParamType
+			}
+		}
+	}
+	return -1
+}
+
+/*
+*
+方法帮助
+*/
+func Help(key string) []byte {
+	return nil
 }
