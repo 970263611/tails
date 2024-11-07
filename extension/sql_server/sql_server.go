@@ -4,6 +4,7 @@ import (
 	"basic"
 	"basic/tool/db"
 	othertool "basic/tool/other"
+	"bufio"
 	"bytes"
 	"database/sql"
 	"errors"
@@ -12,6 +13,7 @@ import (
 	"io/ioutil"
 	"math"
 	"os"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 )
@@ -43,7 +45,7 @@ func (r *SqlServer) Register(globalContext *basic.Context) *basic.ComponentMeta 
 	p2 := basic.Parameter{
 		ParamType:    basic.INT,
 		CommandName:  "-p",
-		StandardName: "host",
+		StandardName: "port",
 		Required:     true,
 		CheckMethod: func(s string) error {
 			if !othertool.CheckPortByString(s) {
@@ -134,11 +136,35 @@ func (r *SqlServer) Do(params map[string]any) (resp []byte) {
 		if err != nil {
 			return []byte("execute sqlFile fail, " + err.Error())
 		}
+		return nil
+	}
+	//未指定sql或者sql文件,进入交互
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		// 读取用户输入
+		fmt.Print("> ")
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			log.Fatalf("Failed to read input: %v", err)
+		}
+		// 去除输入字符串两侧的空白字符
+		input = strings.TrimSpace(input)
+		// 检查是否输入了退出命令
+		if input == "exit" || input == "q" {
+			fmt.Println("Exiting...")
+			break
+		}
+		execSql, err := ExecSql(input, dbBase)
+		if err != nil {
+			log.Println("sql执行失败:" + err.Error())
+		}
+		fmt.Println(execSql)
 	}
 	return nil
 }
 
 func ExecSql(sqlStr string, db *dbtool.BaseDb) (string, error) {
+
 	switch {
 	case strings.HasPrefix(strings.ToUpper(sqlStr), "SELECT"):
 		rows, err := db.Raw(sqlStr).Rows()
@@ -157,10 +183,11 @@ func ExecSql(sqlStr string, db *dbtool.BaseDb) (string, error) {
 		result := db.Exec(sqlStr)
 		if err = result.Error; err != nil {
 			log.Println("sql执行失败:" + err.Error())
-		} else {
-			rowsAffected = result.RowsAffected
-			log.Printf("Exec Success!,%d rows affected by the operation", rowsAffected)
+			return "", err
 		}
+		rowsAffected = result.RowsAffected
+		log.Printf("Exec Success!,%d rows affected by the operation", rowsAffected)
+		return strconv.FormatInt(rowsAffected, 10), nil
 	}
 	return "", nil
 }

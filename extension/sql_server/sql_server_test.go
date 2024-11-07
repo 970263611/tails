@@ -14,7 +14,7 @@ func TestDoHandler(t *testing.T) {
 		"password":   "postgre",
 		"dbname":     "postgres",
 		"searchPath": "public",
-		"sql":        "select * from test",
+		"sql":        "SELECT * FROM test",
 	}
 	instance := GetInstance()
 	resp := instance.Do(params)
