@@ -24,8 +24,12 @@ func TestDo(t *testing.T) {
 	//params["zset_score"] = "Chinese"
 
 	//hash
-	params["key"] = "hash"
-	params["hash_get"] = "name"
+	//params["key"] = "hash"
+	//params["hash_get"] = "name"
+
+	//set
+	params["key"] = "set"
+	params["set_is"] = " "
 
 	ins := GetInstance()
 	bytes := ins.Do(params)
