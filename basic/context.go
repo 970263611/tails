@@ -31,3 +31,15 @@ func (c *Context) Unmarshal(a any) error {
 	}
 	return nil
 }
+
+func FindComponent(key string, isSystem bool) *ComponentMeta {
+	c, ok := globalContext.Components[key]
+	if ok {
+		if !isSystem && c.ComponentType == EXECUTE {
+			return c
+		} else {
+			return c
+		}
+	}
+	return nil
+}

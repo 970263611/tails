@@ -30,8 +30,8 @@ func Servlet(commands []string, isSystem bool) []byte {
 		return []byte(msg)
 	}
 	//找到对应组件
-	c, ok := globalContext.Components[key]
-	if !ok {
+	c := FindComponent(key, isSystem)
+	if c == nil {
 		msg := fmt.Sprintf("组件 %v 不存在", key)
 		log.Error(msg)
 		return []byte(msg)
