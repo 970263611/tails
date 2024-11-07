@@ -12,12 +12,16 @@ func TestDo(t *testing.T) {
 	params["port"] = 6379
 	params["password"] = ""
 	params["db"] = 0
+
+	//key数量
+	//params["db_size"] = ""
+
 	//string
 	//params["key"] = "test"
 
 	//list
 	//params["key"] = "list"
-	//params["list_index"] = 2
+	params["list_index"] = 2
 
 	//zset
 	//params["key"] = "zset"
@@ -28,8 +32,8 @@ func TestDo(t *testing.T) {
 	//params["hash_get"] = "name"
 
 	//set
-	params["key"] = "set"
-	params["set_is"] = " "
+	//params["key"] = "set"
+	//params["set_is"] = " "
 
 	ins := GetInstance()
 	bytes := ins.Do(params)
