@@ -8,7 +8,7 @@ import (
 	"extension/sql_server"
 )
 
-func init() {
+func Init() {
 	var list = make([]basic.Component, 0)
 	list = append(list, check_server.GetInstance())
 	list = append(list, command_exec.GetInstance())
