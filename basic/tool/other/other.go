@@ -65,3 +65,19 @@ func IsFileReadable(filename string) bool {
 	defer file.Close()
 	return true
 }
+
+func SplitByChinese(s string, length int) []string {
+	var result []string
+	var current string
+	for _, r := range s {
+		if len(current)+len(string(r)) > length {
+			result = append(result, current)
+			current = ""
+		}
+		current += string(r)
+	}
+	if current != "" {
+		result = append(result, current)
+	}
+	return result
+}

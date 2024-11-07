@@ -50,7 +50,7 @@ func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMet
 	return &basic.ComponentMeta{
 		ComponentType: basic.EXECUTE,
 		Key:           "check_server",
-		Describe:      "服务的端口",
+		Describe:      "通过ip地址和端口，判断应用服务是否正常",
 		Params:        []basic.Parameter{p1, p2},
 		Component:     c,
 	}

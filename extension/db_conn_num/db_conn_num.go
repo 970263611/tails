@@ -77,7 +77,7 @@ func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 	return &basic.ComponentMeta{
 		ComponentType: basic.EXECUTE,
 		Key:           "db_conn_num",
-		Describe:      "",
+		Describe:      "数据库连接数查询",
 		Component:     d,
 		Params:        []basic.Parameter{p1, p2, p3, p4, p5, p6},
 	}

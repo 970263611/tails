@@ -103,12 +103,7 @@ func commandsToMap(commands []string) (map[string]string, error) {
 	//第3个到最后一个参数为 component入参，少于3个参数肯定就是没入参,只有大于等于三个参数，才存在入参
 	var params []string
 	if len(commands) > 2 {
-		params = commands[2:len(commands)]
-	}
-	//如果有--help则直接返回帮助
-	if commands[0] == "--help" {
-		maps["--help"] = componentKey
-		return maps, nil
+		params = commands[2:]
 	}
 	//入参解析
 	for i := 0; i < len(params); i++ {
@@ -118,6 +113,8 @@ func commandsToMap(commands []string) (map[string]string, error) {
 			if FindParameterType(componentKey, str) != NO_VALUE {
 				i++
 				maps[str] = params[i]
+			} else {
+				maps[str] = componentKey
 			}
 			//组件参数必定以-开头，后面跟若干字母
 		} else if othertool.RegularValidate(str, othertool.REGEX_DASE_AND_WORD) {
@@ -152,13 +149,12 @@ func Assemble(list []Component) {
 }
 
 func FindParameterType(componentKey string, commandName string) ParamType {
-	if componentKey == "" {
-		for _, value := range systemParam {
-			if value.CommandName == commandName {
-				return value.ParamType
-			}
+	for _, value := range systemParam {
+		if value.CommandName == commandName {
+			return value.ParamType
 		}
-	} else {
+	}
+	if componentKey != "" {
 		componentMeta, ok := globalContext.Components[componentKey]
 		if ok {
 			for _, value := range componentMeta.Params {
@@ -168,6 +164,7 @@ func FindParameterType(componentKey string, commandName string) ParamType {
 			}
 		}
 	}
+
 	return -1
 }
 
@@ -188,5 +185,42 @@ func systemParamExec(maps map[string]string) ([]byte, bool) {
 方法帮助
 */
 func Help(key string) ([]byte, bool) {
-	return nil, true
+	linewordnum := 100
+	var msg string
+	if key == "base" {
+		//./root 组件名 组件参数列表
+		components := globalContext.Components
+		msg = "命令格式:\r\n"
+		msg += "  组件调用: ./root compoment_key -params\r\n"
+		msg += "  组件帮助: ./root compoment_key --help\r\n"
+		msg += "组件列表:"
+		for _, component := range components {
+			msg += "\r\n"
+			msg += "  " + component.Key + "\r\n"
+			chinese := othertool.SplitByChinese(component.Describe, linewordnum)
+			for i := 0; i < len(chinese); i++ {
+				if i == 0 {
+					msg += "      " + chinese[i] + "\r\n"
+				} else {
+					msg += "    " + chinese[i] + "\r\n"
+				}
+			}
+		}
+	} else {
+		components := FindComponent(key, false)
+		if components == nil {
+			msg = fmt.Sprintf("组件 %v 不存在，'./root --hlep' 查看组件列表", key)
+		} else {
+			params := components.Params
+			msg = fmt.Sprintf("%v 参入如下:", key)
+			if params != nil {
+				for _, value := range components.Params {
+					msg += "\r\n"
+					msg += "  " + value.CommandName + "\r\n"
+					msg += "    " + value.Describe
+				}
+			}
+		}
+	}
+	return []byte(msg), true
 }

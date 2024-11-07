@@ -30,7 +30,7 @@ func (c CommandExec) Register(globalContext *basic.Context) *basic.ComponentMeta
 	return &basic.ComponentMeta{
 		ComponentType: basic.EXECUTE,
 		Key:           "command_exec",
-		Describe:      "",
+		Describe:      "执行系统命令或者调用系统脚本",
 		Component:     c,
 		Params:        []basic.Parameter{p1},
 	}
