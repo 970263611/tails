@@ -40,3 +40,15 @@ func (c ComponentMeta) Check(commands map[string]string) (map[string]interface{}
 	}
 	return params, nil
 }
+
+func (c *ComponentMeta) AddParameters(paramType ParamType, commandName string, standardName string, required bool, method func(s string) error, describe string) {
+	p := Parameter{
+		ParamType:    paramType,
+		CommandName:  commandName,
+		StandardName: standardName,
+		Required:     required,
+		CheckMethod:  method,
+		Describe:     describe,
+	}
+	c.Params = append(c.Params, p)
+}
