@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"os"
 )
 
 func init() {
@@ -19,8 +20,8 @@ func init() {
 }
 
 func main() {
-	//args := os.Args
-	args := []string{"main.go", "check_server", "--help"}
+	args := os.Args
+	//args := []string{"main.go", "check_server", "--help"}
 	//解析命令行为map
 	maps, err := commandsToMap(args)
 	if err != nil {
