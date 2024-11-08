@@ -28,7 +28,7 @@ func (r *RedisServer) Register(globalContext *basic.Context) *basic.ComponentMet
 		Required:     true,
 		CheckMethod: func(s string) error {
 			if !othertool.CheckIp(s) {
-				errors.New("port is not valid")
+				return errors.New("IP不合法")
 			}
 			return nil
 		},
@@ -41,7 +41,7 @@ func (r *RedisServer) Register(globalContext *basic.Context) *basic.ComponentMet
 		Required:     true,
 		CheckMethod: func(s string) error {
 			if !othertool.CheckPortByString(s) {
-				errors.New("port is not valid")
+				return errors.New("端口不合法")
 			}
 			return nil
 		},
@@ -52,26 +52,14 @@ func (r *RedisServer) Register(globalContext *basic.Context) *basic.ComponentMet
 		CommandName:  "-w",
 		StandardName: "password",
 		Required:     false,
-		CheckMethod: func(s string) error {
-			if !othertool.CheckPortByString(s) {
-				errors.New("port is not valid")
-			}
-			return nil
-		},
-		Describe: "redis密码",
+		Describe:     "redis密码",
 	}
 	p4 := basic.Parameter{
 		ParamType:    basic.INT,
 		CommandName:  "-d",
 		StandardName: "db",
 		Required:     false,
-		CheckMethod: func(s string) error {
-			if !othertool.CheckPortByString(s) {
-				errors.New("db is not valid")
-			}
-			return nil
-		},
-		Describe: "redis库号",
+		Describe:     "redis库号",
 	}
 	p5 := basic.Parameter{
 		ParamType:    basic.STRING,
@@ -82,35 +70,35 @@ func (r *RedisServer) Register(globalContext *basic.Context) *basic.ComponentMet
 	}
 	p6 := basic.Parameter{
 		ParamType:    basic.STRING,
-		CommandName:  "-zs",
+		CommandName:  "-Z",
 		StandardName: "zset_score",
 		Required:     false,
 		Describe:     "ZScore():获取某元素的score",
 	}
 	p7 := basic.Parameter{
 		ParamType:    basic.INT,
-		CommandName:  "-li",
+		CommandName:  "-L",
 		StandardName: "list_index",
-		Required:     true,
+		Required:     false,
 		Describe:     "LIndex():获取链表下标对应的元素",
 	}
 	p8 := basic.Parameter{
 		ParamType:    basic.STRING,
-		CommandName:  "-hg",
+		CommandName:  "-H",
 		StandardName: "hash_get",
 		Required:     false,
 		Describe:     "HGet():获取某个元素",
 	}
 	p9 := basic.Parameter{
 		ParamType:    basic.STRING,
-		CommandName:  "-si",
+		CommandName:  "-S",
 		StandardName: "set_is",
 		Required:     false,
 		Describe:     "SIsMember():判断元素是否在集合中",
 	}
 	p10 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-ds",
+		ParamType:    basic.NO_VALUE,
+		CommandName:  "-D",
 		StandardName: "db_size",
 		Required:     false,
 		Describe:     "DBSize():查看当前数据库key的数量",
@@ -118,7 +106,7 @@ func (r *RedisServer) Register(globalContext *basic.Context) *basic.ComponentMet
 
 	return &basic.ComponentMeta{
 		Key:       "redis_server",
-		Describe:  "redis连接服务",
+		Describe:  "执行redis服务相关查询",
 		Params:    []basic.Parameter{p1, p2, p3, p4, p5, p6, p7, p8, p9, p10},
 		Component: r,
 	}
@@ -129,16 +117,23 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 	hostStr := params["host"].(string)
 	poststr := strconv.Itoa(params["port"].(int))
 	addrstr := hostStr + ":" + poststr
-	passwordStr := params["password"].(string)
-	dbStr := params["db"].(int)
-	client := redistool.CreateRedisClient(addrstr, passwordStr, dbStr)
+	passwordStr, flag := params["password"].(string)
+	if !flag {
+		passwordStr = ""
+	}
+	dbStr, true := params["db"].(int)
+	if !true {
+		dbStr = 0
+	}
+	var client *redistool.RedisClient
+	client = redistool.CreateRedisClient(addrstr, passwordStr, dbStr)
 
 	//查看当前数据库key的数量
-	_, ok := params["db_size"].(string)
+	_, ok := params["db_size"]
 	if ok {
 		vel, err := client.DBSize(client.Context).Result()
 		if err != nil {
-			return []byte("-ds参数解析失败")
+			return []byte("-D参数解析结果为空")
 		}
 		return []byte(strconv.FormatInt(vel, 10))
 	}
@@ -146,7 +141,7 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 	//获取key值
 	keyStr, _ := params["key"].(string)
 	if len(keyStr) == 0 {
-		return []byte("-k参数解析失败")
+		return []byte("-k参数解析结果为空")
 	}
 
 	//获取值类型
@@ -164,7 +159,7 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		if list_indexStr > 0 {
 			vel, err := client.LIndex(client.Context, keyStr, int64(list_indexStr)).Result()
 			if err != nil {
-				return []byte("-li参数解析失败,key值为：" + keyStr)
+				return []byte("-L参数解析结果为空,key值为：" + keyStr)
 			}
 			return []byte(vel)
 		}
@@ -188,7 +183,7 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		if len(set_isStr) > 0 {
 			vel, err := client.SIsMember(client.Context, keyStr, set_isStr).Result()
 			if err != nil {
-				return []byte("-si参数解析失败,key值为：" + keyStr)
+				return []byte("-S参数解析结果为空,key值为：" + keyStr)
 			}
 			if vel {
 				return []byte("true")
@@ -213,7 +208,7 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		if len(zset_scoreStr) > 0 {
 			vel, err := client.ZScore(client.Context, keyStr, zset_scoreStr).Result()
 			if err != nil {
-				return []byte("-zs参数解析失败,key值为：" + keyStr)
+				return []byte("-Z参数解析结果为空,key值为：" + keyStr)
 			}
 			return []byte(strconv.FormatFloat(vel, 'f', -1, 64))
 		}
@@ -238,7 +233,7 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		if len(hash_getStr) > 0 {
 			vel, err := client.HGet(client.Context, keyStr, hash_getStr).Result()
 			if err != nil {
-				return []byte("-hg参数解析失败,key值为：" + keyStr)
+				return []byte("-H参数解析结果为空,key值为：" + keyStr)
 			}
 			return []byte(vel)
 		}
@@ -254,7 +249,7 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		}
 		return data
 	default:
-		return []byte("当前类型暂不支持")
+		return []byte("当前key不存在或当前类型暂不支持解析")
 	}
 	return []byte("没有匹配的类型")
 }

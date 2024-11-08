@@ -22,6 +22,7 @@ func init() {
 func main() {
 	args := os.Args
 	//args := []string{"main.go", "check_server", "--help"}
+	onload.Init()
 	//解析命令行为map
 	maps, err := commandsToMap(args)
 	if err != nil {
@@ -29,7 +30,6 @@ func main() {
 		log.Error(msg)
 		fmt.Println(string(msg))
 	}
-	onload.Init()
 	//调用component，并打印
 	bytes := basic.Servlet(maps, false)
 	fmt.Println(string(bytes))
@@ -75,6 +75,8 @@ func commandsToMap(commands []string) (map[string]string, error) {
 				if basic.FindParameterType(componentKey, str) != basic.NO_VALUE {
 					i++
 					maps[str] = params[i]
+				} else {
+					maps[str] = ""
 				}
 			} else {
 				for m := 0; m < len(p); m++ {
