@@ -3,11 +3,9 @@ package sql_server
 import (
 	"basic"
 	"basic/tool/db"
-	othertool "basic/tool/other"
 	"bufio"
 	"bytes"
 	"database/sql"
-	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
@@ -29,85 +27,20 @@ func (r *SqlServer) GetOrder() int {
 }
 
 func (r *SqlServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
-	p1 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-h",
-		StandardName: "host",
-		Required:     true,
-		CheckMethod: func(s string) error {
-			if !othertool.CheckIp(s) {
-				errors.New("ip is not valid")
-			}
-			return nil
-		},
-		Describe: "",
-	}
-	p2 := basic.Parameter{
-		ParamType:    basic.INT,
-		CommandName:  "-p",
-		StandardName: "port",
-		Required:     true,
-		CheckMethod: func(s string) error {
-			if !othertool.CheckPortByString(s) {
-				errors.New("port is not valid")
-			}
-			return nil
-		},
-		Describe: "",
-	}
-	p3 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-u",
-		StandardName: "username",
-		Required:     true,
-		Describe:     "",
-	}
-
-	p4 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-w",
-		StandardName: "password",
-		Required:     true,
-		Describe:     "",
-	}
-	p5 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-d",
-		StandardName: "dbname",
-		Required:     true,
-		Describe:     "",
-	}
-
-	p6 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-s",
-		StandardName: "searchPath",
-		Required:     true,
-		Describe:     "",
-	}
-
-	p7 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-e",
-		StandardName: "sql",
-		Required:     false,
-		Describe:     "",
-	}
-
-	p8 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-ef",
-		StandardName: "sqlFile",
-		Required:     false,
-		Describe:     "",
-	}
-
-	return &basic.ComponentMeta{
+	command := &basic.ComponentMeta{
 		Key:       "sql_server",
 		Describe:  "sql执行服务",
 		Component: r,
-		Params:    []basic.Parameter{p1, p2, p3, p4, p5, p6, p7, p8},
 	}
+	command.AddParameters(basic.STRING, "-h", "host", true, nil, "")
+	command.AddParameters(basic.INT, "-p", "port", true, nil, "")
+	command.AddParameters(basic.STRING, "-u", "username", true, nil, "")
+	command.AddParameters(basic.STRING, "-w", "password", true, nil, "")
+	command.AddParameters(basic.STRING, "-s", "searchPath", true, nil, "")
+	command.AddParameters(basic.STRING, "-d", "dbname", true, nil, "")
+	command.AddParameters(basic.STRING, "-e", "sql", false, nil, "")
+	command.AddParameters(basic.STRING, "-ef", "sqlFile", false, nil, "")
+	return command
 }
 func (r *SqlServer) Do(params map[string]any) (resp []byte) {
 	config := &dbtool.DbConfig{
@@ -266,4 +199,13 @@ func rendering(rows *sql.Rows) (string, error) {
 	// 刷新 tabwriter.Writer 的缓冲区
 	w.Flush()
 	return output.String(), nil
+}
+
+func addParameters(param *basic.Parameter) basic.Parameter {
+	return basic.Parameter{
+		CommandName:  param.CommandName,
+		StandardName: param.StandardName,
+		Required:     false,
+		Describe:     "shorthand",
+	}
 }
