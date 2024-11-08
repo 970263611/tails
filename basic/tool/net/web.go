@@ -10,14 +10,19 @@ import (
 
 var hs map[string]func(req map[string]any) (resp []byte)
 
-func Web(port int, handlers map[string]func(req map[string]any) (resp []byte)) {
+func Web(port int, handlers map[string]func(req map[string]any) (resp []byte)) error {
 	hs = handlers
 	for k, _ := range hs {
 		http.HandleFunc(k, handler)
 	}
 	portStr := strconv.Itoa(port)
 	log.Info("Web will start at " + portStr)
-	http.ListenAndServe(":"+portStr, nil)
+	err := http.ListenAndServe(":"+portStr, nil)
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+		return err
+	}
+	return nil
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -31,9 +36,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		log.Error("Error reading request body", err)
 	}
 	var p3 map[string]any
-	err = json.Unmarshal(body, &p3)
-	if err != nil {
-		log.Error(w, "Error parsing JSON", err)
+	if len(body) > 0 {
+		err = json.Unmarshal(body, &p3)
+		if err != nil {
+			log.Error(w, "Error parsing JSON", err)
+		}
 	}
 	result := mergeMaps(maps, p3)
 	resp := f(result)

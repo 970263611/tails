@@ -108,8 +108,6 @@ func (r *RedisServer) Register(globalContext *basic.Context) *basic.ComponentMet
 	}
 
 	return &basic.ComponentMeta{
-		Key:       "redis_server",
-		Describe:  "执行redis服务相关查询",
 		Params:    []basic.Parameter{p1, p2, p3, p4, p5, p6, p7, p8, p9, p10},
 		Component: r,
 	}

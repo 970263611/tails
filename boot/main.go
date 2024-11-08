@@ -6,7 +6,6 @@ import (
 	_ "basic/onload"
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"os"
 )
 
 func init() {
@@ -17,8 +16,8 @@ func init() {
 }
 
 func main() {
-	args := os.Args
-	//args := []string{"main.go", "check_server", "--help"}
+	//args := os.Args
+	args := []string{"main.go", "web_server", "--start", "-p", "17085"}
 	//解析命令行为map
 	maps, err := basic.CommandsToMap(args)
 	if err != nil {

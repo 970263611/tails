@@ -44,13 +44,15 @@ func (c *Context) addComponentMeta(key string, componentMeta *ComponentMeta) boo
 *
 注册待初始化组件
 */
-func (c *Context) assembleByName(key string) {
+func (c *Context) assembleByName(key string) *ComponentMeta {
 	for _, cp := range initComponentList {
 		if cp.GetName() == key {
 			cm := cp.Register(globalContext)
 			globalContext.addComponentMeta(key, cm)
+			return cm
 		}
 	}
+	return nil
 }
 
 /*
@@ -71,23 +73,30 @@ func (c *Context) assembleAll() {
 *
 注册待初始化组件
 */
-func (c *Context) Start() {
+func (c *Context) Start() error {
 	c.assembleAll()
 	for _, cm := range c.components {
-		cm.Start(c)
+		err := cm.Start(c)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func (c *Context) FindComponent(key string, isSystem bool) *ComponentMeta {
-	cp, ok := c.components[key]
+	cm, ok := c.components[key]
 	if ok {
-		if !isSystem && cp.ComponentType == EXECUTE {
-			return cp
+		if !isSystem && cm.ComponentType == EXECUTE {
+			return cm
 		} else {
-			return cp
+			return cm
 		}
 	} else {
-
+		cm = c.assembleByName(key)
+		if cm != nil {
+			return cm
+		}
 	}
 	return nil
 }
@@ -116,6 +125,7 @@ func (c *Context) FindHelp(key string) string {
 	linewordnum := 100
 	var msg string
 	if key == "base" {
+		c.assembleAll()
 		//./root 组件名 组件参数列表
 		components := c.components
 		msg = "命令格式:\r\n"
@@ -137,7 +147,7 @@ func (c *Context) FindHelp(key string) string {
 	} else {
 		components := globalContext.FindComponent(key, false)
 		if components == nil {
-			msg = fmt.Sprintf("组件 %v 不存在，'./root --hlep' 查看组件列表", key)
+			msg = fmt.Sprintf("组件 %v 不存在，'./root --help' 查看组件列表", key)
 		} else {
 			params := components.Params
 			msg = fmt.Sprintf("%v 参入如下:", key)

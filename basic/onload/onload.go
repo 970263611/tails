@@ -7,6 +7,7 @@ import (
 	"extension/db_conn_num"
 	"extension/redis_server"
 	"extension/sql_server"
+	"extension/web_server"
 )
 
 func init() {
@@ -15,4 +16,5 @@ func init() {
 	basic.AddInitComponent(db_conn_num.GetInstance())
 	basic.AddInitComponent(sql_server.GetInstance())
 	basic.AddInitComponent(redis_server.GetInstance())
+	basic.AddInitComponent(web_server.GetInstance())
 }

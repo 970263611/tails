@@ -89,13 +89,13 @@ func systemParamExec(maps map[string]string) ([]byte, bool) {
 	if ok {
 		return Help(val)
 	}
+	val, ok = maps["--path"]
+	if ok {
+		LoadConfig(val)
+	}
 	val, ok = maps["--start"]
 	if ok {
 		return Start()
-	}
-	val, ok = maps["--path"]
-	if ok {
-		return LoadConfig(val)
 	}
 	return nil, false
 }
@@ -111,9 +111,12 @@ func Help(key string) ([]byte, bool) {
 
 /*
 *
-方法帮助
+start执行
 */
 func Start() ([]byte, bool) {
-	globalContext.Start()
+	err := globalContext.Start()
+	if err != nil {
+		return []byte(err.Error()), false
+	}
 	return nil, false
 }
