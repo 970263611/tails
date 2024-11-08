@@ -8,8 +8,10 @@ const (
 )
 
 type Component interface {
-	GetOrder() int
+	GetName() string
+	GetDescribe() string
 	Register(c *Context) *ComponentMeta
+	Start(c *Context) error
 	Do(param map[string]any) (resp []byte)
 }
 
@@ -20,9 +22,19 @@ type Component interface {
 type ComponentMeta struct {
 	ComponentType
 	Component
-	Key      string
-	Describe string
-	Params   []Parameter
+	Params []Parameter
+}
+
+var initComponentList = make([]Component, 0)
+
+/*
+*
+注册待初始化组件
+*/
+func AddInitComponent(cp Component) {
+	if cp.GetName() != "" && cp.GetDescribe() != "" {
+		initComponentList = append(initComponentList, cp)
+	}
 }
 
 /*

@@ -6,7 +6,6 @@ import (
 	redistool "basic/tool/redis"
 	"encoding/json"
 	"errors"
-	"math"
 	"strconv"
 )
 
@@ -16,8 +15,12 @@ func GetInstance() *RedisServer {
 	return &RedisServer{}
 }
 
-func (r *RedisServer) GetOrder() int {
-	return math.MaxInt64
+func (c *RedisServer) GetName() string {
+	return "redis_server"
+}
+
+func (c *RedisServer) GetDescribe() string {
+	return "redis连接服务"
 }
 
 func (r *RedisServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
@@ -110,6 +113,9 @@ func (r *RedisServer) Register(globalContext *basic.Context) *basic.ComponentMet
 		Params:    []basic.Parameter{p1, p2, p3, p4, p5, p6, p7, p8, p9, p10},
 		Component: r,
 	}
+}
+func (r *RedisServer) Start(globalContext *basic.Context) error {
+	return nil
 }
 
 func (r *RedisServer) Do(params map[string]any) (resp []byte) {

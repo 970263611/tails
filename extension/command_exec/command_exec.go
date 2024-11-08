@@ -4,7 +4,6 @@ import (
 	"basic"
 	commandtool "basic/tool/command"
 	log "github.com/sirupsen/logrus"
-	"math"
 	"runtime"
 	"strings"
 )
@@ -15,8 +14,12 @@ func GetInstance() basic.Component {
 	return &CommandExec{}
 }
 
-func (c CommandExec) GetOrder() int {
-	return math.MaxInt64
+func (c CommandExec) GetName() string {
+	return "command_exec"
+}
+
+func (c CommandExec) GetDescribe() string {
+	return "执行系统命令或者调用系统脚本"
 }
 
 func (c CommandExec) Register(globalContext *basic.Context) *basic.ComponentMeta {
@@ -29,11 +32,13 @@ func (c CommandExec) Register(globalContext *basic.Context) *basic.ComponentMeta
 	}
 	return &basic.ComponentMeta{
 		ComponentType: basic.EXECUTE,
-		Key:           "command_exec",
-		Describe:      "执行系统命令或者调用系统脚本",
 		Component:     c,
 		Params:        []basic.Parameter{p1},
 	}
+}
+
+func (c CommandExec) Start(globalContext *basic.Context) error {
+	return nil
 }
 
 func (c CommandExec) Do(params map[string]any) (resp []byte) {

@@ -5,7 +5,6 @@ import (
 	dbtool "basic/tool/db"
 	othertool "basic/tool/other"
 	"errors"
-	"math"
 	"strconv"
 )
 
@@ -15,8 +14,12 @@ func GetInstance() basic.Component {
 	return &DbConnNum{}
 }
 
-func (d DbConnNum) GetOrder() int {
-	return math.MaxInt64
+func (c DbConnNum) GetName() string {
+	return "db_conn_num"
+}
+
+func (c DbConnNum) GetDescribe() string {
+	return "数据库连接数查询"
 }
 
 func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
@@ -76,11 +79,13 @@ func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 	}
 	return &basic.ComponentMeta{
 		ComponentType: basic.EXECUTE,
-		Key:           "db_conn_num",
-		Describe:      "数据库连接数查询",
 		Component:     d,
 		Params:        []basic.Parameter{p1, p2, p3, p4, p5, p6},
 	}
+}
+
+func (d DbConnNum) Start(globalContext *basic.Context) error {
+	return nil
 }
 
 func (d DbConnNum) Do(params map[string]any) (resp []byte) {

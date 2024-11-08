@@ -9,7 +9,6 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -22,14 +21,16 @@ func GetInstance() *SqlServer {
 	return &SqlServer{}
 }
 
-func (r *SqlServer) GetOrder() int {
-	return math.MaxInt64
+func (c *SqlServer) GetName() string {
+	return "sql_server"
+}
+
+func (r *SqlServer) GetDescribe() string {
+	return "sql执行服务"
 }
 
 func (r *SqlServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
 	command := &basic.ComponentMeta{
-		Key:       "sql_server",
-		Describe:  "sql执行服务",
 		Component: r,
 	}
 	command.AddParameters(basic.STRING, "-h", "host", true, nil, "")
@@ -42,6 +43,11 @@ func (r *SqlServer) Register(globalContext *basic.Context) *basic.ComponentMeta 
 	command.AddParameters(basic.STRING, "-ef", "sqlFile", false, nil, "")
 	return command
 }
+
+func (r *SqlServer) Start(globalContext *basic.Context) error {
+	return nil
+}
+
 func (r *SqlServer) Do(params map[string]any) (resp []byte) {
 	config := &dbtool.DbConfig{
 		Host:     params["host"].(string),

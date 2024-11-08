@@ -23,7 +23,7 @@ func Servlet(maps map[string]string, isSystem bool) []byte {
 		return []byte(msg)
 	}
 	//找到对应组件
-	c := FindComponent(key, isSystem)
+	c := globalContext.FindComponent(key, isSystem)
 	if c == nil {
 		msg := fmt.Sprintf("组件 %v 不存在", key)
 		log.Error(msg)
@@ -53,6 +53,13 @@ var systemParam = []Parameter{
 		Describe:     "帮助",
 	},
 	Parameter{
+		ParamType:    NO_VALUE,
+		CommandName:  "--start",
+		StandardName: "",
+		Required:     false,
+		Describe:     "帮助",
+	},
+	Parameter{
 		ParamType:    STRING,
 		CommandName:  "--path",
 		StandardName: "",
@@ -77,41 +84,14 @@ var systemParam = []Parameter{
 	},
 }
 
-/*
-*
-调用Register方法
-*/
-func Assemble(list []Component) {
-	for _, v := range list {
-		cm := v.Register(globalContext)
-		globalContext.Components[cm.Key] = cm
-	}
-}
-
-func FindParameterType(componentKey string, commandName string) ParamType {
-	for _, value := range systemParam {
-		if value.CommandName == commandName {
-			return value.ParamType
-		}
-	}
-	if componentKey != "" {
-		componentMeta, ok := globalContext.Components[componentKey]
-		if ok {
-			for _, value := range componentMeta.Params {
-				if value.CommandName == commandName {
-					return value.ParamType
-				}
-			}
-		}
-	}
-
-	return -1
-}
-
 func systemParamExec(maps map[string]string) ([]byte, bool) {
 	val, ok := maps["--help"]
 	if ok {
 		return Help(val)
+	}
+	val, ok = maps["--start"]
+	if ok {
+		return Start()
 	}
 	val, ok = maps["--path"]
 	if ok {
@@ -125,42 +105,15 @@ func systemParamExec(maps map[string]string) ([]byte, bool) {
 方法帮助
 */
 func Help(key string) ([]byte, bool) {
-	linewordnum := 100
-	var msg string
-	if key == "base" {
-		//./root 组件名 组件参数列表
-		components := globalContext.Components
-		msg = "命令格式:\r\n"
-		msg += "  组件调用: ./root compoment_key -params\r\n"
-		msg += "  组件帮助: ./root compoment_key --help\r\n"
-		msg += "组件列表:"
-		for _, component := range components {
-			msg += "\r\n"
-			msg += "  " + component.Key + "\r\n"
-			chinese := othertool.SplitByChinese(component.Describe, linewordnum)
-			for i := 0; i < len(chinese); i++ {
-				if i == 0 {
-					msg += "      " + chinese[i] + "\r\n"
-				} else {
-					msg += "    " + chinese[i] + "\r\n"
-				}
-			}
-		}
-	} else {
-		components := FindComponent(key, false)
-		if components == nil {
-			msg = fmt.Sprintf("组件 %v 不存在，'./root --hlep' 查看组件列表", key)
-		} else {
-			params := components.Params
-			msg = fmt.Sprintf("%v 参入如下:", key)
-			if params != nil {
-				for _, value := range components.Params {
-					msg += "\r\n"
-					msg += "  " + value.CommandName + "\r\n"
-					msg += "    " + value.Describe
-				}
-			}
-		}
-	}
-	return []byte(msg), true
+	help := globalContext.FindHelp(key)
+	return []byte(help), true
+}
+
+/*
+*
+方法帮助
+*/
+func Start() ([]byte, bool) {
+	globalContext.Start()
+	return nil, false
 }

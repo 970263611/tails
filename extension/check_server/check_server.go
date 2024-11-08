@@ -5,7 +5,6 @@ import (
 	"basic/tool/other"
 	"errors"
 	"fmt"
-	"math"
 	"net"
 	"time"
 )
@@ -16,8 +15,12 @@ func GetInstance() basic.Component {
 	return &CheckServer{}
 }
 
-func (c *CheckServer) GetOrder() int {
-	return math.MaxInt64
+func (c *CheckServer) GetName() string {
+	return "check_server"
+}
+
+func (c *CheckServer) GetDescribe() string {
+	return "通过ip地址和端口，判断应用服务是否正常"
 }
 
 func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
@@ -49,11 +52,13 @@ func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMet
 	}
 	return &basic.ComponentMeta{
 		ComponentType: basic.EXECUTE,
-		Key:           "check_server",
-		Describe:      "通过ip地址和端口，判断应用服务是否正常",
 		Params:        []basic.Parameter{p1, p2},
 		Component:     c,
 	}
+}
+
+func (c *CheckServer) Start(globalContext *basic.Context) error {
+	return nil
 }
 
 func (c *CheckServer) Do(params map[string]any) (resp []byte) {
