@@ -203,6 +203,8 @@ func CommandsToMap(commands []string) (map[string]string, error) {
 				if globalContext.FindParameterType(componentKey, str) != NO_VALUE {
 					i++
 					maps[str] = params[i]
+				} else {
+					maps[str] = ""
 				}
 			} else {
 				for m := 0; m < len(p); m++ {
