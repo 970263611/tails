@@ -25,6 +25,11 @@ type DataEntry struct {
 	TotalNum  int
 }
 
+type DataEntry02 struct {
+	Ddd      string
+	TotalNum int
+}
+
 func TestGetRespString(t *testing.T) {
 	// URL
 	urlStr := "http://localhost:9999/zhhGetTest"
@@ -58,7 +63,11 @@ func TestGetRespStruct(t *testing.T) {
 	if err != nil {
 		log.Fatalf("GET 请求失败: %v", err)
 	}
-	fmt.Printf("GET 请求响应: %+v\n", responseData)
+	entries := responseData.Data
+	for _, entry := range entries {
+		// 打印每个结构体的字段
+		fmt.Printf("CenterFlg: %s, TotalNum: %d\n", entry.CenterFlg, entry.TotalNum)
+	}
 
 }
 
@@ -95,7 +104,11 @@ func TestPostRespStruct(t *testing.T) {
 	// 发送 POST 请求
 	err := PostRespStruct(urlStr, data, header, &responseData)
 	if err != nil {
-		log.Fatalf("GET 请求失败: %v", err)
+		log.Fatalf("POST 请求失败: %v", err)
 	}
-	fmt.Printf("GET 请求响应: %+v\n", responseData)
+	entries := responseData.Data
+	for _, entry := range entries {
+		// 打印每个结构体的字段
+		fmt.Printf("CenterFlg: %s, TotalNum: %d\n", entry.CenterFlg, entry.TotalNum)
+	}
 }
