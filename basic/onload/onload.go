@@ -8,6 +8,7 @@ import (
 	"extension/monitor_server"
 	"extension/redis_server"
 	"extension/sql_server"
+	"extension/tcp_server"
 	"extension/web_server"
 )
 
@@ -19,4 +20,6 @@ func init() {
 	basic.AddInitComponent(redis_server.GetInstance())
 	basic.AddInitComponent(web_server.GetInstance())
 	basic.AddInitComponent(monitor_server.GetInstance())
+	basic.AddInitComponent(tcp_server.GetInstance())
+
 }
