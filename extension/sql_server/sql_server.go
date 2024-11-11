@@ -206,12 +206,3 @@ func rendering(rows *sql.Rows) (string, error) {
 	w.Flush()
 	return output.String(), nil
 }
-
-func addParameters(param *basic.Parameter) basic.Parameter {
-	return basic.Parameter{
-		CommandName:  param.CommandName,
-		StandardName: param.StandardName,
-		Required:     false,
-		Describe:     "shorthand",
-	}
-}
