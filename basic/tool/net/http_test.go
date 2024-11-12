@@ -112,3 +112,44 @@ func TestPostRespStruct(t *testing.T) {
 		fmt.Printf("CenterFlg: %s, TotalNum: %d\n", entry.CenterFlg, entry.TotalNum)
 	}
 }
+
+func TestPutRespString(t *testing.T) {
+	// URL
+	urlStr := "http://localhost:9999/zhhPutTest"
+	// 参数
+	queryParams := url.Values{}
+	queryParams.Add("userId", "1")
+	// Header 如没有必要值header可为null
+	header := http.Header{}
+	header.Set("Authorization", "dsadasd13213214dssafsadfdsf")
+	// 发送 GET 请求
+	resp, err := PutRespString(urlStr, nil, header)
+	if err != nil {
+		log.Fatalf("PUT 请求失败: %v", err)
+	}
+	fmt.Printf("PUT 请求响应: %+v\n", resp)
+}
+
+func TestPutRespStruct(t *testing.T) {
+	// URL
+	urlStr := "http://localhost:9999/zhhPutTest"
+	// 参数
+	queryParams := url.Values{}
+	queryParams.Add("userId", "1")
+	// Header 如没有必要值header可为null
+	header := http.Header{}
+	header.Set("Authorization", "dsadasd13213214dssafsadfdsf")
+	// 用于接收响应的结构体实例
+	var responseData ResponseData
+	// 发送 GET 请求
+	err := PutRespStruct(urlStr, nil, header, &responseData)
+	if err != nil {
+		log.Fatalf("PUT 请求失败: %v", err)
+	}
+	entries := responseData.Data
+	for _, entry := range entries {
+		// 打印每个结构体的字段
+		fmt.Printf("CenterFlg: %s, TotalNum: %d\n", entry.CenterFlg, entry.TotalNum)
+	}
+
+}
