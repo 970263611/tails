@@ -2,13 +2,10 @@ package monitor_server
 
 import (
 	"basic"
-	net "basic/tool/net"
 	othertool "basic/tool/other"
 	"errors"
 	"fmt"
-	"log"
-	"net/http"
-	"net/url"
+	"time"
 )
 
 type MonitorServer struct {
@@ -54,61 +51,36 @@ func (r *MonitorServer) Start(globalContext *basic.Context) error {
 var urlPrefix string
 
 func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
-	//1. 获取ip和port组成请求url前缀
-	host := params["host"]
-	port := params["port"]
-	urlPrefix = fmt.Sprintf("%s://%s:%d", "http", host, port)
-	//2. 获取username和password作为请求体,发送post请求,获取返回token
-	username := params["username"].(string)
-	password := params["password"].(string)
-	token, err := Login(username, password)
+	res := &findResult{
+		result:   &result{},
+		host:     params["host"].(string),
+		port:     params["port"].(int),
+		username: params["username"].(string),
+		password: params["password"].(string),
+		c:        make(chan int),
+	}
+	token, err := res.login()
 	if err != nil {
-		log.Println("login接口请求失败:" + err.Error())
 		return nil
 	}
-	//3. 携带token去做查询(开启线程并发查询)
-	statisticResp, err := Statistic(token)
-	if err != nil {
-		log.Println("statistic接口请求失败:" + err.Error())
-		return
+	i := 4
+	res.token = token
+	go res.a1()
+	go res.a2()
+	go res.a3()
+	go res.a4()
+	after := time.After(3 * time.Second)
+	for {
+		select {
+		case <-res.c:
+			i--
+			if i == 0 {
+				break
+			}
+		case <-after:
+			break
+		}
 	}
-	entries2 := statisticResp.Data
-	for _, entry := range entries2 {
-		// 打印每个结构体的字段
-		fmt.Printf("CenterFlg: %s, TotalNum: %d\n", entry.CenterFlg, entry.TotalSucCount)
-	}
-	//4. 并发查询其他接口
-	//5. 组装查询数据并返回
-	return nil
-}
-
-func Login(username, password string) (string, error) {
-	postData := LoginReq{
-		userId:   username,
-		password: password,
-	}
-	var loginResp LoginResp
-	err := net.PostRespStruct(urlPrefix+"/api/cert/actions/login", postData, nil, &loginResp)
-	if err != nil {
-		return "", err
-	}
-	entries := loginResp.Data
-	return entries[0].Token, nil
-}
-
-func Statistic(token string) (*StatisticResp, error) {
-	queryParams := url.Values{}
-	queryParams.Add("pageIndex", "1")
-	queryParams.Add("pageSize", "50")
-
-	header := http.Header{}
-	header.Set("Authorization", token)
-	// 用于接收响应的结构体实例
-	var statisticResp StatisticResp
-	// 发送 GET 请求
-	err := net.GetRespStruct(urlPrefix+"/monitor/trade/statistic", queryParams, header, &statisticResp)
-	if err != nil {
-		return nil, err
-	}
-	return &statisticResp, nil
+	str := fmt.Sprintf("%v", res.result)
+	return []byte(str)
 }

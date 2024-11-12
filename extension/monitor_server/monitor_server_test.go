@@ -7,10 +7,10 @@ import (
 
 func TestDoHandler(t *testing.T) {
 	params := map[string]any{
-		"host":     "127.0.0.1",
+		"host":     "localhost",
 		"port":     9999,
-		"username": "zhh",
-		"password": "zhh",
+		"username": "sysadmin",
+		"password": "Grcf#jk9527",
 	}
 	instance := GetInstance()
 	resp := instance.Do(params)

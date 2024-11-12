@@ -81,3 +81,13 @@ func SplitByChinese(s string, length int) []string {
 	}
 	return result
 }
+
+func RemoveElement(arr []string, elementToRemove string) []string {
+	var newArr []string
+	for _, value := range arr {
+		if value != elementToRemove {
+			newArr = append(newArr, value)
+		}
+	}
+	return newArr
+}
