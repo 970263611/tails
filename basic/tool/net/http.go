@@ -74,6 +74,38 @@ func PostRespStruct(urlStr string, postData interface{}, headersMap http.Header,
 	return nil
 }
 
+// PutRespString Put请求将resp封装到字符串/**
+func PutRespString(urlStr string, params url.Values, headersMap http.Header) (string, error) {
+	resp, err := Put(urlStr, params, headersMap)
+	if err != nil {
+		return "", err
+	}
+	body := resp.Body
+	defer body.Close()
+	str, err := io.ReadAll(body)
+	if err != nil {
+		log.Error("Error reading response body:", err)
+		return "", err
+	}
+	return string(str), nil
+}
+
+// PutRespStruct Put请求将resp封装到结构体/**
+func PutRespStruct(urlStr string, params url.Values, headersMap http.Header, response interface{}) error {
+	resp, err := Put(urlStr, params, headersMap)
+	if err != nil {
+		return err
+	}
+	body := resp.Body
+	defer body.Close()
+	// 解码响应体到结构体
+	err = json.NewDecoder(body).Decode(&response)
+	if err != nil {
+		return fmt.Errorf("解码响应体失败: %v", err)
+	}
+	return nil
+}
+
 // Get 通用Get请求,返回原生resp/**
 func Get(urlStr string, params url.Values, headersMap http.Header) (*http.Response, error) {
 	// 构建完整的 URL（如果有查询参数）
@@ -130,6 +162,39 @@ func Post(urlStr string, postData interface{}, headersMap http.Header) (*http.Re
 	for key, values := range headersMap {
 		joinedValues := strings.Join(values, ",")
 		req.Header.Set(key, joinedValues)
+	}
+	// 发送请求
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("发送请求失败: %v", err)
+	}
+	return resp, nil
+}
+
+// Put 通用Put请求,返回原生resp/**
+func Put(urlStr string, params url.Values, headersMap http.Header) (*http.Response, error) {
+	// 构建完整的 URL（如果有查询参数）
+	var fullURL string
+	if params != nil {
+		u, err := url.Parse(urlStr)
+		if err != nil {
+			return nil, fmt.Errorf("解析 URL 失败: %v", err)
+		}
+		u.RawQuery = params.Encode()
+		fullURL = u.String()
+	} else {
+		fullURL = urlStr
+	}
+	// 创建请求
+	req, err := http.NewRequest(http.MethodPut, fullURL, nil)
+	// 遍历headersMap并添加到请求的Header中
+	for key, values := range headersMap {
+		joinedValues := strings.Join(values, ",")
+		req.Header.Set(key, joinedValues)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %v", err)
 	}
 	// 发送请求
 	client := &http.Client{}
