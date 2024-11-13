@@ -18,10 +18,11 @@ const (
 入参规则
 */
 type Parameter struct {
-	ParamType
-	CommandName  string               //命令行中的名称
-	StandardName string               //方法中的变量名
-	Required     bool                 //是否必填
+	ParamType                         //参数的值类型，支持无值，整形和字符串三种
+	CommandName  string               //命令行中的名称,例如 -h -p 等等
+	ConfigName   string               //配置文件中的名称，例如 app.server.port
+	StandardName string               //方法中的变量名,方法中获取的该参数时使用的key名称
+	Required     bool                 //是否必填，默认false
 	CheckMethod  func(s string) error //校验方法
 	Describe     string               //描述
 }
@@ -50,7 +51,7 @@ func (p *Parameter) check(commands map[string]string) error {
 	s, ok := commands[p.CommandName]
 	//必填参数不存在直接报错
 	if !ok && p.Required {
-		return fmt.Errorf(p.StandardName + " is required")
+		return fmt.Errorf(p.StandardName + "是必要的")
 	}
 	//参数如果存在CheckMethod，则执行
 	if ok && p.CheckMethod != nil {
@@ -76,7 +77,7 @@ func (p *Parameter) paramFormat(param map[string]any, commands map[string]string
 	if p.ParamType == INT {
 		i, err := strconv.Atoi(fmt.Sprintf("%v", s))
 		if err != nil {
-			return fmt.Errorf("param %v format error : %v", p.CommandName, err)
+			return fmt.Errorf("参数 %v 格式化失败 : %v", p.CommandName, err)
 		}
 		a = i
 	}

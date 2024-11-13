@@ -20,7 +20,7 @@ func (c *CheckServer) GetName() string {
 }
 
 func (c *CheckServer) GetDescribe() string {
-	return "通过ip地址和端口，判断应用服务是否正常"
+	return "通过IP地址和端口号，判断应用服务是否正常或网络是否连通"
 }
 
 func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
@@ -35,7 +35,7 @@ func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMet
 			}
 			return nil
 		},
-		Describe: "服务的ip地址",
+		Describe: "IP地址,支持ipv4,例:192.168.0.1",
 	}
 	p2 := basic.Parameter{
 		ParamType:    basic.INT,
@@ -48,7 +48,7 @@ func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMet
 			}
 			return nil
 		},
-		Describe: "",
+		Describe: "端口号,0 ~ 65535之间",
 	}
 	return &basic.ComponentMeta{
 		ComponentType: basic.EXECUTE,
@@ -64,8 +64,8 @@ func (c *CheckServer) Start(globalContext *basic.Context) error {
 func (c *CheckServer) Do(params map[string]any) (resp []byte) {
 	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", params["host"].(string), params["port"].(int)), 3*time.Second)
 	if err != nil {
-		return []byte("服务不存在")
+		return []byte("服务不存在或网络不通")
 	}
 	defer conn.Close()
-	return []byte("服务连接成功")
+	return []byte("网络连通正常")
 }
