@@ -19,7 +19,7 @@ func (c CommandExec) GetName() string {
 }
 
 func (c CommandExec) GetDescribe() string {
-	return "执行系统命令或者调用系统脚本"
+	return "执行系统命令行"
 }
 
 func (c CommandExec) Register(globalContext *basic.Context) *basic.ComponentMeta {
@@ -28,7 +28,7 @@ func (c CommandExec) Register(globalContext *basic.Context) *basic.ComponentMeta
 		CommandName:  "-c",
 		StandardName: "command",
 		Required:     true,
-		Describe:     "",
+		Describe:     "命令行,用单引号或双引号包裹;例如:'ll -al' 或 'ps -ef|grep java'",
 	}
 	return &basic.ComponentMeta{
 		ComponentType: basic.EXECUTE,

@@ -167,12 +167,16 @@ func (c *Context) FindHelp(key string) string {
 			msg = fmt.Sprintf("组件 %v 不存在，'./root --help' 查看组件列表", key)
 		} else {
 			params := components.Params
-			msg = fmt.Sprintf("%v 参入如下:", key)
+			msg = fmt.Sprintf("组件 %v 参数列表:", key)
 			if params != nil {
 				for _, value := range components.Params {
 					msg += "\r\n"
-					msg += "  " + value.CommandName + "\r\n"
-					msg += "    " + value.Describe
+					if value.Required {
+						msg += "  " + value.CommandName + "  必要" + "\r\n"
+					} else {
+						msg += "  " + value.CommandName + "  可选" + "\r\n"
+					}
+					msg += "      " + value.Describe
 				}
 			}
 		}
