@@ -33,10 +33,18 @@ func RangeValidate(val, min, max int) bool {
 	return true
 }
 
+/*
+*
+验证IP是否规范
+*/
 func CheckIp(ip string) bool {
 	return RegularValidate(ip, REGEX_IP)
 }
 
+/*
+*
+验证端口号是否规范
+*/
 func CheckPortByString(port string) bool {
 	p, err := strconv.Atoi(fmt.Sprintf("%v", port))
 	if err != nil {
@@ -45,10 +53,18 @@ func CheckPortByString(port string) bool {
 	return CheckPort(p)
 }
 
+/*
+*
+验证端口号是否规范
+*/
 func CheckPort(port int) bool {
 	return RangeValidate(port, 0, 65535)
 }
 
+/*
+*
+文件是否存在
+*/
 func FileExists(filename string) bool {
 	_, err := os.Stat(filename)
 	if os.IsNotExist(err) {
@@ -57,6 +73,10 @@ func FileExists(filename string) bool {
 	return true
 }
 
+/*
+*
+文件是否可读
+*/
 func IsFileReadable(filename string) bool {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -66,6 +86,10 @@ func IsFileReadable(filename string) bool {
 	return true
 }
 
+/*
+*
+按照中文拆分字符串，入参：字符串本身，拆分后每个字符串的长度
+*/
 func SplitByChinese(s string, length int) []string {
 	var result []string
 	var current string
@@ -82,12 +106,11 @@ func SplitByChinese(s string, length int) []string {
 	return result
 }
 
-func RemoveElement(arr []string, elementToRemove string) []string {
-	var newArr []string
-	for _, value := range arr {
-		if value != elementToRemove {
-			newArr = append(newArr, value)
-		}
-	}
-	return newArr
+/*
+*
+字符串按照空格拆分为字符串数组，但是被单引号或者双引号包裹的部分不做拆分
+*/
+func SplitString(s string) []string {
+	re := regexp.MustCompile(`'(?:[^']|'')*'|"(?:[^"]|\"\")*"|\S+`)
+	return re.FindAllString(s, -1)
 }

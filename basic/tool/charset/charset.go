@@ -8,6 +8,10 @@ import (
 
 type Charset uint32
 
+/*
+*
+字符集类型枚举
+*/
 const (
 	UTF8 Charset = iota
 	GBK
@@ -17,7 +21,7 @@ const (
 
 /*
 *
-字符集转换
+字符集转换，支持GBK UTF8 GB18030 HZGB2312之间的转换
 */
 func Convert(data []byte, from, to Charset) ([]byte, error) {
 	if from == to {

@@ -10,6 +10,10 @@ import (
 
 var charsetType charsettool.Charset
 
+/*
+*
+系统字符集初始化
+*/
 func init() {
 	switch runtime.GOOS {
 	case "windows":
@@ -24,6 +28,10 @@ func init() {
 	}
 }
 
+/*
+*
+执行系统指令
+*/
 func ExecCmdByStr(commandArr ...string) (string, error) {
 	command := exec.Command(commandArr[0], commandArr[1:]...)
 	data, err := command.CombinedOutput()
@@ -38,6 +46,10 @@ func ExecCmdByStr(commandArr ...string) (string, error) {
 	return string(data), err
 }
 
+/*
+*
+管道流模式执行系统指令
+*/
 func ExecCmdByPipe(command ...[]string) (string, error) {
 	var input, output *bytes.Buffer
 	first := true
@@ -60,6 +72,10 @@ func ExecCmdByPipe(command ...[]string) (string, error) {
 	return output.String(), nil
 }
 
+/*
+*
+获取window下字符集
+*/
 func getWindowsCharset() (string, error) {
 	cmd := exec.Command("cmd", "/C", "chcp")
 	output, err := cmd.Output()
