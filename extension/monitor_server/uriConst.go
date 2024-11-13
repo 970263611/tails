@@ -54,7 +54,10 @@ func (f findResult) a1() {
 	queryParams.Add("selectTimeDimension", "2")
 	//昨日时间
 	//queryParams.Add("selectTime", previousDay())
-	a1Resp := findSuccessRate(f, queryParams)
+	a1Resp, err := findSuccessRate(f, queryParams)
+	if err != nil {
+		return
+	}
 	f.result.a1 = a1Resp
 
 }
@@ -70,7 +73,10 @@ func (f findResult) a2() {
 	queryParams.Add("selectTimeDimension", "2")
 	//当日时间
 	/*queryParams.Add("selectTime", "2024-11-07+00:00:00")*/
-	a1Resp := findSuccessRate(f, queryParams)
+	a1Resp, err := findSuccessRate(f, queryParams)
+	if err != nil {
+		return
+	}
 	f.result.a2 = a1Resp
 }
 
