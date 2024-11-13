@@ -5,7 +5,6 @@ import (
 	"basic/tool/net"
 	othertool "basic/tool/other"
 	"errors"
-	"strings"
 )
 
 type WebServer struct {
@@ -69,7 +68,7 @@ func handler1(req map[string]any) (resp []byte) {
 	if !ok {
 		return []byte("参数param不能为空")
 	}
-	commands := strings.Split(param, " ")
+	commands := othertool.SplitString(param)
 	if len(commands) <= 0 {
 		return []byte("参数param不能为空")
 	}

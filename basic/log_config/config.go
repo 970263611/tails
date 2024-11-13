@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+/*
+*
+日志支持的配置信息
+*/
 type logConfig struct {
 	//文件路径，精确到文件名,文件路径所涉及文件夹需提前创建 例:/home/tails/logs/all.log
 	Filename string
@@ -27,6 +31,10 @@ type logConfig struct {
 	OutType int
 }
 
+/*
+*
+创建默认日志配置对象
+*/
 func NewLogConfig() *logConfig {
 	return &logConfig{"", 50, 10, 90, true, "info", 1}
 }
@@ -37,6 +45,10 @@ func NewLogConfig() *logConfig {
 */
 type CustomFormatter struct{}
 
+/*
+*
+自定义日志格式化
+*/
 func (f *CustomFormatter) Format(entry *log.Entry) ([]byte, error) {
 	timestamp := entry.Time.Format("2006-01-02 15:04:05")
 	fName := filepath.Base(entry.Caller.File)
@@ -44,6 +56,10 @@ func (f *CustomFormatter) Format(entry *log.Entry) ([]byte, error) {
 	return []byte(fmt.Sprintf("[%s] [%s] [%s:%d %s] %s\n", timestamp, entry.Level, fName, entry.Caller.Line, entry.Caller.Function, entry.Message)), nil
 }
 
+/*
+*
+全系统级别日志配置初始化
+*/
 func Init(cfg *logConfig) {
 	if cfg.Filename == "" {
 		cfg.Filename = "./logs/all.log"
@@ -68,6 +84,10 @@ func Init(cfg *logConfig) {
 	}
 }
 
+/*
+*
+日志级别翻译，将字符串类型转换为标准枚举类型
+*/
 func logLevel(level string) (l log.Level) {
 	switch strings.ToUpper(level) {
 	case "PANIC":
