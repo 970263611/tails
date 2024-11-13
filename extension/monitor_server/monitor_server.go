@@ -59,16 +59,20 @@ func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
 		password: params["password"].(string),
 		c:        make(chan int),
 	}
+	res.urlPrefix = fmt.Sprintf("%s://%s:%d", "http", res.host, res.port)
 	token, err := res.login()
 	if err != nil {
 		return nil
 	}
-	i := 4
+	i := 7
 	res.token = token
 	go res.a1()
 	go res.a2()
 	go res.a3()
 	go res.a4()
+	go res.a5()
+	go res.a6()
+	go res.a10()
 	after := time.After(3 * time.Second)
 	for {
 		select {
