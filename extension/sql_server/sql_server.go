@@ -33,14 +33,14 @@ func (r *SqlServer) Register(globalContext *basic.Context) *basic.ComponentMeta 
 	command := &basic.ComponentMeta{
 		Component: r,
 	}
-	command.AddParameters(basic.STRING, "-h", "host", true, nil, "")
-	command.AddParameters(basic.INT, "-p", "port", true, nil, "")
-	command.AddParameters(basic.STRING, "-u", "username", true, nil, "")
-	command.AddParameters(basic.STRING, "-w", "password", true, nil, "")
-	command.AddParameters(basic.STRING, "-s", "searchPath", true, nil, "")
-	command.AddParameters(basic.STRING, "-d", "dbname", true, nil, "")
-	command.AddParameters(basic.STRING, "-e", "sql", false, nil, "")
-	command.AddParameters(basic.STRING, "-ef", "sqlFile", false, nil, "")
+	command.AddParameters(basic.STRING, "-h", "sql.server.ip", "host", true, nil, "数据库Ip")
+	command.AddParameters(basic.INT, "-p", "sql.server.port", "port", true, nil, "数据库port")
+	command.AddParameters(basic.STRING, "-u", "sql.server.username", "username", true, nil, "数据库登录用户名")
+	command.AddParameters(basic.STRING, "-w", "sql.server.password", "password", true, nil, "数据库登录密码")
+	command.AddParameters(basic.STRING, "-d", "sql.server.dbname", "dbname", true, nil, "数据库名称")
+	command.AddParameters(basic.STRING, "-s", "sql.server.searchPath", "searchPath", true, nil, "数据库结构")
+	command.AddParameters(basic.STRING, "-e", "", "sql", false, nil, "执行sql语句")
+	command.AddParameters(basic.STRING, "-f", "", "sqlFile", false, nil, "执行sql文件")
 	return command
 }
 

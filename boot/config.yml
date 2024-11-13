@@ -16,3 +16,12 @@ monitor:
     port: 9999
     username: sysadmin
     password: Grcf#jk9527
+
+sql:
+  server:
+    ip: 127.0.0.1
+    port: 5432
+    username: postgres
+    password: postgres
+    dbname: postgres
+    searchPath: public

@@ -54,7 +54,8 @@ func (f findResult) a1() {
 	queryParams.Add("selectTimeDimension", "2")
 	//昨日时间
 	//queryParams.Add("selectTime", previousDay())
-	findSuccessRate(f, queryParams)
+	a1Resp := findSuccessRate(f, queryParams)
+	f.result.a1 = a1Resp
 
 }
 
@@ -69,7 +70,8 @@ func (f findResult) a2() {
 	queryParams.Add("selectTimeDimension", "2")
 	//当日时间
 	/*queryParams.Add("selectTime", "2024-11-07+00:00:00")*/
-	findSuccessRate(f, queryParams)
+	a1Resp := findSuccessRate(f, queryParams)
+	f.result.a2 = a1Resp
 }
 
 func (f findResult) a3() {
@@ -154,7 +156,7 @@ func (f findResult) a10() {
 	}
 }
 
-func findSuccessRate(f findResult, queryParams url.Values) {
+func findSuccessRate(f findResult, queryParams url.Values) (*A1Resp, error) {
 	header := http.Header{}
 	header.Set("Authorization", f.token)
 	// 用于接收响应的结构体实例
@@ -164,7 +166,9 @@ func findSuccessRate(f findResult, queryParams url.Values) {
 	if err != nil {
 		r := f.result
 		r.a1 = "查询失败"
+		return nil, err
 	}
+	return &A1Resp, nil
 }
 
 func currentDay() string {
