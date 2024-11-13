@@ -19,7 +19,7 @@ func (c DbConnNum) GetName() string {
 }
 
 func (c DbConnNum) GetDescribe() string {
-	return "数据库连接数查询"
+	return "数据库连接数查询,当前仅支持pg数据库"
 }
 
 func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
@@ -30,11 +30,11 @@ func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 		Required:     true,
 		CheckMethod: func(s string) error {
 			if !othertool.CheckIp(s) {
-				return errors.New("ip is not valid")
+				return errors.New("IP不合法")
 			}
 			return nil
 		},
-		Describe: "",
+		Describe: "IP地址,支持ipv4,例:192.168.0.1",
 	}
 	p2 := basic.Parameter{
 		ParamType:    basic.INT,
@@ -43,39 +43,39 @@ func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 		Required:     true,
 		CheckMethod: func(s string) error {
 			if !othertool.CheckPortByString(s) {
-				return errors.New("port is not valid")
+				return errors.New("端口不合法")
 			}
 			return nil
 		},
-		Describe: "",
+		Describe: "端口号,0 ~ 65535之间",
 	}
 	p3 := basic.Parameter{
 		ParamType:    basic.STRING,
 		CommandName:  "-u",
 		StandardName: "username",
 		Required:     true,
-		Describe:     "",
+		Describe:     "数据库用户名",
 	}
 	p4 := basic.Parameter{
 		ParamType:    basic.STRING,
 		CommandName:  "-P",
 		StandardName: "password",
 		Required:     true,
-		Describe:     "",
+		Describe:     "数据库密码",
 	}
 	p5 := basic.Parameter{
 		ParamType:    basic.STRING,
 		CommandName:  "-d",
 		StandardName: "dbname",
 		Required:     true,
-		Describe:     "",
+		Describe:     "数据库名称",
 	}
 	p6 := basic.Parameter{
 		ParamType:    basic.STRING,
 		CommandName:  "-s",
 		StandardName: "searchpath",
 		Required:     true,
-		Describe:     "",
+		Describe:     "数据库schema",
 	}
 	return &basic.ComponentMeta{
 		ComponentType: basic.EXECUTE,

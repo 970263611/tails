@@ -20,7 +20,7 @@ func main() {
 	args := os.Args
 	err := loadConfig(args)
 	if err != nil {
-		fmt.Println("load config err:", err)
+		fmt.Println("加载配置文件失败:", err)
 		return
 	}
 	//调用component，并打印
@@ -45,6 +45,9 @@ func loadConfig(args []string) error {
 			}
 			break
 		}
+	}
+	if path == "" {
+		return nil
 	}
 	return basic.LoadConfig(path)
 }
