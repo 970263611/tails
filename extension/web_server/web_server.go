@@ -32,7 +32,8 @@ func (r *WebServer) Register(globalContext *basic.Context) *basic.ComponentMeta 
 		ParamType:    basic.INT,
 		CommandName:  "-p",
 		StandardName: "port",
-		Required:     false,
+		ConfigName:   "web_server.port",
+		Required:     true,
 		CheckMethod: func(s string) error {
 			if !othertool.CheckPortByString(s) {
 				return errors.New("端口不合法")
@@ -79,7 +80,7 @@ func handler1(req map[string]any) []byte {
 	if len(commands) <= 0 {
 		return []byte("参数param不能为空")
 	}
-	resp, b := requestForward(commands)
+	resp, b := forward(commands)
 	if b {
 		return resp
 	}
@@ -91,7 +92,7 @@ func handler1(req map[string]any) []byte {
 *
 web请求转发
 */
-func requestForward(args []string) ([]byte, bool) {
+func forward(args []string) ([]byte, bool) {
 	var addr, params string
 	var flag bool
 	//判断是否需要转发，并拼接转发参数

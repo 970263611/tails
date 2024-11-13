@@ -245,6 +245,9 @@ func commandsToMap(commands []string) (map[string]string, error) {
 添加config配置文件中的内容到入参中
 */
 func addConfigToMap(maps map[string]string) error {
+	if globalContext.Config == nil {
+		return nil
+	}
 	s, ok := maps[COMPONENT_KEY]
 	if !ok {
 		return nil

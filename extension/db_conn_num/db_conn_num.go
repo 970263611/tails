@@ -27,6 +27,7 @@ func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 		ParamType:    basic.STRING,
 		CommandName:  "-h",
 		StandardName: "host",
+		ConfigName:   "db_conn_num.host",
 		Required:     true,
 		CheckMethod: func(s string) error {
 			if !othertool.CheckIp(s) {
@@ -40,6 +41,7 @@ func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 		ParamType:    basic.INT,
 		CommandName:  "-p",
 		StandardName: "port",
+		ConfigName:   "db_conn_num.port",
 		Required:     true,
 		CheckMethod: func(s string) error {
 			if !othertool.CheckPortByString(s) {
@@ -53,6 +55,7 @@ func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 		ParamType:    basic.STRING,
 		CommandName:  "-u",
 		StandardName: "username",
+		ConfigName:   "db_conn_num.username",
 		Required:     true,
 		Describe:     "数据库用户名",
 	}
@@ -60,6 +63,7 @@ func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 		ParamType:    basic.STRING,
 		CommandName:  "-P",
 		StandardName: "password",
+		ConfigName:   "db_conn_num.password",
 		Required:     true,
 		Describe:     "数据库密码",
 	}
@@ -67,6 +71,7 @@ func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 		ParamType:    basic.STRING,
 		CommandName:  "-d",
 		StandardName: "dbname",
+		ConfigName:   "db_conn_num.dbname",
 		Required:     true,
 		Describe:     "数据库名称",
 	}
@@ -74,6 +79,7 @@ func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
 		ParamType:    basic.STRING,
 		CommandName:  "-s",
 		StandardName: "searchpath",
+		ConfigName:   "db_conn_num.schema",
 		Required:     true,
 		Describe:     "数据库schema",
 	}
