@@ -1,4 +1,4 @@
-package naocs_server
+package nacos_server
 
 import (
 	"basic"
@@ -22,32 +22,32 @@ func (w *NacosServer) GetName() string {
 }
 
 func (r *NacosServer) GetDescribe() string {
-	return "nacos服务"
+	return "Nacos上下线,用于封停/解停相关服务"
 }
 
 func (r *NacosServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
 	command := &basic.ComponentMeta{
 		Component: r,
 	}
-	command.AddParameters(basic.STRING, "-h", "host", true, func(s string) error {
+	command.AddParameters(basic.STRING, "-h", "nacos.server.ip", "host", false, func(s string) error {
 		if !othertool.CheckIp(s) {
 			return errors.New("nacos服务ip不合法")
 		}
 		return nil
 	}, "nacos服务的主机地址")
-	command.AddParameters(basic.INT, "-p", "port", true, func(s string) error {
+	command.AddParameters(basic.INT, "-p", "nacos.server.port", "port", false, func(s string) error {
 		if !othertool.CheckPortByString(s) {
 			return errors.New("nacos服务port不合法")
 		}
 		return nil
 	}, "nacos服务的端口")
-	command.AddParameters(basic.STRING, "-u", "username", true, nil, "nacos登录用户名")
-	command.AddParameters(basic.STRING, "-w", "password", true, nil, "nacos登录密码")
-	command.AddParameters(basic.STRING, "-e", "enabled", true, nil, "是否要封停/解停")
-	command.AddParameters(basic.STRING, "-n", "namespaceId", true, nil, "要封停/解停系统所在命名空间")
-	command.AddParameters(basic.STRING, "-s", "serviceName", true, nil, "要封停/解停系统服务名")
-	command.AddParameters(basic.STRING, "-sh", "serviceIp", true, nil, "要封停/解停系统ip")
-	command.AddParameters(basic.INT, "-sp", "servicePort", true, nil, "要封停/解停系统port")
+	command.AddParameters(basic.STRING, "-u", "nacos.server.username", "username", false, nil, "nacos登录用户名")
+	command.AddParameters(basic.STRING, "-w", "nacos.server.password", "password", false, nil, "nacos登录密码")
+	command.AddParameters(basic.STRING, "-n", "nacos.server.namespace", "namespace", false, nil, "要封停/解停系统所在命名空间")
+	command.AddParameters(basic.STRING, "-e", "", "enabled", true, nil, "是否要封停/解停")
+	command.AddParameters(basic.STRING, "-s", "", "serviceName", true, nil, "要封停/解停系统服务名")
+	command.AddParameters(basic.STRING, "-H", "", "serviceIp", true, nil, "要封停/解停系统ip")
+	command.AddParameters(basic.INT, "-P", "", "servicePort", true, nil, "要封停/解停系统port")
 	return command
 }
 func (r *NacosServer) Start(globalContext *basic.Context) error {
@@ -62,7 +62,7 @@ func (r *NacosServer) Do(params map[string]any) (resp []byte) {
 	queryParams.Add("username", params["username"].(string))
 	queryParams.Add("password", params["password"].(string))
 	queryParams.Add("enabled", params["enabled"].(string))
-	queryParams.Add("namespaceId", params["namespaceId"].(string))
+	queryParams.Add("namespaceId", params["namespace"].(string))
 	queryParams.Add("serviceName", params["serviceName"].(string))
 	queryParams.Add("ip", params["serviceIp"].(string))
 	queryParams.Add("port", params["servicePort"].(string))

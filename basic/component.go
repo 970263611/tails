@@ -57,10 +57,11 @@ func (c ComponentMeta) check(commands map[string]string) (map[string]interface{}
 *
 组件添加参数
 */
-func (c *ComponentMeta) AddParameters(paramType ParamType, commandName string, standardName string, required bool, method func(s string) error, describe string) {
+func (c *ComponentMeta) AddParameters(paramType ParamType, commandName string, configName string, standardName string, required bool, method func(s string) error, describe string) {
 	p := Parameter{
 		ParamType:    paramType,
 		CommandName:  commandName,
+		ConfigName:   configName,
 		StandardName: standardName,
 		Required:     required,
 		CheckMethod:  method,

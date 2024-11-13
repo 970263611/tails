@@ -1,4 +1,4 @@
-package naocs_server
+package nacos_server
 
 import (
 	"fmt"
@@ -11,8 +11,8 @@ func TestDoHandler(t *testing.T) {
 		"port":        8848,
 		"username":    "nacos",
 		"password":    "nacos",
-		"enabled":     "true",
-		"namespaceId": "test1112",
+		"enabled":     "false",
+		"namespace":   "test1112",
 		"serviceName": "cdl",
 		"serviceIp":   "172.20.10.2",
 		"servicePort": "9090",
