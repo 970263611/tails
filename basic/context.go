@@ -18,6 +18,11 @@ var globalContext = &Context{
 	cache:      make(map[string]any),
 }
 
+const (
+	FUll_PATH     string = "fullPath"
+	COMPONENT_KEY string = "componentKey"
+)
+
 /*
 *
 这里设置配置文件默认值
@@ -84,6 +89,10 @@ func (c *Context) Start() error {
 	return nil
 }
 
+/*
+*
+根据参数名称和查询方类型，返回组件参数名称
+*/
 func (c *Context) FindComponent(key string, isSystem bool) *ComponentMeta {
 	cm, ok := c.components[key]
 	if ok {
@@ -101,6 +110,10 @@ func (c *Context) FindComponent(key string, isSystem bool) *ComponentMeta {
 	return nil
 }
 
+/*
+*
+根据组件名称及命令行参数名称，查询到指定参数的配置信息
+*/
 func (c *Context) FindParameterType(componentKey string, commandName string) ParamType {
 	for _, value := range systemParam {
 		if value.CommandName == commandName {
@@ -121,6 +134,10 @@ func (c *Context) FindParameterType(componentKey string, commandName string) Par
 	return -1
 }
 
+/*
+*
+Help组件，传入组件名称，生成组件的help信息并返回；如果是查询tails支持的所有组件，则传入base
+*/
 func (c *Context) FindHelp(key string) string {
 	linewordnum := 100
 	var msg string
@@ -165,20 +182,20 @@ func (c *Context) FindHelp(key string) string {
 
 /*
 *
-命令行转map
+命令行数组转换为maps
 */
-func CommandsToMap(commands []string) (map[string]string, error) {
+func commandsToMap(commands []string) (map[string]string, error) {
 	//go run main.go componentKey 至少应该有两个参数
 	maps := make(map[string]string)
 	//第1个参数是 office组件路径
-	maps["officePath"] = commands[0]
+	maps[FUll_PATH] = commands[0]
 	if len(commands) < 2 {
 		maps["--help"] = "base"
 		return maps, nil
 	}
 	//第2个参数是 组件componentkey
 	componentKey := commands[1]
-	maps["componentKey"] = componentKey
+	maps[COMPONENT_KEY] = componentKey
 	//第3个到最后一个参数为 component入参，少于3个参数肯定就是没入参,只有大于等于三个参数，才存在入参
 	var params []string
 	if len(commands) > 2 {
@@ -212,8 +229,33 @@ func CommandsToMap(commands []string) (map[string]string, error) {
 				}
 			}
 		} else {
-			return nil, errors.New("参数错误")
+			return nil, errors.New("参数错误,参数应以-或--开头")
 		}
 	}
+
 	return maps, nil
+}
+
+/*
+*
+添加config配置文件中的内容到入参中
+*/
+func addConfigToMap(maps map[string]string) error {
+	s, ok := maps[COMPONENT_KEY]
+	if !ok {
+		return nil
+	}
+	component := globalContext.FindComponent(s, true)
+	if component == nil {
+		return nil
+	}
+	for _, v := range component.Params {
+		if _, ok = maps[v.CommandName]; v.ParamType != NO_VALUE && v.ConfigName != "" && !ok {
+			val := globalContext.Config.GetString(v.ConfigName)
+			if val != "" {
+				maps[v.CommandName] = val
+			}
+		}
+	}
+	return nil
 }

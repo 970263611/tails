@@ -74,9 +74,5 @@ func handler1(req map[string]any) (resp []byte) {
 		return []byte("参数param不能为空")
 	}
 	commands = append([]string{"main.go"}, commands...)
-	toMap, err := basic.CommandsToMap(commands)
-	if err != nil {
-		return []byte(err.Error())
-	}
-	return basic.Servlet(toMap, false)
+	return basic.Servlet(commands, false)
 }

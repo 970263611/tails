@@ -41,7 +41,7 @@ func AddInitComponent(cp Component) {
 *
 组件全部参数验证
 */
-func (c ComponentMeta) Check(commands map[string]string) (map[string]interface{}, error) {
+func (c ComponentMeta) check(commands map[string]string) (map[string]interface{}, error) {
 	params := make(map[string]any)
 	parameters := c.Params
 	for _, param := range parameters {

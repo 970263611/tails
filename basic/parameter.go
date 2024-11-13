@@ -18,10 +18,11 @@ const (
 入参规则
 */
 type Parameter struct {
-	ParamType
-	CommandName  string               //命令行中的名称
-	StandardName string               //方法中的变量名
-	Required     bool                 //是否必填
+	ParamType                         //参数的值类型，支持无值，整形和字符串三种
+	CommandName  string               //命令行中的名称,例如 -h -p 等等
+	ConfigName   string               //配置文件中的名称，例如 app.server.port
+	StandardName string               //方法中的变量名,方法中获取的该参数时使用的key名称
+	Required     bool                 //是否必填，默认false
 	CheckMethod  func(s string) error //校验方法
 	Describe     string               //描述
 }

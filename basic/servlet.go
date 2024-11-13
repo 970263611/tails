@@ -11,7 +11,20 @@ import (
 *
 组件分发
 */
-func Servlet(maps map[string]string, isSystem bool) []byte {
+func Servlet(args []string, isSystem bool) []byte {
+	//解析命令行为map
+	maps, err := commandsToMap(args)
+	if err != nil {
+		msg := fmt.Sprintf("入参解析失败 ： %v", err)
+		log.Error(msg)
+		return []byte(msg)
+	}
+	err = addConfigToMap(maps)
+	if err != nil {
+		msg := fmt.Sprintf("配置文件参数解析失败 ： %v", err)
+		log.Error(msg)
+		return []byte(msg)
+	}
 	bytes, flag := systemParamExec(maps)
 	if flag {
 		return bytes
@@ -30,7 +43,7 @@ func Servlet(maps map[string]string, isSystem bool) []byte {
 		return []byte(msg)
 	}
 	//参数验证
-	params, err := c.Check(maps)
+	params, err := c.check(maps)
 	if err != nil {
 		msg := fmt.Sprintf("参数验证失败 : %v", err)
 		log.Error(msg)
@@ -88,10 +101,6 @@ func systemParamExec(maps map[string]string) ([]byte, bool) {
 	val, ok := maps["--help"]
 	if ok {
 		return Help(val)
-	}
-	val, ok = maps["--path"]
-	if ok {
-		LoadConfig(val)
 	}
 	val, ok = maps["--start"]
 	if ok {
