@@ -25,5 +25,5 @@ func LoadConfig(path string) error {
 	globalContext.Config = v
 	msg := fmt.Sprintf("配置文件 %v 读取成功", path)
 	log.Info(msg)
-	return errors.New(msg)
+	return nil
 }
