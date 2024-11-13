@@ -9,3 +9,10 @@ nacos:
     username: nacos
     password: nacos
     namespace: cdl
+
+monitor:
+  server:
+    ip: 127.0.0.1
+    port: 9999
+    username: sysadmin
+    password: Grcf#jk9527

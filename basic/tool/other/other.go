@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -113,4 +114,14 @@ func SplitByChinese(s string, length int) []string {
 func SplitString(s string) []string {
 	re := regexp.MustCompile(`'(?:[^']|'')*'|"(?:[^"]|\"\")*"|\S+`)
 	return re.FindAllString(s, -1)
+}
+
+/*
+*
+检查字符串是否是boolean类型
+*/
+func CheckIsBooleanByString(s string) bool {
+	// 忽略大小写
+	s = strings.ToLower(s)
+	return s == "true" || s == "false"
 }

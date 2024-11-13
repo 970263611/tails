@@ -1,5 +1,17 @@
 package monitor_server
 
+// LoginResp login接口返回体结构
+type LoginResp struct {
+	Code    int
+	Data    []LoginRespEntry
+	Message string
+}
+
+// LoginRespEntry login接口返回对象
+type LoginRespEntry struct {
+	Token string
+}
+
 type A1Resp struct {
 	Code    int
 	Data    []A1RespEntry

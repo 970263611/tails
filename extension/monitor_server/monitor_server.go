@@ -28,27 +28,25 @@ func (r *MonitorServer) Register(globalContext *basic.Context) *basic.ComponentM
 	command := &basic.ComponentMeta{
 		Component: r,
 	}
-	command.AddParameters(basic.STRING, "-h", "host", true, func(s string) error {
+	command.AddParameters(basic.STRING, "-h", "monitor.server.ip", "host", true, func(s string) error {
 		if !othertool.CheckIp(s) {
 			return errors.New("监控服务ip不合法")
 		}
 		return nil
 	}, "监控服务的主机地址")
-	command.AddParameters(basic.INT, "-p", "port", true, func(s string) error {
+	command.AddParameters(basic.INT, "-p", "monitor.server.port", "port", true, func(s string) error {
 		if !othertool.CheckPortByString(s) {
 			return errors.New("监控服务port不合法")
 		}
 		return nil
 	}, "监控服务的端口")
-	command.AddParameters(basic.STRING, "-u", "username", true, nil, "监控服务的登录用户名")
-	command.AddParameters(basic.STRING, "-w", "password", true, nil, "监控服务的登录密码")
+	command.AddParameters(basic.STRING, "-u", "monitor.server.username", "username", true, nil, "监控服务的登录用户名")
+	command.AddParameters(basic.STRING, "-w", "monitor.server.password", "password", true, nil, "监控服务的登录密码")
 	return command
 }
 func (r *MonitorServer) Start(globalContext *basic.Context) error {
 	return nil
 }
-
-var urlPrefix string
 
 func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
 	res := &findResult{
@@ -64,7 +62,6 @@ func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
 	if err != nil {
 		return nil
 	}
-	i := 7
 	res.token = token
 	go res.a1()
 	go res.a2()
@@ -74,13 +71,10 @@ func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
 	go res.a6()
 	go res.a10()
 	after := time.After(3 * time.Second)
-	for {
+	for i := 7; i > 0; i-- {
 		select {
 		case <-res.c:
-			i--
-			if i == 0 {
-				break
-			}
+			//接口3s内执行成功
 		case <-after:
 			break
 		}

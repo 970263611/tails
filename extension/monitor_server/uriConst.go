@@ -25,7 +25,6 @@ type findResult struct {
 	c         chan int
 }
 
-// todo
 func (f findResult) login() (string, error) {
 	var loginResp LoginResp
 	err := net.PostRespStruct(f.urlPrefix+"/api/cert/actions/login",
