@@ -3,9 +3,11 @@ package monitor_server
 import (
 	"basic"
 	othertool "basic/tool/other"
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -82,10 +84,17 @@ func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
 	}
 	jsonData, err := json.Marshal(res.result)
 	if err != nil {
-		fmt.Println("转换为JSON字符串时出错：", err)
-		return
+		return []byte("转换为JSON字符串时出错")
 	}
-	//var str string
-	////str += a1 + "\r\n"
-	return []byte(jsonData)
+	var prettyJSON bytes.Buffer
+	error := json.Indent(&prettyJSON, jsonData, "", "    ")
+	if error != nil {
+		return []byte("JSON美化出错")
+	}
+	prettyStr := string(prettyJSON.Bytes())
+
+	prettyStr = strings.Replace(prettyStr, "\\r", "\r", -1)
+	prettyStr = strings.Replace(prettyStr, "\\n", "\n", -1)
+
+	return []byte(prettyStr)
 }

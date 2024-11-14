@@ -26,7 +26,7 @@ func (t *TcpServer) Register(globalContext *basic.Context) *basic.ComponentMeta 
 		CommandName:  "-p",
 		StandardName: "tcp_port",
 		Required:     false,
-		Describe:     "某端口tcp连接数",
+		Describe:     "统计已连接上的，某端口tcp连接数",
 	}
 	p2 := basic.Parameter{
 		ParamType:    basic.NO_VALUE,
@@ -35,11 +35,18 @@ func (t *TcpServer) Register(globalContext *basic.Context) *basic.ComponentMeta 
 		Required:     false,
 		Describe:     "统计已连接上的，状态为“established的tcp连接数",
 	}
+	p3 := basic.Parameter{
+		ParamType:    basic.STRING,
+		CommandName:  "-i",
+		StandardName: "tcp_ip",
+		Required:     false,
+		Describe:     "统计已连接上的，某ip的tcp连接数",
+	}
 
 	return &basic.ComponentMeta{
 		//todo
 		//ComponentType: basic.EXECUTE,
-		Params:    []basic.Parameter{p1, p2},
+		Params:    []basic.Parameter{p1, p2, p3},
 		Component: t,
 	}
 }
@@ -56,7 +63,7 @@ func (t *TcpServer) Do(params map[string]any) (resp []byte) {
 	lines := strings.Split(string(output), "\n")
 	count := 0
 
-	//某端口tcp连接数
+	//统计已连接上的，某端口tcp连接数
 	tcp_portStr, tcp_port_ok := params["tcp_port"].(int)
 	if tcp_port_ok {
 		if tcp_portStr != 0 {
@@ -78,6 +85,19 @@ func (t *TcpServer) Do(params map[string]any) (resp []byte) {
 			}
 		}
 		return []byte(strconv.Itoa(count))
+	}
+
+	//统计已连接上的，某iptcp连接数
+	tcp_ip, tcp_ip_ok := params["tcp_ip"].(string)
+	if tcp_ip_ok {
+		if len(tcp_ip) > 0 {
+			for _, line := range lines {
+				if strings.Contains(line, "ESTABLISHED") && strings.Contains(line, tcp_ip) {
+					count++
+				}
+			}
+			return []byte(strconv.Itoa(count))
+		}
 	}
 
 	//默认查询

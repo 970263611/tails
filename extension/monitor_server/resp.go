@@ -33,7 +33,7 @@ type A5Resp struct {
 
 type A5RespEntry struct {
 	//中心标志
-	CenterFlag int
+	CenterFlag string
 	//服务名称
 	SubsystemCode string
 	//服务中文名称
@@ -58,7 +58,7 @@ type A6Resp struct {
 
 type A6RespEntry struct {
 	//中心标志
-	CenterFlag int
+	CenterFlag string
 	//主机端口号
 	HostPort int
 	//启用标志0-停用 1-启用
