@@ -3,7 +3,7 @@ package monitor_server
 // LoginResp login接口返回体结构
 type LoginResp struct {
 	Code    int
-	Data    []LoginRespEntry
+	Data    LoginRespEntry
 	Message string
 }
 

@@ -3,6 +3,7 @@ package monitor_server
 import (
 	"basic"
 	othertool "basic/tool/other"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -71,7 +72,7 @@ func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
 	go res.a6()
 	go res.a10()
 	after := time.After(3 * time.Second)
-	for i := 7; i > 0; i-- {
+	for i := 8; i > 0; i-- {
 		select {
 		case <-res.c:
 			//接口3s内执行成功
@@ -79,6 +80,12 @@ func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
 			break
 		}
 	}
-	str := fmt.Sprintf("%v", res.result)
-	return []byte(str)
+	jsonData, err := json.Marshal(res.result)
+	if err != nil {
+		fmt.Println("转换为JSON字符串时出错：", err)
+		return
+	}
+	//var str string
+	////str += a1 + "\r\n"
+	return []byte(jsonData)
 }

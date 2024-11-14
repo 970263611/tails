@@ -2,16 +2,20 @@ package monitor_server
 
 import (
 	"basic/tool/net"
+	"fmt"
 	"net/http"
 	"net/url"
 	"time"
 )
 
 type result struct {
-	a1 any
-	a2 any
-	a3 any
-	a4 any
+	A1  any //昨日交易成功率 tps
+	A2  any //当日实时成功率 tps
+	A3  any //外部系统交易成功率 tps
+	A4  any //子系统交易成功率 tps
+	A5  any //应用进程检查
+	A6  any //网络检查
+	A10 any //统一监控报警检查
 }
 
 type findResult struct {
@@ -36,7 +40,7 @@ func (f findResult) login() (string, error) {
 		return "", err
 	}
 	entries := loginResp.Data
-	return entries[0].Token, nil
+	return entries.Token, nil
 }
 
 func (f findResult) deferMethod() {
@@ -54,12 +58,11 @@ func (f findResult) a1() {
 	queryParams.Add("selectTimeDimension", "2")
 	//昨日时间
 	//queryParams.Add("selectTime", previousDay())
-	a1Resp, err := findSuccessRate(f, queryParams)
+	A1Resp, err := findSuccessRate(f, queryParams)
 	if err != nil {
-		return
+		f.result.A1 = fmt.Sprintf("查询失败 ： %v", err)
 	}
-	f.result.a1 = a1Resp
-
+	f.result.A1 = A1Resp
 }
 
 func (f findResult) a2() {
@@ -73,11 +76,11 @@ func (f findResult) a2() {
 	queryParams.Add("selectTimeDimension", "2")
 	//当日时间
 	/*queryParams.Add("selectTime", "2024-11-07+00:00:00")*/
-	a1Resp, err := findSuccessRate(f, queryParams)
+	A1Resp, err := findSuccessRate(f, queryParams)
 	if err != nil {
-		return
+		f.result.A2 = fmt.Sprintf("查询失败 ： %v", err)
 	}
-	f.result.a2 = a1Resp
+	f.result.A2 = A1Resp
 }
 
 func (f findResult) a3() {
@@ -91,7 +94,11 @@ func (f findResult) a3() {
 	queryParams.Add("selectTimeDimension", "2")
 	//当日时间
 	/*queryParams.Add("selectTime", "2024-11-07+00:00:00")*/
-	findSuccessRate(f, queryParams)
+	A1Resp, err := findSuccessRate(f, queryParams)
+	if err != nil {
+		f.result.A3 = fmt.Sprintf("查询失败 ： %v", err)
+	}
+	f.result.A3 = A1Resp
 }
 
 func (f findResult) a4() {
@@ -105,7 +112,11 @@ func (f findResult) a4() {
 	queryParams.Add("selectTimeDimension", "2")
 	//当日时间
 	/*queryParams.Add("selectTime", "2024-11-07+00:00:00")*/
-	findSuccessRate(f, queryParams)
+	A1Resp, err := findSuccessRate(f, queryParams)
+	if err != nil {
+		f.result.A4 = fmt.Sprintf("查询失败 ： %v", err)
+	}
+	f.result.A4 = A1Resp
 }
 
 func (f findResult) a5() {
@@ -115,15 +126,15 @@ func (f findResult) a5() {
 	queryParams.Add("pageSize", "50")
 	queryParams.Add("centerFlag", "")
 	header := http.Header{}
-	header.Set("Authorization", f.token)
+	header.Set("X-ER-UAT", f.token)
 	// 用于接收响应的结构体实例
 	var A5Resp A5Resp
 	// 发送 GET 请求
 	err := net.GetRespStruct(f.urlPrefix+"/monitor/registration/get-node-status-list", queryParams, header, &A5Resp)
 	if err != nil {
-		r := f.result
-		r.a1 = "查询失败"
+		f.result.A5 = fmt.Sprintf("查询失败 ： %v", err)
 	}
+	f.result.A5 = A5Resp
 }
 
 func (f findResult) a6() {
@@ -133,15 +144,15 @@ func (f findResult) a6() {
 	queryParams.Add("pageSize", "50")
 	queryParams.Add("centerFlag", "")
 	header := http.Header{}
-	header.Set("Authorization", f.token)
+	header.Set("X-ER-UAT", f.token)
 	// 用于接收响应的结构体实例
 	var A6Resp A6Resp
 	// 发送 GET 请求
 	err := net.GetRespStruct(f.urlPrefix+"/monitor/tbMonctlPortConf/listPortAssist", queryParams, header, &A6Resp)
 	if err != nil {
-		r := f.result
-		r.a1 = "查询失败"
+		f.result.A6 = fmt.Sprintf("查询失败 ： %v", err)
 	}
+	f.result.A6 = A6Resp
 }
 
 func (f findResult) a10() {
@@ -151,30 +162,25 @@ func (f findResult) a10() {
 	queryParams.Add("pageSize", "50")
 	queryParams.Add("alarmStatus", "0")
 	header := http.Header{}
-	header.Set("Authorization", f.token)
+	header.Set("X-ER-UAT", f.token)
 	// 用于接收响应的结构体实例
 	var A10Resp A10Resp
 	// 发送 GET 请求
 	err := net.GetRespStruct(f.urlPrefix+"/monitor/monitorAlarmJnl/list", queryParams, header, &A10Resp)
 	if err != nil {
-		r := f.result
-		r.a1 = "查询失败"
+		f.result.A10 = fmt.Sprintf("查询失败 ： %v", err)
 	}
+	f.result.A10 = A10Resp
 }
 
 func findSuccessRate(f findResult, queryParams url.Values) (*A1Resp, error) {
 	header := http.Header{}
-	header.Set("Authorization", f.token)
+	header.Set("X-ER-UAT", f.token)
 	// 用于接收响应的结构体实例
 	var A1Resp A1Resp
 	// 发送 GET 请求
 	err := net.GetRespStruct(f.urlPrefix+"/monitor/trade/statistic", queryParams, header, &A1Resp)
-	if err != nil {
-		r := f.result
-		r.a1 = "查询失败"
-		return nil, err
-	}
-	return &A1Resp, nil
+	return &A1Resp, err
 }
 
 func currentDay() string {
