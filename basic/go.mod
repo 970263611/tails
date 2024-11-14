@@ -10,6 +10,8 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.10
+	github.com/olekukonko/tablewriter v0.0.5
+    github.com/sirupsen/logrus v1.9.3
 )
 
 require (
@@ -42,4 +44,6 @@ require (
 	golang.org/x/sys v0.26.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	github.com/mattn/go-runewidth v0.0.9 // indirect
+    golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 )

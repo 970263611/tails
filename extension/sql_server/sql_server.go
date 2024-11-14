@@ -7,12 +7,13 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
+	"github.com/olekukonko/tablewriter"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
-	"text/tabwriter"
 )
 
 type SqlServer struct{}
@@ -40,6 +41,7 @@ func (r *SqlServer) Register(globalContext *basic.Context) *basic.ComponentMeta 
 	command.AddParameters(basic.STRING, "-d", "sql.server.dbname", "dbname", true, nil, "数据库名称")
 	command.AddParameters(basic.STRING, "-s", "sql.server.searchPath", "searchPath", true, nil, "数据库结构")
 	command.AddParameters(basic.STRING, "-e", "", "sql", false, nil, "执行sql语句")
+	command.AddParameters(basic.STRING, "-o", "", "outPutFile", false, nil, "执行sql语句后,将查询结果导出到指定文件")
 	command.AddParameters(basic.STRING, "-f", "", "sqlFile", false, nil, "执行sql文件")
 	return command
 }
@@ -63,13 +65,35 @@ func (r *SqlServer) Do(params map[string]any) (resp []byte) {
 	if err != nil {
 		return []byte("connect database fail, " + err.Error())
 	}
+	//执行单个sql,并输出到指定文件
 	if params["sql"] != nil {
 		str, err := ExecSql(params["sql"].(string), dbBase)
 		if err != nil {
-			return []byte("execute sql fail, " + err.Error())
+			return []byte("sql执行失败: " + err.Error())
 		}
-		return []byte(str)
+		outPutFile, ok := params["outPutFile"].(string)
+		if !ok {
+			//命令行没有指定输出到文件,直接将查询结果返回
+			return []byte(str)
+		} else {
+			// 检查 outPutFile 是否是一个完整的文件路径
+			isFullPath := strings.ContainsAny(outPutFile, string(os.PathSeparator))
+			// 如果不是完整路径，则添加当前目录
+			if !isFullPath {
+				wd, err := os.Getwd()
+				if err != nil {
+					return []byte("获取当前目录出错: " + err.Error())
+				}
+				outPutFile = filepath.Join(wd, outPutFile)
+			}
+			err := os.WriteFile(outPutFile, []byte(str), 0644)
+			if err != nil {
+				return []byte("写入文件错误: " + err.Error())
+			}
+			return []byte("输出到指定文件成功!")
+		}
 	}
+	//执行sql文件
 	if params["sqlFile"] != nil {
 		err := ExecSqlFile(params["sqlFile"].(string), dbBase)
 		if err != nil {
@@ -162,47 +186,41 @@ func rendering(rows *sql.Rows) (string, error) {
 		return "", err
 	}
 	// 创建一个 bytes.Buffer 来捕获输出
-	var output bytes.Buffer
-	w := new(tabwriter.Writer)
-	w.Init(&output, 0, 8, 1, '\t', 0)
-
-	// 写入列名
-	fmt.Fprintln(w, strings.Join(columns, "\t"))
-	// 写入分隔线 假设每个列名或值最多占8个字符宽度（这个值可以根据实际情况调整）
-	fmt.Fprintln(&output, strings.Repeat("-", len(columns)*8))
+	buffer := new(bytes.Buffer)
+	// 创建tablewriter.Table
+	table := tablewriter.NewWriter(buffer)
+	table.SetHeader(columns)
 	// 为每列创建一个变量，并创建一个切片来保存这些变量的地址
 	columnPtrs := make([]interface{}, len(columns))
 	columnValues := make([]interface{}, len(columns))
-	for i := range columnPtrs {
-		columnPtrs[i] = &columnValues[i]
-	}
-	// 遍历每一行并写入数据
+	// 遍历查询结果并添加到表格中
 	for rows.Next() {
-		// 使用预先创建的变量地址切片来扫描行数据
-		err = rows.Scan(columnPtrs...)
-		if err != nil {
-			return "", err
+		for i := range columnPtrs {
+			columnPtrs[i] = &columnValues[i]
 		}
-		// 将扫描到的数据转换为字符串切片
-		var valueStrings []string
-		for _, val := range columnValues {
-			// 这里需要处理不同类型的数据，确保转换为字符串时不会出错
-			// 例如，如果 val 是 nil，则可能需要特别处理
-			if val == nil {
-				valueStrings = append(valueStrings, "NULL")
-			} else {
-				valueStrings = append(valueStrings, fmt.Sprintf("%v", val))
+		// 遍历每一行并写入数据
+		for rows.Next() {
+			// 使用预先创建的变量地址切片来扫描行数据
+			err = rows.Scan(columnPtrs...)
+			if err != nil {
+				return "", err
 			}
+			// 将扫描到的数据转换为字符串切片
+			var valueStrings []string
+			for _, val := range columnValues {
+				// 这里需要处理不同类型的数据，确保转换为字符串时不会出错
+				// 例如，如果 val 是 nil，则可能需要特别处理
+				if val == nil {
+					valueStrings = append(valueStrings, "NULL")
+				} else {
+					valueStrings = append(valueStrings, fmt.Sprintf("%v", val))
+				}
+			}
+			table.Append(valueStrings)
 		}
-		// 写入格式化后的数据行
-		fmt.Fprintln(w, strings.Join(valueStrings, "\t"))
 	}
-
-	// 检查是否有错误发生（在遍历行之后）
-	if err = rows.Err(); err != nil {
-		return "", err
-	}
-	// 刷新 tabwriter.Writer 的缓冲区
-	w.Flush()
-	return output.String(), nil
+	// 获取捕获的输出
+	table.Render()
+	output := buffer.String()
+	return output, nil
 }
