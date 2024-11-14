@@ -19,7 +19,7 @@ func (b *BatchServer) GetName() string {
 }
 
 func (b *BatchServer) GetDescribe() string {
-	return "batch job 服务"
+	return "batch job 服务,用于通过传入的任务名称 查询任务状态与重新执行任务功能"
 }
 
 func (b *BatchServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
@@ -58,19 +58,19 @@ func (b *BatchServer) Do(params map[string]any) (resp []byte) {
 		m := map[string]string{
 			"name": jobName,
 		}
-		var queryByNameResp QueryByNameResp
-		err := net.PostRespStruct(urlPrefix+"/queryByName", m, nil, &queryByNameResp)
+		var resp Resp
+		err := net.PostRespStruct(urlPrefix+"/queryByName", m, nil, &resp)
 		if err != nil {
 			fmt.Println("发错查询任务接口失败：", err)
 			return
 		}
-		if queryByNameResp.Code == "0000000000000000" {
-			if queryByNameResp.Data == "" {
+		if resp.Code == "0000000000000000" {
+			if resp.Data == "" {
 				return []byte(fmt.Sprintf("该任务名称%v 未查询到", jobName))
 			}
-			return []byte(fmt.Sprintf("%v任务状态为: %v ", jobName, queryByNameResp.Data))
+			return []byte(fmt.Sprintf("%v任务状态为: %v ", jobName, resp.Data))
 		} else {
-			return []byte("查询接口失败:" + queryByNameResp.Data)
+			return []byte("查询接口失败:" + resp.Data)
 		}
 	}
 	return

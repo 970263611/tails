@@ -1,4 +1,4 @@
-package batch_server
+package edb_server
 
 type Resp struct {
 	Code    string
