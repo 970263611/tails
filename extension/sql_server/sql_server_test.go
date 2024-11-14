@@ -14,6 +14,7 @@ func TestDoHandler(t *testing.T) {
 		"password":   "postgre",
 		"dbname":     "postgres",
 		"searchPath": "public",
+		"outPutFile": "D:\\zhh.txt",
 		"sql":        "SELECT * FROM test",
 	}
 	instance := GetInstance()
