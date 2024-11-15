@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 )
 
@@ -63,7 +62,7 @@ func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
 	res.urlPrefix = fmt.Sprintf("%s://%s:%d", "http", res.host, res.port)
 	token, err := res.login()
 	if err != nil {
-		return nil
+		return []byte("登录失败")
 	}
 	res.token = token
 	go res.a1()
@@ -92,9 +91,5 @@ func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
 		return []byte("JSON美化出错")
 	}
 	prettyStr := string(prettyJSON.Bytes())
-
-	prettyStr = strings.Replace(prettyStr, "\\r", "\r", -1)
-	prettyStr = strings.Replace(prettyStr, "\\n", "\n", -1)
-
 	return []byte(prettyStr)
 }
