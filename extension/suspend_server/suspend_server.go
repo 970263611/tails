@@ -3,6 +3,7 @@ package suspend_server
 import (
 	"basic"
 	othertool "basic/tool/other"
+	"encoding/json"
 	"errors"
 	"fmt"
 )
@@ -74,6 +75,10 @@ func (s *SuspendServer) Do(params map[string]any) (resp []byte) {
 	if err != nil {
 		return []byte("获取路由配置信息: " + err.Error())
 	}
-	fmt.Println(SelectRuleRespEntry)
-	return nil
+	byteData, err := json.Marshal(SelectRuleRespEntry)
+	if err != nil {
+		fmt.Println("JSON序列化出错:", err)
+		return
+	}
+	return byteData
 }
