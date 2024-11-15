@@ -52,7 +52,7 @@ func (r *NacosServer) Register(globalContext *basic.Context) *basic.ComponentMet
 	}, "是否要封停/解停, true是解停服务,false是封停服务")
 	command.AddParameters(basic.STRING, "-s", "", "serviceName", true, nil, "要封停/解停系统服务名")
 	command.AddParameters(basic.STRING, "-H", "", "serviceIp", true, nil, "要封停/解停系统ip")
-	command.AddParameters(basic.INT, "-P", "", "servicePort", true, nil, "要封停/解停系统port")
+	command.AddParameters(basic.STRING, "-P", "", "servicePort", true, nil, "要封停/解停系统port")
 	return command
 }
 func (r *NacosServer) Start(globalContext *basic.Context) error {

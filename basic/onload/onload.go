@@ -2,10 +2,13 @@ package onload
 
 import (
 	"basic"
+	"extension/batch_server"
 	"extension/check_server"
 	"extension/command_exec"
 	"extension/db_conn_num"
+	"extension/edb_server"
 	"extension/monitor_server"
+	"extension/nacos_server"
 	"extension/redis_server"
 	"extension/sql_server"
 	"extension/suspend_server"
@@ -23,5 +26,8 @@ func init() {
 	basic.AddInitComponent(monitor_server.GetInstance())
 	basic.AddInitComponent(tcp_server.GetInstance())
 	basic.AddInitComponent(suspend_server.GetInstance())
+	basic.AddInitComponent(nacos_server.GetInstance())
+	basic.AddInitComponent(batch_server.GetInstance())
+	basic.AddInitComponent(edb_server.GetInstance())
 
 }

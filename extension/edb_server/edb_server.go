@@ -38,8 +38,8 @@ func (b *EdbServer) Register(globalContext *basic.Context) *basic.ComponentMeta 
 		}
 		return nil
 	}, "edb服务的端口")
-	command.AddParameters(basic.STRING, "-u", "edb.server.username", "username", true, nil, "edb登录用户名")
-	command.AddParameters(basic.STRING, "-w", "edb.server.password", "password", true, nil, "edb登录密码")
+	command.AddParameters(basic.STRING, "-u", "edb.server.username", "username", false, nil, "edb登录用户名")
+	command.AddParameters(basic.STRING, "-w", "edb.server.password", "password", false, nil, "edb登录密码")
 	command.AddParameters(basic.STRING, "-s", "", "sendFileName", false, nil, "发送方需要恢复的文件名称")
 	command.AddParameters(basic.STRING, "-r", "", "receiveFileName", false, nil, "接收方需要恢复的文件名称")
 	return command

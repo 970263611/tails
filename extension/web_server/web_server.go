@@ -114,12 +114,12 @@ func forward(args []string) ([]byte, bool) {
 	if !flag {
 		return nil, flag
 	}
-	//校验转发地址是否合法
+	/*//校验转发地址是否合法
 	if !othertool.CheckAddr(addr) {
 		msg := fmt.Sprintf("地址不合法")
 		log.Error(msg)
 		return []byte(msg), flag
-	}
+	}*/
 	//转发请求并返回结果
 	uri := fmt.Sprintf("http://%s/do", addr)
 	resp, err := net.PostRespString(uri, map[string]string{

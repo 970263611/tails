@@ -38,8 +38,8 @@ func (b *BatchServer) Register(globalContext *basic.Context) *basic.ComponentMet
 		}
 		return nil
 	}, "batch服务的端口")
-	command.AddParameters(basic.STRING, "-u", "batch.server.username", "username", true, nil, "batch登录用户名")
-	command.AddParameters(basic.STRING, "-w", "batch.server.password", "password", true, nil, "batch登录密码")
+	command.AddParameters(basic.STRING, "-u", "batch.server.username", "username", false, nil, "batch登录用户名")
+	command.AddParameters(basic.STRING, "-w", "batch.server.password", "password", false, nil, "batch登录密码")
 	command.AddParameters(basic.STRING, "-q", "", "jobName", false, nil, "任务名称,通过任务名称查询任务状态")
 	command.AddParameters(basic.STRING, "-e", "", "execJobByName", false, nil, "任务名称,通过任务名称重新执行任务")
 	return command
@@ -62,7 +62,7 @@ func (b *BatchServer) Do(params map[string]any) (resp []byte) {
 		err := net.PostRespStruct(urlPrefix+"/queryByName", m, nil, &resp)
 		if err != nil {
 			fmt.Println("发错查询任务接口失败：", err)
-			return
+			return nil
 		}
 		if resp.Code == "0000000000000000" {
 			if resp.Data == "" {
@@ -73,5 +73,5 @@ func (b *BatchServer) Do(params map[string]any) (resp []byte) {
 			return []byte("查询接口失败:" + resp.Data)
 		}
 	}
-	return
+	return nil
 }

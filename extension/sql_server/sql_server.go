@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -127,7 +128,8 @@ func (r *SqlServer) Do(params map[string]any) (resp []byte) {
 }
 
 func ExecSql(sqlStr string, db *dbtool.BaseDb) (string, error) {
-
+	re := regexp.MustCompile(`^"+|"+$`)
+	sqlStr = re.ReplaceAllString(sqlStr, "")
 	switch {
 	case strings.HasPrefix(strings.ToUpper(sqlStr), "SELECT"):
 		rows, err := db.Raw(sqlStr).Rows()
