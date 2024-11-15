@@ -40,7 +40,7 @@ func (r *WebServer) Register(globalContext *basic.Context) *basic.ComponentMeta 
 			}
 			return nil
 		},
-		Describe: "",
+		Describe: "发布web服务的端口号",
 	}
 	return &basic.ComponentMeta{
 		ComponentType: basic.EXECUTE,

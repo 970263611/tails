@@ -125,3 +125,19 @@ func CheckIsBooleanByString(s string) bool {
 	s = strings.ToLower(s)
 	return s == "true" || s == "false"
 }
+
+/*
+*
+获取连续数量的某个字符串
+*/
+func GetBlankByNum(num int, s string) string {
+	if num < 1 {
+		return ""
+	} else {
+		var sb strings.Builder
+		for i := 0; i < num; i++ {
+			sb.WriteString(s)
+		}
+		return sb.String()
+	}
+}
