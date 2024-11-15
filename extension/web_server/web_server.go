@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"strings"
 )
 
 type WebServer struct {
@@ -109,22 +108,15 @@ func forward(args []string) ([]byte, bool) {
 				return []byte(msg), true
 			}
 		} else {
-			params = args[i] + " "
+			params += args[i] + " "
 		}
 	}
 	if !flag {
 		return nil, flag
 	}
 	//校验转发地址是否合法
-	msg := fmt.Sprintf("地址不合法")
-	arr := strings.Split(addr, ":")
-	if len(arr) != 2 {
-		log.Error(msg)
-		return []byte(msg), flag
-	}
-	ipflag := othertool.CheckIp(arr[0])
-	portflag := othertool.CheckPortByString(arr[1])
-	if !ipflag || !portflag {
+	if !othertool.CheckAddr(addr) {
+		msg := fmt.Sprintf("地址不合法")
 		log.Error(msg)
 		return []byte(msg), flag
 	}
@@ -134,6 +126,7 @@ func forward(args []string) ([]byte, bool) {
 		"params": params,
 	}, nil)
 	if err != nil {
+		log.Errorf("转发请求 %v 错误，错误原因 : &v", uri, err)
 		return []byte(err.Error()), flag
 	} else {
 		return []byte(resp), flag

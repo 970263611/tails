@@ -45,9 +45,8 @@ type Config struct {
 }
 
 func TestLoadConfig(t *testing.T) {
-	context := loadConfig()
 	var config Config
-	err := context.Unmarshal(&config)
+	err := Unmarshal(&config)
 	if err != nil {
 		fmt.Println(err)
 	}

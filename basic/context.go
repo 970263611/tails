@@ -36,9 +36,11 @@ var defaultParams = map[string]any{}
 *
 配置信息转结构体
 */
-func (c *Context) Unmarshal(a any) error {
-	if err := globalContext.Config.Unmarshal(a); err != nil {
-		return err
+func Unmarshal(a any) error {
+	if globalContext.Config != nil {
+		if err := globalContext.Config.Unmarshal(a); err != nil {
+			return err
+		}
 	}
 	return nil
 }

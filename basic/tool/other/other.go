@@ -62,6 +62,19 @@ func CheckPort(port int) bool {
 	return RangeValidate(port, 0, 65535)
 }
 
+func CheckAddr(addr string) bool {
+	arr := strings.Split(addr, ":")
+	if len(arr) != 2 {
+		return false
+	}
+	ipflag := CheckIp(arr[0])
+	portflag := CheckPortByString(arr[1])
+	if !ipflag || !portflag {
+		return false
+	}
+	return true
+}
+
 /*
 *
 文件是否存在

@@ -28,3 +28,9 @@ sql:
 
 web_server:
   port: 17000
+
+log:
+  filename: ./logs/all.log
+  level: info
+  out_type: 2
+  

@@ -52,7 +52,10 @@ func Servlet(args []string, isSystem bool) []byte {
 		}
 	}
 	//组件功能执行
-	return c.Do(params)
+	log.Infof("开始执行组件:%v", key)
+	res := c.Do(params)
+	log.Debugf("组件执行结果:%v", string(res))
+	return res
 }
 
 /*

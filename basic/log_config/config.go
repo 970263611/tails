@@ -27,7 +27,7 @@ type logConfig struct {
 	Compress bool
 	//日志级别
 	Level string
-	//0仅控制台输出 1仅日志文件输出 2控制台和日志文件输出
+	//1仅日志文件输出 2控制台和日志文件输出 3仅控制台输出
 	OutType int
 }
 
@@ -36,7 +36,7 @@ type logConfig struct {
 创建默认日志配置对象
 */
 func NewLogConfig() *logConfig {
-	return &logConfig{"", 50, 10, 90, true, "info", 1}
+	return &logConfig{"./logs/all.log", 50, 10, 90, true, "info", 1}
 }
 
 /*
@@ -61,9 +61,6 @@ func (f *CustomFormatter) Format(entry *log.Entry) ([]byte, error) {
 全系统级别日志配置初始化
 */
 func Init(cfg *logConfig) {
-	if cfg.Filename == "" {
-		cfg.Filename = "./logs/all.log"
-	}
 	log.SetReportCaller(true)
 	log.SetFormatter(&CustomFormatter{})
 	log.SetLevel(logLevel(cfg.Level))
