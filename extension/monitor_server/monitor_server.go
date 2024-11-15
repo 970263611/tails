@@ -62,7 +62,7 @@ func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
 	res.urlPrefix = fmt.Sprintf("%s://%s:%d", "http", res.host, res.port)
 	token, err := res.login()
 	if err != nil {
-		return []byte("登录失败")
+		return []byte("登录失败: " + err.Error())
 	}
 	res.token = token
 	go res.a1()

@@ -42,7 +42,7 @@ func (s *SuspendServer) Register(globalContext *basic.Context) *basic.ComponentM
 	command.AddParameters(basic.STRING, "-s", "suspend.server.systemId", "systemId", true, nil, "系统ID")
 	command.AddParameters(basic.STRING, "-c", "suspend.server.code", "code", true, nil, "网关编码")
 	command.AddParameters(basic.STRING, "-n", "suspend.server.name", "name", true, nil, "组件名称")
-	command.AddParameters(basic.STRING, "-U", "suspend.server.uri", "name", true, nil, "要封停或解封得uri")
+	command.AddParameters(basic.STRING, "-U", "suspend.server.uri", "uri", true, nil, "要封停或解封得uri")
 	return command
 }
 
@@ -63,18 +63,16 @@ func (s *SuspendServer) Do(params map[string]any) (resp []byte) {
 	res.urlPrefix = fmt.Sprintf("%s://%s:%d", "http", res.host, res.port)
 	token, err := res.login()
 	if err != nil {
-		return []byte("登录失败")
+		return []byte("登录失败: " + err.Error())
 	}
 	res.token = token
 	gatewayId, err := res.selectGetWayID()
 	if err != nil {
-		fmt.Println(err)
-		return []byte("获取网关配置ID失败")
+		return []byte("获取网关配置ID失败: " + err.Error())
 	}
 	SelectRuleRespEntry, err := res.selectRule(gatewayId)
 	if err != nil {
-		fmt.Println(err)
-		return []byte("获取路由配置信息")
+		return []byte("获取路由配置信息: " + err.Error())
 	}
 	fmt.Println(SelectRuleRespEntry)
 	return nil
