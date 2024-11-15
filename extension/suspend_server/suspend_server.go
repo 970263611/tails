@@ -3,7 +3,6 @@ package suspend_server
 import (
 	"basic"
 	othertool "basic/tool/other"
-	"encoding/json"
 	"errors"
 	"fmt"
 )
@@ -43,7 +42,9 @@ func (s *SuspendServer) Register(globalContext *basic.Context) *basic.ComponentM
 	command.AddParameters(basic.STRING, "-s", "suspend.server.systemId", "systemId", true, nil, "系统ID")
 	command.AddParameters(basic.STRING, "-c", "suspend.server.code", "code", true, nil, "网关编码")
 	command.AddParameters(basic.STRING, "-n", "suspend.server.name", "name", true, nil, "组件名称")
+	command.AddParameters(basic.STRING, "-e", "suspend.server.exec", "name", true, nil, "组件名称")
 	command.AddParameters(basic.STRING, "-U", "suspend.server.uri", "uri", true, nil, "要封停或解封得uri")
+	command.AddParameters(basic.STRING, "-A", "suspend.server.apiName", "apiName", true, nil, "uri所属API组名")
 	return command
 }
 
@@ -52,15 +53,19 @@ func (s *SuspendServer) Start(globalContext *basic.Context) error {
 }
 func (s *SuspendServer) Do(params map[string]any) (resp []byte) {
 	res := &findResult{
-		host:     params["host"].(string),
-		port:     params["port"].(int),
-		username: params["username"].(string),
-		password: params["password"].(string),
-		systemId: params["systemId"].(string),
-		code:     params["code"].(string),
-		name:     params["name"].(string),
-		c:        make(chan int),
+		host:      params["host"].(string),
+		port:      params["port"].(int),
+		username:  params["username"].(string),
+		password:  params["password"].(string),
+		systemId:  params["systemId"].(string),
+		code:      params["code"].(string),
+		name:      params["name"].(string),
+		gatewayId: params["gatewayId"].(string),
+		uri:       params["uri"].(string),
+		apiName:   params["apiName"].(string),
+		c:         make(chan int),
 	}
+	//获取网关ID
 	res.urlPrefix = fmt.Sprintf("%s://%s:%d", "http", res.host, res.port)
 	token, err := res.login()
 	if err != nil {
@@ -71,14 +76,35 @@ func (s *SuspendServer) Do(params map[string]any) (resp []byte) {
 	if err != nil {
 		return []byte("获取网关配置ID失败: " + err.Error())
 	}
-	SelectRuleRespEntry, err := res.selectRule(gatewayId)
-	if err != nil {
-		return []byte("获取路由配置信息: " + err.Error())
+	if gatewayId == "" {
+		return []byte("获取网关配置ID是: " + gatewayId)
 	}
-	byteData, err := json.Marshal(SelectRuleRespEntry)
+	res.gatewayId = gatewayId
+
+	//开始封停解停uri, 具体操作是否加入限流,限流流量是0
+	apiName, err := res.selectAPI()
 	if err != nil {
-		fmt.Println("JSON序列化出错:", err)
-		return
+		return []byte("获取API组失败: " + err.Error())
 	}
-	return byteData
+	if apiName == "" {
+		//通过apiName创建api组,并加入uri
+		apiRespEntry, err := res.createAPI()
+		if err != nil {
+			return []byte("创建API组失败: " + err.Error())
+		}
+		if apiRespEntry.Message != "" {
+			return []byte("创建API组失败" + apiRespEntry.Message)
+		}
+	} else {
+		//存在
+		apiRespEntry, err := res.updateAPI()
+		if err != nil {
+			return []byte("更新API组失败: " + err.Error())
+		}
+		if apiRespEntry.Message != "" {
+			return []byte("更新API组失败: " + apiRespEntry.Message)
+		}
+	}
+
+	return nil
 }

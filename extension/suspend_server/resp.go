@@ -10,3 +10,8 @@ type SelectRuleRespEntry struct {
 	RuleYaml string
 	RuleJson string
 }
+
+type ApiRespEntry struct {
+	Code    string
+	Message string
+}

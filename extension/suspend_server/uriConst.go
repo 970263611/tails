@@ -3,6 +3,8 @@ package suspend_server
 import (
 	"basic/tool/net"
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"github.com/spf13/viper"
 	"net/http"
 	"net/url"
@@ -16,8 +18,11 @@ type findResult struct {
 	systemId  string
 	code      string
 	name      string
+	gatewayId string
+	apiName   string
 	token     string
 	urlPrefix string
+	uri       string
 	c         chan int
 }
 
@@ -86,4 +91,81 @@ func (f findResult) selectRule(gatewayId string) (*SelectRuleRespEntry, error) {
 		}
 	}
 	return &SelectRuleRespEntry, nil
+}
+
+// 获取API组配置信息
+func (f findResult) selectAPI() (string, error) {
+	queryParams := url.Values{}
+	queryParams.Add("gatewayId", f.gatewayId)
+	header := http.Header{}
+	header.Set("Authorization", f.token)
+	// 用于接收响应的结构体实例
+	var SelectRuleResp []SelectRuleRespEntry
+	// 发送 GET 请求
+	err := net.GetRespStruct(f.urlPrefix+"/api/gateway-apidefinitions/query", queryParams, header, &SelectRuleResp)
+	if err != nil {
+		return "", err
+	}
+	for i := 0; i < len(SelectRuleResp); i++ {
+		if f.apiName == SelectRuleResp[i].Name {
+			return SelectRuleResp[i].Name, nil
+		}
+	}
+	return "", nil
+}
+
+// 创建API组
+func (f findResult) createAPI() (*ApiRespEntry, error) {
+	predicateItems := map[string]any{
+		"pattern":       f.uri,
+		"matchStrategy": 0,
+	}
+	jsonData, err := json.Marshal(predicateItems)
+	if err != nil {
+		fmt.Println("Error marshaling JSON:", err)
+		return nil, err
+	}
+	postData := map[string]string{
+		"predicateItems": string(jsonData),
+		"apiName":        f.apiName,
+		"gatewayId":      f.gatewayId,
+	}
+
+	header := http.Header{}
+	header.Set("Authorization", f.token)
+	var apiCreateRespEntry ApiRespEntry
+	// 发送 POST 请求
+	err = net.PostRespStruct(f.urlPrefix+"/api/gateway-apidefinitions", postData, header, &apiCreateRespEntry)
+	if err != nil {
+		return nil, err
+	}
+	return &apiCreateRespEntry, nil
+}
+
+// 更新API组
+func (f findResult) updateAPI() (*ApiRespEntry, error) {
+	/*predicateItems := map[string]any{
+		"pattern":       f.uri,
+		"matchStrategy": 0,
+	}
+	jsonData, err := json.Marshal(predicateItems)
+	if err != nil {
+		fmt.Println("Error marshaling JSON:", err)
+		return nil, err
+	}
+	postData := map[string]string{
+		"predicateItems": string(jsonData),
+		"apiName":        f.apiName,
+		"gatewayId":      gatewayId,
+	}*/
+
+	header := http.Header{}
+	header.Set("Authorization", f.token)
+	var apiUpdateRespEntry ApiRespEntry
+	// 发送 PUT 请求
+	err := net.PutRespStruct(f.urlPrefix+"/api/gateway-apidefinitions", nil, header, &apiUpdateRespEntry)
+	if err != nil {
+		return nil, err
+	}
+	return &apiUpdateRespEntry, nil
 }
