@@ -16,6 +16,12 @@ func init() {
 	log_config.Init(config)
 }
 
+/*
+*
+系统参数  --help 获取组件帮助
+
+	--path 指定配置文件路径
+*/
 func main() {
 	args := os.Args
 	err := loadConfig(args)

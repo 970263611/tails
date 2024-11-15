@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/viper"
+	"strings"
 )
 
 type Context struct {
@@ -21,6 +22,8 @@ var globalContext = &Context{
 const (
 	FUll_PATH     string = "fullPath"
 	COMPONENT_KEY string = "componentKey"
+	WEB_KEY       string = "web_server"
+	NEEDHELP      string = "--help"
 )
 
 /*
@@ -140,48 +143,67 @@ Help组件，传入组件名称，生成组件的help信息并返回；如果是
 */
 func (c *Context) FindHelp(key string) string {
 	linewordnum := 100
-	var msg string
+	var sb strings.Builder
+	var lineBreak string = "\r\n"
 	if key == "base" {
 		c.assembleAll()
 		//./root 组件名 组件参数列表
+		sb.WriteString("命令格式:")
+		sb.WriteString(lineBreak)
+		sb.WriteString(othertool.GetBlankByNum(2, " ") + "获取全部组件列表: ./boot base --help")
+		sb.WriteString(lineBreak)
+		sb.WriteString(othertool.GetBlankByNum(2, " ") + "获取组件帮助信息: ./boot 组件名称 --help")
+		sb.WriteString(lineBreak)
+		sb.WriteString(othertool.GetBlankByNum(2, " ") + "调用组件命令格式: ./boot 组件名称 组件参数列表")
+		sb.WriteString(lineBreak)
+		sb.WriteString(othertool.GetBlankByNum(2, " ") + "指定配置文件路径: ./boot 组件名称 --path 配置文件全路径 组件参数列表")
+		sb.WriteString(lineBreak)
+		sb.WriteString(othertool.GetBlankByNum(2, " ") + "通过web调用时忽略 ./boot,参数格式 params=组件名称 组件参数列表,支持post或get请求")
+		sb.WriteString(lineBreak)
+		sb.WriteString("组件列表")
 		components := c.components
-		msg = "命令格式:\r\n"
-		msg += "  组件调用: ./root compoment_key -params\r\n"
-		msg += "  组件帮助: ./root compoment_key --help\r\n"
-		msg += "组件列表:"
 		for _, component := range components {
-			msg += "\r\n"
-			msg += "  " + component.GetName() + "\r\n"
+			sb.WriteString(lineBreak)
+			sb.WriteString(othertool.GetBlankByNum(2, " ") + component.GetName())
+			sb.WriteString(lineBreak)
 			chinese := othertool.SplitByChinese(component.GetDescribe(), linewordnum)
 			for i := 0; i < len(chinese); i++ {
 				if i == 0 {
-					msg += "      " + chinese[i] + "\r\n"
+					sb.WriteString(othertool.GetBlankByNum(6, " ") + chinese[i])
+					sb.WriteString(lineBreak)
 				} else {
-					msg += "    " + chinese[i] + "\r\n"
+					sb.WriteString(othertool.GetBlankByNum(4, " ") + chinese[i])
+					sb.WriteString(lineBreak)
 				}
 			}
 		}
 	} else {
 		components := globalContext.FindComponent(key, false)
 		if components == nil {
-			msg = fmt.Sprintf("组件 %v 不存在，'./root --help' 查看组件列表", key)
+			sb.WriteString(fmt.Sprintf("组件 %v 不存在，'./root --help' 查看组件列表", key))
 		} else {
+			sb.WriteString("参数列表查看规则:")
+			sb.WriteString(lineBreak)
+			sb.WriteString(othertool.GetBlankByNum(2, " ") + "'参数名 是否必须 配置文件中配置名(仅支持配置文件时才有)'，下方为参数描述")
+			sb.WriteString(lineBreak)
+			sb.WriteString(fmt.Sprintf("组件 %v 参数列表:", key))
 			params := components.Params
-			msg = fmt.Sprintf("组件 %v 参数列表:", key)
 			if params != nil {
 				for _, value := range components.Params {
-					msg += "\r\n"
+					sb.WriteString(lineBreak)
 					if value.Required {
-						msg += "  " + value.CommandName + "  必要" + "\r\n"
+						sb.WriteString(othertool.GetBlankByNum(2, " ") + value.CommandName + "  必要 " + value.ConfigName)
+						sb.WriteString(lineBreak)
 					} else {
-						msg += "  " + value.CommandName + "  可选" + "\r\n"
+						sb.WriteString(othertool.GetBlankByNum(2, " ") + value.CommandName + "  可选 " + value.ConfigName)
+						sb.WriteString(lineBreak)
 					}
-					msg += "      " + value.Describe
+					sb.WriteString(othertool.GetBlankByNum(6, " ") + value.Describe)
 				}
 			}
 		}
 	}
-	return msg
+	return sb.String()
 }
 
 /*
@@ -244,17 +266,17 @@ func commandsToMap(commands []string) (map[string]string, error) {
 *
 添加config配置文件中的内容到入参中
 */
-func addConfigToMap(maps map[string]string) error {
+func addConfigToMap(maps map[string]string) {
 	if globalContext.Config == nil {
-		return nil
+		return
 	}
 	s, ok := maps[COMPONENT_KEY]
 	if !ok {
-		return nil
+		return
 	}
 	component := globalContext.FindComponent(s, true)
 	if component == nil {
-		return nil
+		return
 	}
 	for _, v := range component.Params {
 		if _, ok = maps[v.CommandName]; v.ParamType != NO_VALUE && v.ConfigName != "" && !ok {
@@ -264,5 +286,4 @@ func addConfigToMap(maps map[string]string) error {
 			}
 		}
 	}
-	return nil
 }

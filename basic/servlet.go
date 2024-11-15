@@ -19,17 +19,13 @@ func Servlet(args []string, isSystem bool) []byte {
 		log.Error(msg)
 		return []byte(msg)
 	}
-	err = addConfigToMap(maps)
-	if err != nil {
-		msg := fmt.Sprintf("配置文件参数解析失败 ： %v", err)
-		log.Error(msg)
-		return []byte(msg)
+	//获取组件帮助信息
+	if key, ok := maps[NEEDHELP]; ok {
+		return help(key)
 	}
-	bytes, flag := systemParamExec(maps)
-	if flag {
-		return bytes
-	}
-	key, ok := maps["componentKey"]
+	//配置文件配置注入参数中
+	addConfigToMap(maps)
+	key, ok := maps[COMPONENT_KEY]
 	if !ok {
 		msg := "入参未指定组件名称"
 		log.Error(msg)
@@ -49,6 +45,12 @@ func Servlet(args []string, isSystem bool) []byte {
 		log.Error(msg)
 		return []byte(msg)
 	}
+	if key == WEB_KEY {
+		errStart := start()
+		if errStart != nil {
+			return []byte(errStart.Error())
+		}
+	}
 	//组件功能执行
 	return c.Do(params)
 }
@@ -63,14 +65,7 @@ var systemParam = []Parameter{
 		CommandName:  "--help",
 		StandardName: "",
 		Required:     false,
-		Describe:     "帮助",
-	},
-	Parameter{
-		ParamType:    NO_VALUE,
-		CommandName:  "--start",
-		StandardName: "",
-		Required:     false,
-		Describe:     "帮助",
+		Describe:     "查看系统或组件帮助",
 	},
 	Parameter{
 		ParamType:    STRING,
@@ -97,35 +92,22 @@ var systemParam = []Parameter{
 	},
 }
 
-func systemParamExec(maps map[string]string) ([]byte, bool) {
-	val, ok := maps["--help"]
-	if ok {
-		return Help(val)
-	}
-	val, ok = maps["--start"]
-	if ok {
-		return Start()
-	}
-	return nil, false
-}
-
 /*
 *
 方法帮助
 */
-func Help(key string) ([]byte, bool) {
-	help := globalContext.FindHelp(key)
-	return []byte(help), true
+func help(key string) []byte {
+	return []byte(globalContext.FindHelp(key))
 }
 
 /*
 *
 start执行
 */
-func Start() ([]byte, bool) {
+func start() error {
 	err := globalContext.Start()
 	if err != nil {
-		return []byte(err.Error()), false
+		return err
 	}
-	return nil, false
+	return nil
 }
