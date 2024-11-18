@@ -72,7 +72,7 @@ func (r *NacosServer) Do(params map[string]any) (resp []byte) {
 	queryParams.Add("ip", params["serviceIp"].(string))
 	queryParams.Add("port", params["servicePort"].(string))
 
-	respString, err := net.PutRespString(urlPrefix+"/nacos/v1/ns/instance", queryParams, nil)
+	respString, err := net.PutRespString(urlPrefix+"/nacos/v1/ns/instance", queryParams, nil, nil)
 	if err != nil {
 		return []byte("发送Nacos上下线接口失败:, " + err.Error())
 	}
