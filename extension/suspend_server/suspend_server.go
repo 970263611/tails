@@ -69,7 +69,6 @@ func (s *SuspendServer) Do(params map[string]any) (resp []byte) {
 		enabled:   params["enabled"].(string),
 		uri:       params["uri"].(string),
 		apiName:   params["apiName"].(string),
-		c:         make(chan int),
 	}
 	// 1.获取网关ID
 	res.urlPrefix = fmt.Sprintf("%s://%s:%d", "http", res.host, res.port)

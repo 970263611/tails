@@ -24,7 +24,6 @@ type findResult struct {
 	token     string
 	urlPrefix string
 	uri       string
-	c         chan int
 }
 
 func (f findResult) login() (string, error) {

@@ -27,6 +27,7 @@ func (r *RedisServer) Register(globalContext *basic.Context) *basic.ComponentMet
 	p1 := basic.Parameter{
 		ParamType:    basic.STRING,
 		CommandName:  "-h",
+		ConfigName:   "redis.server.host",
 		StandardName: "host",
 		Required:     true,
 		CheckMethod: func(s string) error {
@@ -41,6 +42,7 @@ func (r *RedisServer) Register(globalContext *basic.Context) *basic.ComponentMet
 		ParamType:    basic.INT,
 		CommandName:  "-p",
 		StandardName: "port",
+		ConfigName:   "redis.server.port",
 		Required:     true,
 		CheckMethod: func(s string) error {
 			if !utils.CheckPortByString(s) {
@@ -108,8 +110,9 @@ func (r *RedisServer) Register(globalContext *basic.Context) *basic.ComponentMet
 	}
 
 	return &basic.ComponentMeta{
-		Params:    []basic.Parameter{p1, p2, p3, p4, p5, p6, p7, p8, p9, p10},
-		Component: r,
+		ComponentType: basic.EXECUTE,
+		Params:        []basic.Parameter{p1, p2, p3, p4, p5, p6, p7, p8, p9, p10},
+		Component:     r,
 	}
 }
 func (r *RedisServer) Start(globalContext *basic.Context) error {
@@ -253,7 +256,7 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		}
 		return data
 	default:
-		return []byte("当前key不存在或当前类型暂不支持解析")
+		return []byte("当前类型暂不支持解析")
 	}
-	return []byte("没有匹配的类型")
+	return []byte("当前key不存")
 }
