@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 type findResult struct {
@@ -184,19 +185,19 @@ func (f findResult) updateApiGroup(apiQuery *ApiQueryRespEntry) (*RespEntry, err
 		"id":             apiQuery.Id,
 		"predicateItems": string(newJsonData),
 		"apiName":        apiQuery.ApiName,
-		"releaseStatus":  apiQuery.ReleaseStatus,
+		"releaseStatus":  strconv.Itoa(apiQuery.ReleaseStatus),
 		"gatewayId":      apiQuery.GatewayId,
 	}
 
 	header := http.Header{}
 	header.Set("Authorization", f.token)
-	var apiUpdateRespEntry RespEntry
+	var apiUpdateRespEntry []RespEntry
 
 	err = net.PutRespStruct(f.urlPrefix+"/api/gateway-apidefinitions", nil, postData, header, &apiUpdateRespEntry)
 	if err != nil {
 		return nil, err
 	}
-	return &apiUpdateRespEntry, nil
+	return &apiUpdateRespEntry[0], nil
 }
 
 // 查询流控

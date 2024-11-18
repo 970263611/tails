@@ -20,7 +20,7 @@ type ApiQueryRespEntry struct {
 	Id             string
 	ApiName        string
 	PredicateItems string
-	ReleaseStatus  string
+	ReleaseStatus  int
 	GatewayId      string
 }
 
