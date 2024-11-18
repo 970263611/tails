@@ -191,11 +191,9 @@ func Put(urlStr string, params url.Values, postData interface{}, headersMap http
 	if postData != nil {
 		postDataBytes, err := json.Marshal(postData)
 		if err != nil {
-			return nil, fmt.Errorf("编码 POST 数据失败: %v", err)
+			return nil, fmt.Errorf("编码 PUT 数据失败: %v", err)
 		}
 		reqBody = strings.NewReader(string(postDataBytes))
-	} else {
-		return nil, fmt.Errorf("post请求,请求体不能为null")
 	}
 	// 创建请求
 	req, err := http.NewRequest(http.MethodPut, fullURL, reqBody)
