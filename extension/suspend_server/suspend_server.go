@@ -74,13 +74,11 @@ func (s *SuspendServer) Do(params map[string]any) (resp []byte) {
 	res.urlPrefix = fmt.Sprintf("%s://%s:%d", "http", res.host, res.port)
 	token, err := res.login()
 	if err != nil {
-		log.Error("登录失败: ", err)
 		return []byte("登录失败: " + err.Error())
 	}
 	res.token = token
 	gatewayId, err := res.selectGetWayID()
 	if err != nil {
-		log.Error("获取网关配置ID失败: ", err)
 		return []byte("获取网关配置ID失败: " + err.Error())
 	}
 	if gatewayId == "" {
@@ -91,50 +89,45 @@ func (s *SuspendServer) Do(params map[string]any) (resp []byte) {
 	// 2.封停解停uri, 取决于是否在api组中。如果在api组就是封停,如果不在就是解停
 	apiQueryRespEntry, err := res.selectApiGroup()
 	if err != nil {
-		log.Error("获取API组失败: ", err)
 		return []byte("获取API组失败: " + err.Error())
 	}
 	if apiQueryRespEntry == nil {
 		if res.enabled == "true" {
-			log.Info(fmt.Sprintf("%v 未加入限流无需解封", res.uri))
 			return []byte(fmt.Sprintf("%v 未加入限流无需解封", res.uri))
 		}
 		apiRespEntry, err := res.createApiGroup()
 		if err != nil {
-			log.Error("创建API组失败: ", err)
 			return []byte("创建API组失败: " + err.Error())
 		}
 		if apiRespEntry.Message != "" {
-			log.Error("创建API组失败", apiRespEntry.Message)
 			return []byte("创建API组失败" + apiRespEntry.Message)
 		}
+		log.Info(fmt.Sprintf("创建%v API组成功!", res.apiName))
 	} else {
 		apiRespEntry, err := res.updateApiGroup(apiQueryRespEntry)
 		if err != nil {
-			log.Error("更新API组失败: ", err)
 			return []byte("更新API组失败: " + err.Error())
 		}
 		if apiRespEntry.Message != "" {
 			return []byte("更新API组失败: " + apiRespEntry.Message)
 		}
+		log.Info(fmt.Sprintf("更新%v API组成功!", res.apiName))
 	}
 
 	// 3.创建流控,将api组设置线程数为0,代表不接受任何流量
 	liuKong, err := res.queryLiuKong()
 	if err != nil {
-		log.Error("获取流控失败: ", err)
 		return []byte("获取流控失败: " + err.Error())
 	}
 	if liuKong == nil {
 		apiRespEntry, err := res.createLiuKong()
 		if err != nil {
-			log.Error("创建流控失败: ", err)
 			return []byte("创建流控失败: " + err.Error())
 		}
 		if apiRespEntry.Message != "" {
-			log.Error("创建流控失败", apiRespEntry.Message)
 			return []byte("创建流控失败" + apiRespEntry.Message)
 		}
+		log.Info("创建流控成功!")
 	}
 	// 4.返回
 	if res.enabled == "true" {

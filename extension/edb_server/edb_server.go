@@ -6,6 +6,7 @@ import (
 	"basic/tool/utils"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 )
 
 type EdbServer struct{}
@@ -71,8 +72,8 @@ func sendfile(fileName, url string) (r []byte) {
 	var resp Resp
 	err := net.PostRespStruct(url, m, nil, &resp)
 	if err != nil {
-		fmt.Println("发错任务接口失败：", err)
-		return
+		log.Error("发错任务接口失败：", err)
+		return []byte("发错任务接口失败：" + err.Error())
 	}
 	if resp.Code == "0000000000000000" {
 		return []byte(fmt.Sprintf("%v文件重发成功: %v ", fileName, resp.Message))

@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"net/http"
 	"net/url"
@@ -123,7 +124,7 @@ func (f findResult) createApiGroup() (*RespEntry, error) {
 	}
 	jsonData, err := json.Marshal(predicateItems)
 	if err != nil {
-		fmt.Println("Error marshaling JSON:", err)
+		log.Error("Error marshaling JSON:", err)
 		return nil, err
 	}
 	postData := map[string]string{
@@ -150,24 +151,29 @@ func (f findResult) updateApiGroup(apiQuery *ApiQueryRespEntry) (*RespEntry, err
 	var data []map[string]interface{}
 	err := json.Unmarshal([]byte(items), &data)
 	if err != nil {
-		fmt.Println("错误的解析了 PredicateItems JSON字符串:", err)
+		log.Error("错误的解析了 PredicateItems JSON字符串:", err)
 		return nil, err
 	}
 	// 2.找到要删除的元素的索引
-	var indexToDelete int
+	var indexToDelete = -1
 	for i, item := range data {
-		_, ok := item[f.uri]
-		if ok {
+		uri := item["pattern"]
+		if uri == f.uri {
 			indexToDelete = i
 			break
 		}
 	}
+
 	// 3.解停 删除data中的uri。封停 添加uri到data中
 	if f.enabled == "true" {
-		if indexToDelete != -1 {
-			data = append(data[:indexToDelete], data[indexToDelete+1:]...)
+		if indexToDelete == -1 {
+			return &RespEntry{Message: fmt.Sprintf("%v 在%v组未查到,无法解停", f.uri, f.apiName)}, nil
 		}
+		data = append(data[:indexToDelete], data[indexToDelete+1:]...)
 	} else {
+		if indexToDelete != -1 {
+			return &RespEntry{Message: fmt.Sprintf("%v 已被封停,无需重新封停", f.uri)}, nil
+		}
 		predicateItems := map[string]any{
 			"pattern":       f.uri,
 			"matchStrategy": 0,
@@ -177,7 +183,7 @@ func (f findResult) updateApiGroup(apiQuery *ApiQueryRespEntry) (*RespEntry, err
 	// 4.将data转换回JSON字符串
 	newJsonData, err := json.Marshal(data)
 	if err != nil {
-		fmt.Println("错误的解析了 JSON:", err)
+		log.Error("错误的解析了 JSON:", err)
 		return nil, err
 	}
 	// 5.发送PUT请求,进行更新
@@ -191,13 +197,13 @@ func (f findResult) updateApiGroup(apiQuery *ApiQueryRespEntry) (*RespEntry, err
 
 	header := http.Header{}
 	header.Set("Authorization", f.token)
-	var apiUpdateRespEntry []RespEntry
 
+	var apiUpdateRespEntry RespEntry
 	err = net.PutRespStruct(f.urlPrefix+"/api/gateway-apidefinitions", nil, postData, header, &apiUpdateRespEntry)
 	if err != nil {
 		return nil, err
 	}
-	return &apiUpdateRespEntry[0], nil
+	return &apiUpdateRespEntry, nil
 }
 
 // 查询流控
