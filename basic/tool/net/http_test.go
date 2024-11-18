@@ -123,7 +123,7 @@ func TestPutRespString(t *testing.T) {
 	header := http.Header{}
 	header.Set("Authorization", "dsadasd13213214dssafsadfdsf")
 	// 发送 GET 请求
-	resp, err := PutRespString(urlStr, nil, header)
+	resp, err := PutRespString(urlStr, nil, nil, header)
 	if err != nil {
 		log.Fatalf("PUT 请求失败: %v", err)
 	}
@@ -142,7 +142,7 @@ func TestPutRespStruct(t *testing.T) {
 	// 用于接收响应的结构体实例
 	var responseData ResponseData
 	// 发送 GET 请求
-	err := PutRespStruct(urlStr, nil, header, &responseData)
+	err := PutRespStruct(urlStr, nil, nil, header, &responseData)
 	if err != nil {
 		log.Fatalf("PUT 请求失败: %v", err)
 	}

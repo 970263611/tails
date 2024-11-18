@@ -75,8 +75,8 @@ func PostRespStruct(urlStr string, postData interface{}, headersMap http.Header,
 }
 
 // PutRespString Put请求将resp封装到字符串/**
-func PutRespString(urlStr string, params url.Values, headersMap http.Header) (string, error) {
-	resp, err := Put(urlStr, params, headersMap)
+func PutRespString(urlStr string, params url.Values, postData interface{}, headersMap http.Header) (string, error) {
+	resp, err := Put(urlStr, params, postData, headersMap)
 	if err != nil {
 		return "", err
 	}
@@ -91,8 +91,8 @@ func PutRespString(urlStr string, params url.Values, headersMap http.Header) (st
 }
 
 // PutRespStruct Put请求将resp封装到结构体/**
-func PutRespStruct(urlStr string, params url.Values, headersMap http.Header, response interface{}) error {
-	resp, err := Put(urlStr, params, headersMap)
+func PutRespStruct(urlStr string, params url.Values, postData interface{}, headersMap http.Header, response interface{}) error {
+	resp, err := Put(urlStr, params, postData, headersMap)
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func Post(urlStr string, postData interface{}, headersMap http.Header) (*http.Re
 }
 
 // Put 通用Put请求,返回原生resp/**
-func Put(urlStr string, params url.Values, headersMap http.Header) (*http.Response, error) {
+func Put(urlStr string, params url.Values, postData interface{}, headersMap http.Header) (*http.Response, error) {
 	// 构建完整的 URL（如果有查询参数）
 	var fullURL string
 	if params != nil {
@@ -186,8 +186,17 @@ func Put(urlStr string, params url.Values, headersMap http.Header) (*http.Respon
 	} else {
 		fullURL = urlStr
 	}
+	// 创建请求体
+	var reqBody *strings.Reader
+	if postData != nil {
+		postDataBytes, err := json.Marshal(postData)
+		if err != nil {
+			return nil, fmt.Errorf("编码 PUT 数据失败: %v", err)
+		}
+		reqBody = strings.NewReader(string(postDataBytes))
+	}
 	// 创建请求
-	req, err := http.NewRequest(http.MethodPut, fullURL, nil)
+	req, err := http.NewRequest(http.MethodPut, fullURL, reqBody)
 	// 遍历headersMap并添加到请求的Header中
 	for key, values := range headersMap {
 		joinedValues := strings.Join(values, ",")
