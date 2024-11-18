@@ -6,6 +6,7 @@ import (
 	"basic/tool/utils"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 )
 
 type BatchServer struct{}
@@ -61,11 +62,12 @@ func (b *BatchServer) Do(params map[string]any) (resp []byte) {
 		var resp Resp
 		err := net.PostRespStruct(urlPrefix+"/queryByName", m, nil, &resp)
 		if err != nil {
-			fmt.Println("发错查询任务接口失败：", err)
-			return nil
+			log.Error("发错查询任务接口失败：", err)
+			return []byte("发错查询任务接口失败：" + err.Error())
 		}
 		if resp.Code == "0000000000000000" {
 			if resp.Data == "" {
+				log.Error(fmt.Sprintf("该任务名称%v 未查询到", jobName))
 				return []byte(fmt.Sprintf("该任务名称%v 未查询到", jobName))
 			}
 			return []byte(fmt.Sprintf("%v任务状态为: %v ", jobName, resp.Data))
@@ -73,5 +75,5 @@ func (b *BatchServer) Do(params map[string]any) (resp []byte) {
 			return []byte("查询接口失败:" + resp.Data)
 		}
 	}
-	return nil
+	return []byte("批量任务执行结束")
 }

@@ -4,7 +4,7 @@ import (
 	"basic/tool/net"
 	"bytes"
 	"encoding/json"
-	"fmt"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"net/http"
 	"net/url"
@@ -123,7 +123,7 @@ func (f findResult) createApiGroup() (*RespEntry, error) {
 	}
 	jsonData, err := json.Marshal(predicateItems)
 	if err != nil {
-		fmt.Println("Error marshaling JSON:", err)
+		log.Error("Error marshaling JSON:", err)
 		return nil, err
 	}
 	postData := map[string]string{
@@ -150,7 +150,7 @@ func (f findResult) updateApiGroup(apiQuery *ApiQueryRespEntry) (*RespEntry, err
 	var data []map[string]interface{}
 	err := json.Unmarshal([]byte(items), &data)
 	if err != nil {
-		fmt.Println("错误的解析了 PredicateItems JSON字符串:", err)
+		log.Error("错误的解析了 PredicateItems JSON字符串:", err)
 		return nil, err
 	}
 	// 2.找到要删除的元素的索引
@@ -177,7 +177,7 @@ func (f findResult) updateApiGroup(apiQuery *ApiQueryRespEntry) (*RespEntry, err
 	// 4.将data转换回JSON字符串
 	newJsonData, err := json.Marshal(data)
 	if err != nil {
-		fmt.Println("错误的解析了 JSON:", err)
+		log.Error("错误的解析了 JSON:", err)
 		return nil, err
 	}
 	// 5.发送PUT请求,进行更新

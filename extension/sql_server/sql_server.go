@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/olekukonko/tablewriter"
 	log "github.com/sirupsen/logrus"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -70,7 +69,8 @@ func (r *SqlServer) Do(params map[string]any) (resp []byte) {
 	if params["sql"] != nil {
 		str, err := ExecSql(params["sql"].(string), dbBase)
 		if err != nil {
-			return []byte("sql执行失败: " + err.Error())
+			log.Error(err)
+			return []byte(err.Error())
 		}
 		outPutFile, ok := params["outPutFile"].(string)
 		if !ok {
@@ -83,12 +83,14 @@ func (r *SqlServer) Do(params map[string]any) (resp []byte) {
 			if !isFullPath {
 				wd, err := os.Getwd()
 				if err != nil {
+					log.Error("获取当前目录出错: " + err.Error())
 					return []byte("获取当前目录出错: " + err.Error())
 				}
 				outPutFile = filepath.Join(wd, outPutFile)
 			}
 			err := os.WriteFile(outPutFile, []byte(str), 0644)
 			if err != nil {
+				log.Error("写入文件错误: " + err.Error())
 				return []byte("写入文件错误: " + err.Error())
 			}
 			return []byte("输出到指定文件成功!")
@@ -98,9 +100,9 @@ func (r *SqlServer) Do(params map[string]any) (resp []byte) {
 	if params["sqlFile"] != nil {
 		err := ExecSqlFile(params["sqlFile"].(string), dbBase)
 		if err != nil {
-			return []byte("execute sqlFile fail, " + err.Error())
+			return []byte(err.Error())
 		}
-		return nil
+		return []byte("sql文件执行成功")
 	}
 	//未指定sql或者sql文件,进入交互
 	reader := bufio.NewReader(os.Stdin)
@@ -120,11 +122,11 @@ func (r *SqlServer) Do(params map[string]any) (resp []byte) {
 		}
 		execSql, err := ExecSql(input, dbBase)
 		if err != nil {
-			log.Println("sql执行失败:" + err.Error())
+			log.Error(err.Error())
 		}
 		fmt.Println(execSql)
 	}
-	return nil
+	return []byte("sql执行结束")
 }
 
 func ExecSql(sqlStr string, db *dbtool.BaseDb) (string, error) {
@@ -135,7 +137,7 @@ func ExecSql(sqlStr string, db *dbtool.BaseDb) (string, error) {
 		rows, err := db.Raw(sqlStr).Rows()
 		if err != nil {
 			// 处理错误，可能是 SQL 语法错误或数据库连接问题
-			log.Printf("Error executing query: %v", err)
+			log.Error("sql执行失败: %v", err)
 			return "", err
 		}
 		defer rows.Close()
@@ -147,11 +149,11 @@ func ExecSql(sqlStr string, db *dbtool.BaseDb) (string, error) {
 		var err error
 		result := db.Exec(sqlStr)
 		if err = result.Error; err != nil {
-			log.Println("sql执行失败:" + err.Error())
+			log.Error("sql执行失败:" + err.Error())
 			return "", err
 		}
 		rowsAffected = result.RowsAffected
-		log.Printf("Exec Success!,%d rows affected by the operation", rowsAffected)
+		log.Info("Exec Success!,%d 行已操作", rowsAffected)
 		return strconv.FormatInt(rowsAffected, 10), nil
 	}
 	return "", nil
@@ -160,10 +162,10 @@ func ExecSql(sqlStr string, db *dbtool.BaseDb) (string, error) {
 func ExecSqlFile(sqlFilePath string, db *dbtool.BaseDb) error {
 	_, err := os.Stat(sqlFilePath)
 	if os.IsNotExist(err) {
-		log.Println("数据库SQL文件不存在:", err)
+		log.Error("数据库SQL文件不存在:", err)
 		return err
 	}
-	sqls, _ := ioutil.ReadFile(sqlFilePath)
+	sqls, _ := os.ReadFile(sqlFilePath)
 	sqlArr := strings.Split(string(sqls), ";")
 	for _, sql := range sqlArr {
 		sql = strings.TrimSpace(sql)
@@ -172,10 +174,10 @@ func ExecSqlFile(sqlFilePath string, db *dbtool.BaseDb) error {
 		}
 		err := db.Exec(sql).Error
 		if err != nil {
-			log.Println("sql执行失败:" + err.Error())
+			log.Error("sql执行失败:" + err.Error())
 			return err
 		} else {
-			log.Println(sql, "\t success!")
+			log.Info(sql, "\t success!")
 		}
 	}
 	return nil
@@ -184,7 +186,7 @@ func ExecSqlFile(sqlFilePath string, db *dbtool.BaseDb) error {
 func rendering(rows *sql.Rows) (string, error) {
 	columns, err := rows.Columns()
 	if err != nil {
-		log.Printf("Error getting columns: %v", err)
+		log.Error("错误的得到了字段集: %v", err)
 		return "", err
 	}
 	// 创建一个 bytes.Buffer 来捕获输出

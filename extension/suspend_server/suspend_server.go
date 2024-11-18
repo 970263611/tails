@@ -5,6 +5,7 @@ import (
 	"basic/tool/utils"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 )
 
 type SuspendServer struct{}
@@ -18,7 +19,7 @@ func (s *SuspendServer) GetName() string {
 }
 
 func (s *SuspendServer) GetDescribe() string {
-	return "封停解封交易服务"
+	return "封停解封交易接口"
 }
 
 func (s *SuspendServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
@@ -58,28 +59,29 @@ func (s *SuspendServer) Start(globalContext *basic.Context) error {
 }
 func (s *SuspendServer) Do(params map[string]any) (resp []byte) {
 	res := &findResult{
-		host:      params["host"].(string),
-		port:      params["port"].(int),
-		username:  params["username"].(string),
-		password:  params["password"].(string),
-		systemId:  params["systemId"].(string),
-		code:      params["code"].(string),
-		name:      params["name"].(string),
-		gatewayId: params["gatewayId"].(string),
-		enabled:   params["enabled"].(string),
-		uri:       params["uri"].(string),
-		apiName:   params["apiName"].(string),
-		c:         make(chan int),
+		host:     params["host"].(string),
+		port:     params["port"].(int),
+		username: params["username"].(string),
+		password: params["password"].(string),
+		systemId: params["systemId"].(string),
+		code:     params["code"].(string),
+		name:     params["name"].(string),
+		enabled:  params["enabled"].(string),
+		uri:      params["uri"].(string),
+		apiName:  params["apiName"].(string),
+		c:        make(chan int),
 	}
 	// 1.获取网关ID
 	res.urlPrefix = fmt.Sprintf("%s://%s:%d", "http", res.host, res.port)
 	token, err := res.login()
 	if err != nil {
+		log.Error(err)
 		return []byte("登录失败: " + err.Error())
 	}
 	res.token = token
 	gatewayId, err := res.selectGetWayID()
 	if err != nil {
+		log.Error(err)
 		return []byte("获取网关配置ID失败: " + err.Error())
 	}
 	if gatewayId == "" {
@@ -90,22 +92,27 @@ func (s *SuspendServer) Do(params map[string]any) (resp []byte) {
 	// 2.封停解停uri, 取决于是否在api组中。如果在api组就是封停,如果不在就是解停
 	apiQueryRespEntry, err := res.selectApiGroup()
 	if err != nil {
+		log.Error(err)
 		return []byte("获取API组失败: " + err.Error())
 	}
 	if apiQueryRespEntry == nil {
 		if res.enabled == "true" {
+			log.Info(fmt.Sprintf("%v 未加入限流无需解封", res.uri))
 			return []byte(fmt.Sprintf("%v 未加入限流无需解封", res.uri))
 		}
 		apiRespEntry, err := res.createApiGroup()
 		if err != nil {
+			log.Error(err)
 			return []byte("创建API组失败: " + err.Error())
 		}
 		if apiRespEntry.Message != "" {
+			log.Error("创建API组失败" + apiRespEntry.Message)
 			return []byte("创建API组失败" + apiRespEntry.Message)
 		}
 	} else {
 		apiRespEntry, err := res.updateApiGroup(apiQueryRespEntry)
 		if err != nil {
+			log.Error(err)
 			return []byte("更新API组失败: " + err.Error())
 		}
 		if apiRespEntry.Message != "" {
@@ -121,9 +128,11 @@ func (s *SuspendServer) Do(params map[string]any) (resp []byte) {
 	if liuKong == nil {
 		apiRespEntry, err := res.createLiuKong()
 		if err != nil {
+			log.Error(err)
 			return []byte("创建流控失败: " + err.Error())
 		}
 		if apiRespEntry.Message != "" {
+			log.Error("创建流控失败" + apiRespEntry.Message)
 			return []byte("创建流控失败" + apiRespEntry.Message)
 		}
 	}

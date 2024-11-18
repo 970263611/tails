@@ -3,6 +3,7 @@ package monitor_server
 import (
 	"basic/tool/net"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
 	"time"
@@ -292,7 +293,7 @@ func formatTime(t string) string {
 	layout := "2006-01-02T15:04:05.000"
 	time, err := time.Parse(layout, t)
 	if err != nil {
-		fmt.Println("时间解析出错:", err)
+		log.Error("时间解析出错:", err)
 		return ""
 	}
 	return time.Format("2006-01-02 15:04:05")

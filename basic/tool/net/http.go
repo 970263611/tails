@@ -20,7 +20,7 @@ func GetRespString(urlStr string, params url.Values, headersMap http.Header) (st
 	defer body.Close()
 	str, err := io.ReadAll(body)
 	if err != nil {
-		log.Error("Error reading response body:", err)
+		log.Error("错误读取了响应体:", err)
 		return "", err
 	}
 	return string(str), nil
