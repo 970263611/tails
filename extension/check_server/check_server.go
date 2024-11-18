@@ -2,7 +2,7 @@ package check_server
 
 import (
 	"basic"
-	"basic/tool/other"
+	"basic/tool/utils"
 	"errors"
 	"fmt"
 	"net"
@@ -30,7 +30,7 @@ func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMet
 		StandardName: "host",
 		Required:     true,
 		CheckMethod: func(s string) error {
-			if !othertool.CheckIp(s) {
+			if !utils.CheckIp(s) {
 				return errors.New("IP不合法")
 			}
 			return nil
@@ -43,7 +43,7 @@ func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMet
 		StandardName: "port",
 		Required:     true,
 		CheckMethod: func(s string) error {
-			if !othertool.CheckPortByString(s) {
+			if !utils.CheckPortByString(s) {
 				return errors.New("端口不合法")
 			}
 			return nil

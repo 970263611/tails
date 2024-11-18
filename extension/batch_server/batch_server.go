@@ -3,7 +3,7 @@ package batch_server
 import (
 	"basic"
 	"basic/tool/net"
-	othertool "basic/tool/other"
+	"basic/tool/utils"
 	"errors"
 	"fmt"
 )
@@ -27,13 +27,13 @@ func (b *BatchServer) Register(globalContext *basic.Context) *basic.ComponentMet
 		Component: b,
 	}
 	command.AddParameters(basic.STRING, "-h", "batch.server.ip", "host", true, func(s string) error {
-		if !othertool.CheckIp(s) {
+		if !utils.CheckIp(s) {
 			return errors.New("batch服务的主机ip不合法")
 		}
 		return nil
 	}, "batch服务的主机ip地址")
 	command.AddParameters(basic.INT, "-p", "batch.server.port", "port", true, func(s string) error {
-		if !othertool.CheckPortByString(s) {
+		if !utils.CheckPortByString(s) {
 			return errors.New("batch服务的端口port不合法")
 		}
 		return nil

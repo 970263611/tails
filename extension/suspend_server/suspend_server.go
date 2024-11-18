@@ -2,7 +2,7 @@ package suspend_server
 
 import (
 	"basic"
-	othertool "basic/tool/other"
+	"basic/tool/utils"
 	"errors"
 	"fmt"
 )
@@ -26,13 +26,13 @@ func (s *SuspendServer) Register(globalContext *basic.Context) *basic.ComponentM
 		Component: s,
 	}
 	command.AddParameters(basic.STRING, "-h", "suspend.server.ip", "host", true, func(s string) error {
-		if !othertool.CheckIp(s) {
+		if !utils.CheckIp(s) {
 			return errors.New("微服务管理平台地址不合法")
 		}
 		return nil
 	}, "微服务管理平台地址的主机地址")
 	command.AddParameters(basic.INT, "-p", "suspend.server.port", "port", true, func(s string) error {
-		if !othertool.CheckPortByString(s) {
+		if !utils.CheckPortByString(s) {
 			return errors.New("微服务管理平台地址port不合法")
 		}
 		return nil

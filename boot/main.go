@@ -14,10 +14,10 @@ import (
 系统参数  --help 获取组件帮助
 
 		--path 指定配置文件路径
-	    --ip 实际执行组件的地址，仅web支持
+	    --addr ip:port或域名 时进行请求转发
 */
 func main() {
-	args := os.Args
+	args := os.Args[1:]
 	err := loadConfig(args)
 	if err != nil {
 		fmt.Println("加载配置文件失败:", err)

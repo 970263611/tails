@@ -3,7 +3,7 @@ package nacos_server
 import (
 	"basic"
 	"basic/tool/net"
-	othertool "basic/tool/other"
+	"basic/tool/utils"
 	"errors"
 	"fmt"
 	"net/url"
@@ -30,13 +30,13 @@ func (r *NacosServer) Register(globalContext *basic.Context) *basic.ComponentMet
 		Component: r,
 	}
 	command.AddParameters(basic.STRING, "-h", "nacos.server.ip", "host", true, func(s string) error {
-		if !othertool.CheckIp(s) {
+		if !utils.CheckIp(s) {
 			return errors.New("nacos服务ip不合法")
 		}
 		return nil
 	}, "nacos服务的主机地址")
 	command.AddParameters(basic.INT, "-p", "nacos.server.port", "port", true, func(s string) error {
-		if !othertool.CheckPortByString(s) {
+		if !utils.CheckPortByString(s) {
 			return errors.New("nacos服务port不合法")
 		}
 		return nil
@@ -45,7 +45,7 @@ func (r *NacosServer) Register(globalContext *basic.Context) *basic.ComponentMet
 	command.AddParameters(basic.STRING, "-w", "nacos.server.password", "password", true, nil, "nacos登录密码")
 	command.AddParameters(basic.STRING, "-n", "nacos.server.namespace", "namespace", true, nil, "要封停/解停系统所在命名空间")
 	command.AddParameters(basic.STRING, "-e", "", "enabled", true, func(s string) error {
-		if !othertool.CheckIsBooleanByString(s) {
+		if !utils.CheckIsBooleanByString(s) {
 			return errors.New("enabled不合法,必须是boolean类型")
 		}
 		return nil

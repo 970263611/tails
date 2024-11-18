@@ -1,19 +1,42 @@
 package basic
 
 import (
-	othertool "basic/tool/other"
+	"basic/tool/net"
+	"basic/tool/utils"
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+)
+
+const (
+	COMPONENT_KEY string = "componentKey"
+	WEB_KEY       string = "web_server"
+	NEEDHELP      string = "--help"
+	GID           string = "globalID"
 )
 
 /*
 *
 组件分发
 */
-func Servlet(args []string, isSystem bool) []byte {
+func Servlet(commands []string, isSystem bool) []byte {
+	defer DelCache()
+	commands = setGID(commands)
+	//参数中携带 --addr ip:port或域名 时进行请求转发
+	resp, b := forward(commands)
+	if b {
+		return resp
+	}
+	return execute(commands, isSystem)
+}
+
+/*
+*
+命令执行
+*/
+func execute(commands []string, isSystem bool) []byte {
 	//解析命令行为map
-	maps, err := commandsToMap(args)
+	maps, err := commandsToMap(commands)
 	if err != nil {
 		msg := fmt.Sprintf("入参解析失败 ： %v", err)
 		log.Error(msg)
@@ -52,10 +75,96 @@ func Servlet(args []string, isSystem bool) []byte {
 		}
 	}
 	//组件功能执行
-	log.Infof("开始执行组件:%v", key)
+	log.Infof("组件执行开始:[%v],组件入参:%v", key, commands)
 	res := c.Do(params)
+	if res != nil {
+		log.Infof("组件执行完成:[%v],组件执行结果大小:[%d byte]", key, len(res))
+	}
 	log.Debugf("组件执行结果:%v", string(res))
 	return res
+}
+
+/*
+*
+web请求转发
+*/
+func forward(commands []string) ([]byte, bool) {
+	var addr, params string
+	var flag bool
+	//判断是否需要转发，并拼接转发参数
+	for i := 0; i < len(commands); i++ {
+		if commands[i] == "--addr" {
+			flag = true
+			i++
+			if i < len(commands) {
+				addr = commands[i]
+			}
+			if addr == "" {
+				msg := fmt.Sprintf("请求转发的ip端口为空")
+				log.Error(msg)
+				return []byte(msg), true
+			}
+		} else {
+			params += commands[i] + " "
+		}
+	}
+	if !flag {
+		return nil, flag
+	}
+	//校验转发地址是否合法
+	if !utils.CheckAddr(addr) {
+		msg := fmt.Sprintf("地址不合法")
+		log.Error(msg)
+		return []byte(msg), flag
+	}
+	log.Infof("请求转发，转发地址:[%s],转发参数:[%s]", addr, params)
+	//插入全局业务跟踪号
+	gid, ok := GetCache(GID)
+	if ok {
+		id := fmt.Sprintf("%v", gid)
+		params += " --gid "
+		params += id
+	}
+	//转发请求并返回结果
+	uri := fmt.Sprintf("http://%s/do", addr)
+	resp, err := net.PostRespString(uri, map[string]string{
+		"params": params,
+	}, nil)
+	if err != nil {
+		log.Errorf("转发请求 %v 错误，错误原因 : &v", uri, err)
+		return []byte(err.Error()), flag
+	} else {
+		return []byte(resp), flag
+	}
+}
+
+/*
+*
+设置全局ID
+*/
+func setGID(commands []string) []string {
+	_, ok := GetCache(GID)
+	if ok {
+		return commands
+	}
+	var gid string
+	var commands2 []string
+	//获取全局gid参数
+	for i := 0; i < len(commands); i++ {
+		if commands[i] == "--gid" {
+			i++
+			if i < len(commands) {
+				gid = commands[i]
+			}
+		} else {
+			commands2 = append(commands2, commands[i])
+		}
+	}
+	if gid == "" {
+		gid, _ = utils.GenerateUUID()
+	}
+	SetCache(GID, gid)
+	return commands2
 }
 
 /*
@@ -79,12 +188,12 @@ var systemParam = []Parameter{
 			if s == "" {
 				return errors.New("配置文件路径为空")
 			}
-			if !othertool.FileExists(s) {
+			if !utils.FileExists(s) {
 				msg := "配置文件不存在"
 				log.Error(msg)
 				return errors.New(msg)
 			}
-			if !othertool.IsFileReadable(s) {
+			if !utils.IsFileReadable(s) {
 				msg := "配置文件不可读"
 				log.Error(msg)
 				return errors.New(msg)

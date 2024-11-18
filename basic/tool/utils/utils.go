@@ -1,9 +1,12 @@
-package othertool
+package utils
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 )
@@ -12,6 +15,7 @@ const (
 	REGEX_IP             = "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
 	REGEX_DASE_AND_WORD  = "^-\\p{L}+"
 	REGEX_2DASE_AND_WORD = "^--[a-zA-Z]+"
+	REGEX_DOMAIN_NAME    = "^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}$"
 )
 
 /*
@@ -62,14 +66,19 @@ func CheckPort(port int) bool {
 	return RangeValidate(port, 0, 65535)
 }
 
+/*
+*
+校验地址是否合法，必须是合法域名或者ip:port
+*/
 func CheckAddr(addr string) bool {
+	if RegularValidate(addr, REGEX_DOMAIN_NAME) {
+		return true
+	}
 	arr := strings.Split(addr, ":")
 	if len(arr) != 2 {
 		return false
 	}
-	ipflag := CheckIp(arr[0])
-	portflag := CheckPortByString(arr[1])
-	if !ipflag || !portflag {
+	if !CheckIp(arr[0]) || !CheckPortByString(arr[1]) {
 		return false
 	}
 	return true
@@ -153,4 +162,44 @@ func GetBlankByNum(num int, s string) string {
 		}
 		return sb.String()
 	}
+}
+
+/*
+*
+生成uuid
+*/
+func GenerateUUID() (string, error) {
+	uuid := make([]byte, 16)
+	_, err := rand.Read(uuid)
+	if err != nil {
+		return "", err
+	}
+
+	// 设置UUID版本为4（随机生成）和变体信息
+	uuid[6] = (uuid[6] & 0x0f) | 0x40
+	uuid[8] = (uuid[8] & 0x3f) | 0x80
+
+	return hex.EncodeToString(uuid), nil
+}
+
+/*
+*
+获取当前线程唯一标识
+*/
+func GetGoroutineID() string {
+	var buf [1 << 20]byte
+	n := runtime.Stack(buf[:], false)
+	stackTrace := string(buf[:n])
+	lines := strings.Split(stackTrace, "\n")
+	for _, line := range lines {
+		if strings.Contains(line, "goroutine") {
+			parts := strings.Fields(line)
+			for i, part := range parts {
+				if part == "goroutine" && i+1 < len(parts) {
+					return parts[i+1]
+				}
+			}
+		}
+	}
+	return ""
 }

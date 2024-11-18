@@ -2,7 +2,7 @@ package monitor_server
 
 import (
 	"basic"
-	othertool "basic/tool/other"
+	"basic/tool/utils"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -31,13 +31,13 @@ func (r *MonitorServer) Register(globalContext *basic.Context) *basic.ComponentM
 		Component: r,
 	}
 	command.AddParameters(basic.STRING, "-h", "monitor.server.ip", "host", true, func(s string) error {
-		if !othertool.CheckIp(s) {
+		if !utils.CheckIp(s) {
 			return errors.New("监控服务ip不合法")
 		}
 		return nil
 	}, "监控服务的主机地址")
 	command.AddParameters(basic.INT, "-p", "monitor.server.port", "port", true, func(s string) error {
-		if !othertool.CheckPortByString(s) {
+		if !utils.CheckPortByString(s) {
 			return errors.New("监控服务port不合法")
 		}
 		return nil

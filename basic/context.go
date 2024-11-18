@@ -1,7 +1,7 @@
 package basic
 
 import (
-	othertool "basic/tool/other"
+	"basic/tool/utils"
 	"errors"
 	"fmt"
 	"github.com/spf13/viper"
@@ -10,21 +10,60 @@ import (
 
 type Context struct {
 	components map[string]*ComponentMeta // Component 组件区
-	cache      map[string]any            //Cache 缓存数据区
+	cache      map[string]map[string]any //Cache 缓存数据区
 	Config     *viper.Viper              //Config 配置信息
 }
 
 var globalContext = &Context{
 	components: make(map[string]*ComponentMeta),
-	cache:      make(map[string]any),
+	cache:      make(map[string]map[string]any),
 }
 
-const (
-	FUll_PATH     string = "fullPath"
-	COMPONENT_KEY string = "componentKey"
-	WEB_KEY       string = "web_server"
-	NEEDHELP      string = "--help"
-)
+/*
+*
+设置缓存
+*/
+func SetCache(key string, value interface{}) bool {
+	tid := utils.GetGoroutineID()
+	if tid == "" {
+		return false
+	}
+	gmap, ok := globalContext.cache[tid]
+	if !ok {
+		gmap = make(map[string]any)
+		globalContext.cache[tid] = gmap
+	}
+	gmap[key] = value
+	return true
+}
+
+/*
+*
+获取缓存数据
+*/
+func GetCache(key string) (interface{}, bool) {
+	tid := utils.GetGoroutineID()
+	if tid == "" {
+		return nil, false
+	}
+	gmap, ok := globalContext.cache[tid]
+	if !ok {
+		return nil, false
+	}
+	return gmap[key], true
+}
+
+/*
+*
+获取缓存数据
+*/
+func DelCache() {
+	tid := utils.GetGoroutineID()
+	if tid == "" {
+		return
+	}
+	delete(globalContext.cache, tid)
+}
 
 /*
 *
@@ -152,29 +191,29 @@ func (c *Context) FindHelp(key string) string {
 		//./root 组件名 组件参数列表
 		sb.WriteString("命令格式:")
 		sb.WriteString(lineBreak)
-		sb.WriteString(othertool.GetBlankByNum(2, " ") + "获取全部组件列表: ./boot base --help")
+		sb.WriteString(utils.GetBlankByNum(2, " ") + "获取全部组件列表: ./boot base --help")
 		sb.WriteString(lineBreak)
-		sb.WriteString(othertool.GetBlankByNum(2, " ") + "获取组件帮助信息: ./boot 组件名称 --help")
+		sb.WriteString(utils.GetBlankByNum(2, " ") + "获取组件帮助信息: ./boot 组件名称 --help")
 		sb.WriteString(lineBreak)
-		sb.WriteString(othertool.GetBlankByNum(2, " ") + "调用组件命令格式: ./boot 组件名称 组件参数列表")
+		sb.WriteString(utils.GetBlankByNum(2, " ") + "调用组件命令格式: ./boot 组件名称 组件参数列表")
 		sb.WriteString(lineBreak)
-		sb.WriteString(othertool.GetBlankByNum(2, " ") + "指定配置文件路径: ./boot 组件名称 --path 配置文件全路径 组件参数列表")
+		sb.WriteString(utils.GetBlankByNum(2, " ") + "指定配置文件路径: ./boot 组件名称 --path 配置文件全路径 组件参数列表")
 		sb.WriteString(lineBreak)
-		sb.WriteString(othertool.GetBlankByNum(2, " ") + "通过web调用时忽略 ./boot,参数格式 params=组件名称 组件参数列表,支持post或get请求")
+		sb.WriteString(utils.GetBlankByNum(2, " ") + "通过web调用时忽略 ./boot,参数格式 params=组件名称 组件参数列表,支持post或get请求")
 		sb.WriteString(lineBreak)
 		sb.WriteString("组件列表")
 		components := c.components
 		for _, component := range components {
 			sb.WriteString(lineBreak)
-			sb.WriteString(othertool.GetBlankByNum(2, " ") + component.GetName())
+			sb.WriteString(utils.GetBlankByNum(2, " ") + component.GetName())
 			sb.WriteString(lineBreak)
-			chinese := othertool.SplitByChinese(component.GetDescribe(), linewordnum)
+			chinese := utils.SplitByChinese(component.GetDescribe(), linewordnum)
 			for i := 0; i < len(chinese); i++ {
 				if i == 0 {
-					sb.WriteString(othertool.GetBlankByNum(6, " ") + chinese[i])
+					sb.WriteString(utils.GetBlankByNum(6, " ") + chinese[i])
 					sb.WriteString(lineBreak)
 				} else {
-					sb.WriteString(othertool.GetBlankByNum(4, " ") + chinese[i])
+					sb.WriteString(utils.GetBlankByNum(4, " ") + chinese[i])
 					sb.WriteString(lineBreak)
 				}
 			}
@@ -186,7 +225,7 @@ func (c *Context) FindHelp(key string) string {
 		} else {
 			sb.WriteString("参数列表查看规则:")
 			sb.WriteString(lineBreak)
-			sb.WriteString(othertool.GetBlankByNum(2, " ") + "'参数名 是否必须 配置文件中配置名(仅支持配置文件时才有)'，下方为参数描述")
+			sb.WriteString(utils.GetBlankByNum(2, " ") + "'参数名 是否必须 配置文件中配置名(仅支持配置文件时才有)'，下方为参数描述")
 			sb.WriteString(lineBreak)
 			sb.WriteString(fmt.Sprintf("组件 %v 参数列表:", key))
 			params := components.Params
@@ -194,13 +233,13 @@ func (c *Context) FindHelp(key string) string {
 				for _, value := range components.Params {
 					sb.WriteString(lineBreak)
 					if value.Required {
-						sb.WriteString(othertool.GetBlankByNum(2, " ") + value.CommandName + "  必要 " + value.ConfigName)
+						sb.WriteString(utils.GetBlankByNum(2, " ") + value.CommandName + "  必要 " + value.ConfigName)
 						sb.WriteString(lineBreak)
 					} else {
-						sb.WriteString(othertool.GetBlankByNum(2, " ") + value.CommandName + "  可选 " + value.ConfigName)
+						sb.WriteString(utils.GetBlankByNum(2, " ") + value.CommandName + "  可选 " + value.ConfigName)
 						sb.WriteString(lineBreak)
 					}
-					sb.WriteString(othertool.GetBlankByNum(6, " ") + value.Describe)
+					sb.WriteString(utils.GetBlankByNum(6, " ") + value.Describe)
 				}
 			}
 		}
@@ -215,25 +254,23 @@ func (c *Context) FindHelp(key string) string {
 func commandsToMap(commands []string) (map[string]string, error) {
 	//go run main.go componentKey 至少应该有两个参数
 	maps := make(map[string]string)
-	//第1个参数是 office组件路径
-	maps[FUll_PATH] = commands[0]
-	if len(commands) < 2 {
+	if len(commands) == 0 {
 		maps["--help"] = "base"
 		return maps, nil
 	}
-	//第2个参数是 组件componentkey
-	componentKey := commands[1]
+	//第1个参数是 组件componentkey
+	componentKey := commands[0]
 	maps[COMPONENT_KEY] = componentKey
-	//第3个到最后一个参数为 component入参，少于3个参数肯定就是没入参,只有大于等于三个参数，才存在入参
+	//第2个到最后一个参数为 component入参，少于2个参数肯定就是没入参,只有大于等于三个参数，才存在入参
 	var params []string
-	if len(commands) > 2 {
-		params = commands[2:]
+	if len(commands) > 1 {
+		params = commands[1:]
 	}
 	//入参解析
 	for i := 0; i < len(params); i++ {
 		str := params[i]
 		//系统参数必定以--开头，后面跟若干字母
-		if othertool.RegularValidate(str, othertool.REGEX_2DASE_AND_WORD) {
+		if utils.RegularValidate(str, utils.REGEX_2DASE_AND_WORD) {
 			if globalContext.FindParameterType(componentKey, str) != NO_VALUE {
 				i++
 				maps[str] = params[i]
@@ -241,7 +278,7 @@ func commandsToMap(commands []string) (map[string]string, error) {
 				maps[str] = componentKey
 			}
 			//组件参数必定以-开头，后面跟若干字母
-		} else if othertool.RegularValidate(str, othertool.REGEX_DASE_AND_WORD) {
+		} else if utils.RegularValidate(str, utils.REGEX_DASE_AND_WORD) {
 			p := str[1:]
 			//只有单一参数才能跟值
 			if len(p) == 1 {

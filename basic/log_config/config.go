@@ -1,6 +1,7 @@
 package log_config
 
 import (
+	"basic"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -52,8 +53,12 @@ type CustomFormatter struct{}
 func (f *CustomFormatter) Format(entry *log.Entry) ([]byte, error) {
 	timestamp := entry.Time.Format("2006-01-02 15:04:05")
 	fName := filepath.Base(entry.Caller.File)
-	//日期 ; 日志级别 ; 包名 行数 方法名 日志内容
-	return []byte(fmt.Sprintf("[%s] [%s] [%s:%d %s] %s\n", timestamp, entry.Level, fName, entry.Caller.Line, entry.Caller.Function, entry.Message)), nil
+	gid, _ := basic.GetCache(basic.GID)
+	if gid != nil {
+		return []byte(fmt.Sprintf("[%s] [%s] [%s] [%s:%d %s] %s\n", timestamp, entry.Level, fmt.Sprintf("%v", gid), fName, entry.Caller.Line, entry.Caller.Function, entry.Message)), nil
+	} else {
+		return []byte(fmt.Sprintf("[%s] [%s] [%s:%d %s] %s\n", timestamp, entry.Level, fName, entry.Caller.Line, entry.Caller.Function, entry.Message)), nil
+	}
 }
 
 /*

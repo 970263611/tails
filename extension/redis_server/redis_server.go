@@ -2,8 +2,8 @@ package redis_server
 
 import (
 	"basic"
-	othertool "basic/tool/other"
 	redistool "basic/tool/redis"
+	"basic/tool/utils"
 	"encoding/json"
 	"errors"
 	"strconv"
@@ -30,7 +30,7 @@ func (r *RedisServer) Register(globalContext *basic.Context) *basic.ComponentMet
 		StandardName: "host",
 		Required:     true,
 		CheckMethod: func(s string) error {
-			if !othertool.CheckIp(s) {
+			if !utils.CheckIp(s) {
 				return errors.New("IP不合法")
 			}
 			return nil
@@ -43,7 +43,7 @@ func (r *RedisServer) Register(globalContext *basic.Context) *basic.ComponentMet
 		StandardName: "port",
 		Required:     true,
 		CheckMethod: func(s string) error {
-			if !othertool.CheckPortByString(s) {
+			if !utils.CheckPortByString(s) {
 				return errors.New("端口不合法")
 			}
 			return nil

@@ -3,7 +3,7 @@ package edb_server
 import (
 	"basic"
 	"basic/tool/net"
-	othertool "basic/tool/other"
+	"basic/tool/utils"
 	"errors"
 	"fmt"
 )
@@ -27,13 +27,13 @@ func (b *EdbServer) Register(globalContext *basic.Context) *basic.ComponentMeta 
 		Component: b,
 	}
 	command.AddParameters(basic.STRING, "-h", "edb.server.ip", "host", true, func(s string) error {
-		if !othertool.CheckIp(s) {
+		if !utils.CheckIp(s) {
 			return errors.New("edb服务的主机ip不合法")
 		}
 		return nil
 	}, "edb服务的主机ip地址")
 	command.AddParameters(basic.INT, "-p", "edb.server.port", "port", true, func(s string) error {
-		if !othertool.CheckPortByString(s) {
+		if !utils.CheckPortByString(s) {
 			return errors.New("edb服务的端口port不合法")
 		}
 		return nil
