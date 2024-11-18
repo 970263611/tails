@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"strings"
 )
 
 const (
@@ -13,6 +14,8 @@ const (
 	WEB_KEY       string = "web_server"
 	NEEDHELP      string = "--help"
 	GID           string = "globalID"
+	SALT          string = "--salt"
+	CONFIG_SALT   string = "jasypt.salt"
 )
 
 /*
@@ -222,4 +225,74 @@ func start() error {
 		return err
 	}
 	return nil
+}
+
+/*
+*
+命令行数组转换为maps
+*/
+func commandsToMap(commands []string) (map[string]string, error) {
+	//go run main.go componentKey 至少应该有两个参数
+	maps := make(map[string]string)
+	if len(commands) == 0 {
+		maps["--help"] = "base"
+		return maps, nil
+	}
+	//第1个参数是 组件componentkey
+	componentKey := commands[0]
+	maps[COMPONENT_KEY] = componentKey
+	//第2个到最后一个参数为 component入参，少于2个参数肯定就是没入参,只有大于等于三个参数，才存在入参
+	var params []string
+	if len(commands) > 1 {
+		params = commands[1:]
+	}
+	//入参解析
+	for i := 0; i < len(params); i++ {
+		str := params[i]
+		//系统参数必定以--开头，后面跟若干字母
+		if utils.RegularValidate(str, utils.REGEX_2DASE_AND_WORD) {
+			if globalContext.FindParameterType(componentKey, str) != NO_VALUE {
+				i++
+				maps[str] = params[i]
+			} else {
+				maps[str] = componentKey
+			}
+			//组件参数必定以-开头，后面跟若干字母
+		} else if utils.RegularValidate(str, utils.REGEX_DASE_AND_WORD) {
+			p := str[1:]
+			//只有单一参数才能跟值
+			if len(p) == 1 {
+				if globalContext.FindParameterType(componentKey, str) != NO_VALUE {
+					i++
+					maps[str] = params[i]
+				} else {
+					maps[str] = ""
+				}
+			} else {
+				for m := 0; m < len(p); m++ {
+					maps["-"+p[m:m+1]] = ""
+				}
+			}
+		} else {
+			return nil, errors.New("参数错误,参数应以-或--开头")
+		}
+	}
+	//ENC(data)内容解密
+	password, ok := maps[SALT]
+	if !ok {
+		password = globalContext.Config.GetString(CONFIG_SALT)
+	}
+	if password != "" {
+		for key, value := range maps {
+			if value != "" && strings.HasPrefix(value, "ENC(") && strings.HasSuffix(value, ")") {
+				value = value[4 : len(value)-1]
+				value, err := utils.JasyptDec(value, password)
+				if err != nil {
+					return nil, errors.New("参数解密失败:" + err.Error())
+				}
+				maps[key] = value
+			}
+		}
+	}
+	return maps, nil
 }

@@ -33,4 +33,6 @@ log:
   filename: ./logs/all.log
   level: info
   out_type: 2
-  
+
+jasypt:
+  salt: 123456

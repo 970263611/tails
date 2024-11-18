@@ -15,6 +15,7 @@ import (
 
 		--path 指定配置文件路径
 	    --addr ip:port或域名 时进行请求转发
+		--salt 解密密钥，解密方式jasypt-1.9.3.jar
 */
 func main() {
 	args := os.Args[1:]

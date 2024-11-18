@@ -107,9 +107,9 @@ func (d DbConnNum) Do(params map[string]any) (resp []byte) {
 	}
 	dbBase, err := dbtool.CreateBaseDbByDbConfig(config)
 	if err != nil {
-		return []byte("connect database fail, " + err.Error())
+		return []byte("连接数据库失败: " + err.Error())
 	}
 	var count int64
 	dbBase.Table("pg_stat_activity").Count(&count)
-	return []byte("The current number of database connections is " + strconv.FormatInt(count, 10))
+	return []byte("当前数据库连接数:" + strconv.FormatInt(count, 10))
 }

@@ -3,8 +3,11 @@ package utils
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"os"
+	"os/exec"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -202,4 +205,33 @@ func GetGoroutineID() string {
 		}
 	}
 	return ""
+}
+
+/*
+*
+ENC解密
+*/
+func JasyptDec(input, password string) (string, error) {
+	javaCmd := "java"
+	jarFile := "./resources/jasypt-1.9.3.jar"
+	input = "input=" + input
+	password = "password=" + password
+	method := "org.jasypt.intf.cli.JasyptPBEStringDecryptionCLI"
+	algorithm := "algorithm=PBEWithMD5AndDES"
+	args := []string{"-cp", jarFile, method, input, password, algorithm}
+	// 构建命令对象
+	cmd := exec.Command(javaCmd, args...)
+	// 执行命令并获取输出和错误信息
+	output, err := cmd.Output()
+	if err != nil {
+		msg := fmt.Sprintf("jasypt解密失败: %v", err)
+		log.Error(msg)
+		return input, errors.New(msg)
+	}
+	var line string
+	lines := strings.Fields(strings.ReplaceAll(string(output), "\r\n", "\n"))
+	if len(lines) != 0 {
+		line = lines[len(lines)-1]
+	}
+	return line, nil
 }

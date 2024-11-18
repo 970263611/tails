@@ -19,7 +19,7 @@ func (c CommandExec) GetName() string {
 }
 
 func (c CommandExec) GetDescribe() string {
-	return "执行系统命令行"
+	return "执行系统命令行,例:command_exec -c 'ps -ef|grep java'"
 }
 
 func (c CommandExec) Register(globalContext *basic.Context) *basic.ComponentMeta {
