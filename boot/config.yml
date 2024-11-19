@@ -40,3 +40,8 @@ log:
 
 jasypt:
   salt: 123456
+redis:
+  server:
+    ip: 192.168.56.128
+    port: 17001
+    password: ENC(K6FNl1c/9aOW1RNhnxGNRI+usHFynK/m)

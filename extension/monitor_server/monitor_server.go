@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -24,7 +25,7 @@ func (r *MonitorServer) GetName() string {
 }
 
 func (r *MonitorServer) GetDescribe() string {
-	return "monitor监控指标服务"
+	return "monitor监控指标服务，例：monitor_server -h 127.0.0.1 -p 8080 -u sysadmin -w Psbc@2023"
 }
 
 func (r *MonitorServer) Register(cm iface.ComponentMeta) {
@@ -80,12 +81,14 @@ func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
 	}
 	jsonData, err := json.Marshal(res.result)
 	if err != nil {
-		return []byte("转换为JSON字符串时出错")
+		log.Error("转换为JSON字符串时出错", err.Error())
+		return []byte("转换为JSON字符串时出错" + err.Error())
 	}
 	var prettyJSON bytes.Buffer
 	error := json.Indent(&prettyJSON, jsonData, "", "    ")
 	if error != nil {
-		return []byte("JSON美化出错")
+		log.Error("JSON美化出错", err.Error())
+		return []byte("JSON美化出错" + error.Error())
 	}
 	prettyStr := string(prettyJSON.Bytes())
 	return []byte(prettyStr)
