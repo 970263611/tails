@@ -3,6 +3,7 @@ package basic
 import (
 	"basic/tool/utils"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"strings"
 )
@@ -268,7 +269,21 @@ func addConfigToMap(maps map[string]string) {
 		if _, ok = maps[v.CommandName]; v.ParamType != NO_VALUE && v.ConfigName != "" && !ok {
 			val := globalContext.Config.GetString(v.ConfigName)
 			if val != "" {
-				maps[v.CommandName] = val
+				if strings.HasPrefix(val, "ENC(") && strings.HasSuffix(val, ")") {
+					salt, ok := maps[SALT]
+					if !ok && globalContext.Config != nil {
+						salt = globalContext.Config.GetString(CONFIG_SALT)
+					}
+					val = val[4 : len(val)-1]
+					val, err := utils.JasyptDec(val, salt)
+					if err != nil {
+						log.Error("参数解密失败", err.Error())
+					}
+					maps[v.CommandName] = val
+
+				} else {
+					maps[v.CommandName] = val
+				}
 			}
 		}
 	}

@@ -10,7 +10,7 @@ import (
 type TcpServer struct{}
 
 func (t *TcpServer) GetDescribe() string {
-	return "tcp连接服务"
+	return "tcp连接服务，例：tcp_server"
 }
 
 func GetInstance() *TcpServer {
@@ -26,28 +26,27 @@ func (t *TcpServer) Register(globalContext *basic.Context) *basic.ComponentMeta 
 		CommandName:  "-p",
 		StandardName: "tcp_port",
 		Required:     false,
-		Describe:     "统计已连接上的，某端口tcp连接数",
+		Describe:     "统计已连接上的，某端口tcp连接数，例：tcp_server -p 8080",
 	}
 	p2 := basic.Parameter{
 		ParamType:    basic.NO_VALUE,
 		CommandName:  "-e",
 		StandardName: "tcp_established",
 		Required:     false,
-		Describe:     "统计已连接上的，状态为“established的tcp连接数",
+		Describe:     "统计已连接上的，状态为“established的tcp连接数，例：tcp_server -e",
 	}
 	p3 := basic.Parameter{
 		ParamType:    basic.STRING,
 		CommandName:  "-i",
 		StandardName: "tcp_ip",
 		Required:     false,
-		Describe:     "统计已连接上的，某ip的tcp连接数",
+		Describe:     "统计已连接上的，某ip的tcp连接数，例：tcp_server -i 127.0.0.1",
 	}
 
 	return &basic.ComponentMeta{
-		//todo
-		//ComponentType: basic.EXECUTE,
-		Params:    []basic.Parameter{p1, p2, p3},
-		Component: t,
+		ComponentType: basic.EXECUTE,
+		Params:        []basic.Parameter{p1, p2, p3},
+		Component:     t,
 	}
 }
 
