@@ -1,7 +1,8 @@
 package batch_server
 
 import (
-	"basic"
+	cons "basic/constants"
+	iface "basic/interfaces"
 	"basic/tool/net"
 	"basic/tool/utils"
 	"errors"
@@ -11,7 +12,7 @@ import (
 
 type BatchServer struct{}
 
-func GetInstance() *BatchServer {
+func GetInstance(globalContext iface.Context) *BatchServer {
 	return &BatchServer{}
 }
 
@@ -23,30 +24,26 @@ func (b *BatchServer) GetDescribe() string {
 	return "batch job 服务,用于通过传入的任务名称 查询任务状态与重新执行任务功能"
 }
 
-func (b *BatchServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
-	command := &basic.ComponentMeta{
-		Component: b,
-	}
-	command.AddParameters(basic.STRING, "-h", "batch.server.ip", "host", true, func(s string) error {
+func (b *BatchServer) Register(cm iface.ComponentMeta) {
+	cm.AddParameters(cons.STRING, "-h", "batch.server.ip", "host", true, func(s string) error {
 		if !utils.CheckIp(s) {
 			return errors.New("batch服务的主机ip不合法")
 		}
 		return nil
 	}, "batch服务的主机ip地址")
-	command.AddParameters(basic.INT, "-p", "batch.server.port", "port", true, func(s string) error {
+	cm.AddParameters(cons.INT, "-p", "batch.server.port", "port", true, func(s string) error {
 		if !utils.CheckPortByString(s) {
 			return errors.New("batch服务的端口port不合法")
 		}
 		return nil
 	}, "batch服务的端口")
-	command.AddParameters(basic.STRING, "-u", "batch.server.username", "username", false, nil, "batch登录用户名")
-	command.AddParameters(basic.STRING, "-w", "batch.server.password", "password", false, nil, "batch登录密码")
-	command.AddParameters(basic.STRING, "-q", "", "jobName", false, nil, "任务名称,通过任务名称查询任务状态")
-	command.AddParameters(basic.STRING, "-e", "", "execJobByName", false, nil, "任务名称,通过任务名称重新执行任务")
-	return command
+	cm.AddParameters(cons.STRING, "-u", "batch.server.username", "username", false, nil, "batch登录用户名")
+	cm.AddParameters(cons.STRING, "-w", "batch.server.password", "password", false, nil, "batch登录密码")
+	cm.AddParameters(cons.STRING, "-q", "", "jobName", false, nil, "任务名称,通过任务名称查询任务状态")
+	cm.AddParameters(cons.STRING, "-e", "", "execJobByName", false, nil, "任务名称,通过任务名称重新执行任务")
 }
 
-func (b *BatchServer) Start(globalContext *basic.Context) error {
+func (b *BatchServer) Start() error {
 	return nil
 }
 

@@ -1,7 +1,8 @@
 package check_server
 
 import (
-	"basic"
+	cons "basic/constants"
+	iface "basic/interfaces"
 	"basic/tool/utils"
 	"errors"
 	"fmt"
@@ -11,7 +12,7 @@ import (
 
 type CheckServer struct{}
 
-func GetInstance() basic.Component {
+func GetInstance(globalContext iface.Context) iface.Component {
 	return &CheckServer{}
 }
 
@@ -23,41 +24,24 @@ func (c *CheckServer) GetDescribe() string {
 	return "通过IP地址和端口号，判断应用服务是否正常或网络是否连通，例:check_server -h 192.168.20.11 -p 15431"
 }
 
-func (c *CheckServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
-	p1 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-h",
-		StandardName: "host",
-		Required:     true,
-		CheckMethod: func(s string) error {
+func (c *CheckServer) Register(cm iface.ComponentMeta) {
+	cm.AddParameters(cons.STRING, "-h", "", "host", true,
+		func(s string) error {
 			if !utils.CheckIp(s) {
 				return errors.New("IP不合法")
 			}
 			return nil
-		},
-		Describe: "IP地址,支持ipv4,例:192.168.0.1",
-	}
-	p2 := basic.Parameter{
-		ParamType:    basic.INT,
-		CommandName:  "-p",
-		StandardName: "port",
-		Required:     true,
-		CheckMethod: func(s string) error {
+		}, "IP地址,支持ipv4,例:192.168.0.1")
+	cm.AddParameters(cons.INT, "-p", "", "port", true,
+		func(s string) error {
 			if !utils.CheckPortByString(s) {
 				return errors.New("端口不合法")
 			}
 			return nil
-		},
-		Describe: "端口号,0 ~ 65535之间",
-	}
-	return &basic.ComponentMeta{
-		ComponentType: basic.EXECUTE,
-		Params:        []basic.Parameter{p1, p2},
-		Component:     c,
-	}
+		}, "端口号,0 ~ 65535之间")
 }
 
-func (c *CheckServer) Start(globalContext *basic.Context) error {
+func (c *CheckServer) Start() error {
 	return nil
 }
 

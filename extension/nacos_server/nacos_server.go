@@ -1,7 +1,8 @@
 package nacos_server
 
 import (
-	"basic"
+	cons "basic/constants"
+	iface "basic/interfaces"
 	"basic/tool/net"
 	"basic/tool/utils"
 	"errors"
@@ -10,10 +11,10 @@ import (
 )
 
 type NacosServer struct {
-	*basic.Context
+	iface.Context
 }
 
-func GetInstance() *NacosServer {
+func GetInstance(globalContext iface.Context) iface.Component {
 	return &NacosServer{}
 }
 
@@ -25,37 +26,33 @@ func (r *NacosServer) GetDescribe() string {
 	return "Nacos上下线,用于封停/解停相关服务"
 }
 
-func (r *NacosServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
-	command := &basic.ComponentMeta{
-		Component: r,
-	}
-	command.AddParameters(basic.STRING, "-h", "nacos.server.ip", "host", true, func(s string) error {
+func (r *NacosServer) Register(cm iface.ComponentMeta) {
+	cm.AddParameters(cons.STRING, "-h", "nacos.server.ip", "host", true, func(s string) error {
 		if !utils.CheckIp(s) {
 			return errors.New("nacos服务ip不合法")
 		}
 		return nil
 	}, "nacos服务的主机地址")
-	command.AddParameters(basic.INT, "-p", "nacos.server.port", "port", true, func(s string) error {
+	cm.AddParameters(cons.INT, "-p", "nacos.server.port", "port", true, func(s string) error {
 		if !utils.CheckPortByString(s) {
 			return errors.New("nacos服务port不合法")
 		}
 		return nil
 	}, "nacos服务的端口")
-	command.AddParameters(basic.STRING, "-u", "nacos.server.username", "username", true, nil, "nacos登录用户名")
-	command.AddParameters(basic.STRING, "-w", "nacos.server.password", "password", true, nil, "nacos登录密码")
-	command.AddParameters(basic.STRING, "-n", "nacos.server.namespace", "namespace", true, nil, "要封停/解停系统所在命名空间")
-	command.AddParameters(basic.STRING, "-e", "", "enabled", true, func(s string) error {
+	cm.AddParameters(cons.STRING, "-u", "nacos.server.username", "username", true, nil, "nacos登录用户名")
+	cm.AddParameters(cons.STRING, "-w", "nacos.server.password", "password", true, nil, "nacos登录密码")
+	cm.AddParameters(cons.STRING, "-n", "nacos.server.namespace", "namespace", true, nil, "要封停/解停系统所在命名空间")
+	cm.AddParameters(cons.STRING, "-e", "", "enabled", true, func(s string) error {
 		if !utils.CheckIsBooleanByString(s) {
 			return errors.New("enabled不合法,必须是boolean类型")
 		}
 		return nil
 	}, "是否要封停/解停, true是解停服务,false是封停服务")
-	command.AddParameters(basic.STRING, "-s", "", "serviceName", true, nil, "要封停/解停系统服务名")
-	command.AddParameters(basic.STRING, "-H", "", "serviceIp", true, nil, "要封停/解停系统ip")
-	command.AddParameters(basic.STRING, "-P", "", "servicePort", true, nil, "要封停/解停系统port")
-	return command
+	cm.AddParameters(cons.STRING, "-s", "", "serviceName", true, nil, "要封停/解停系统服务名")
+	cm.AddParameters(cons.STRING, "-H", "", "serviceIp", true, nil, "要封停/解停系统ip")
+	cm.AddParameters(cons.STRING, "-P", "", "servicePort", true, nil, "要封停/解停系统port")
 }
-func (r *NacosServer) Start(globalContext *basic.Context) error {
+func (r *NacosServer) Start() error {
 	return nil
 }
 

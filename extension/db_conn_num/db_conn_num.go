@@ -1,7 +1,8 @@
 package db_conn_num
 
 import (
-	"basic"
+	cons "basic/constants"
+	iface "basic/interfaces"
 	dbtool "basic/tool/db"
 	"basic/tool/utils"
 	"errors"
@@ -10,7 +11,7 @@ import (
 
 type DbConnNum struct{}
 
-func GetInstance() basic.Component {
+func GetInstance(globalContext iface.Context) iface.Component {
 	return &DbConnNum{}
 }
 
@@ -22,75 +23,28 @@ func (c DbConnNum) GetDescribe() string {
 	return "数据库连接数查询,当前仅支持pg数据库"
 }
 
-func (d DbConnNum) Register(globalContext *basic.Context) *basic.ComponentMeta {
-	p1 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-h",
-		StandardName: "host",
-		ConfigName:   "db_conn_num.host",
-		Required:     true,
-		CheckMethod: func(s string) error {
+func (d DbConnNum) Register(cm iface.ComponentMeta) {
+	cm.AddParameters(cons.STRING, "-h", "db_conn_num.host", "host", true,
+		func(s string) error {
 			if !utils.CheckIp(s) {
 				return errors.New("IP不合法")
 			}
 			return nil
-		},
-		Describe: "IP地址,支持ipv4,例:192.168.0.1",
-	}
-	p2 := basic.Parameter{
-		ParamType:    basic.INT,
-		CommandName:  "-p",
-		StandardName: "port",
-		ConfigName:   "db_conn_num.port",
-		Required:     true,
-		CheckMethod: func(s string) error {
+		}, "IP地址,支持ipv4,例:192.168.0.1")
+	cm.AddParameters(cons.INT, "-p", "db_conn_num.port", "port", true,
+		func(s string) error {
 			if !utils.CheckPortByString(s) {
 				return errors.New("端口不合法")
 			}
 			return nil
-		},
-		Describe: "端口号,0 ~ 65535之间",
-	}
-	p3 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-u",
-		StandardName: "username",
-		ConfigName:   "db_conn_num.username",
-		Required:     true,
-		Describe:     "数据库用户名",
-	}
-	p4 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-P",
-		StandardName: "password",
-		ConfigName:   "db_conn_num.password",
-		Required:     true,
-		Describe:     "数据库密码",
-	}
-	p5 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-d",
-		StandardName: "dbname",
-		ConfigName:   "db_conn_num.dbname",
-		Required:     true,
-		Describe:     "数据库名称",
-	}
-	p6 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-s",
-		StandardName: "searchpath",
-		ConfigName:   "db_conn_num.schema",
-		Required:     true,
-		Describe:     "数据库schema",
-	}
-	return &basic.ComponentMeta{
-		ComponentType: basic.EXECUTE,
-		Component:     d,
-		Params:        []basic.Parameter{p1, p2, p3, p4, p5, p6},
-	}
+		}, "端口号,0 ~ 65535之间")
+	cm.AddParameters(cons.STRING, "-u", "db_conn_num.username", "username", true, nil, "数据库用户名")
+	cm.AddParameters(cons.STRING, "-P", "db_conn_num.password", "password", true, nil, "数据库密码")
+	cm.AddParameters(cons.STRING, "-d", "db_conn_num.dbname", "dbname", true, nil, "数据库名称")
+	cm.AddParameters(cons.STRING, "-s", "db_conn_num.searchpath", "schema", true, nil, "数据库schema")
 }
 
-func (d DbConnNum) Start(globalContext *basic.Context) error {
+func (d DbConnNum) Start() error {
 	return nil
 }
 

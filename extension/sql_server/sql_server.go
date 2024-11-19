@@ -1,7 +1,8 @@
 package sql_server
 
 import (
-	"basic"
+	cons "basic/constants"
+	iface "basic/interfaces"
 	"basic/tool/db"
 	"bufio"
 	"bytes"
@@ -18,7 +19,7 @@ import (
 
 type SqlServer struct{}
 
-func GetInstance() *SqlServer {
+func GetInstance(globalContext iface.Context) iface.Component {
 	return &SqlServer{}
 }
 
@@ -30,23 +31,19 @@ func (r *SqlServer) GetDescribe() string {
 	return "sql执行服务"
 }
 
-func (r *SqlServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
-	command := &basic.ComponentMeta{
-		Component: r,
-	}
-	command.AddParameters(basic.STRING, "-h", "sql.server.ip", "host", true, nil, "数据库Ip")
-	command.AddParameters(basic.INT, "-p", "sql.server.port", "port", true, nil, "数据库port")
-	command.AddParameters(basic.STRING, "-u", "sql.server.username", "username", true, nil, "数据库登录用户名")
-	command.AddParameters(basic.STRING, "-w", "sql.server.password", "password", true, nil, "数据库登录密码")
-	command.AddParameters(basic.STRING, "-d", "sql.server.dbname", "dbname", true, nil, "数据库名称")
-	command.AddParameters(basic.STRING, "-s", "sql.server.searchPath", "searchPath", true, nil, "数据库结构")
-	command.AddParameters(basic.STRING, "-e", "", "sql", false, nil, "执行sql语句")
-	command.AddParameters(basic.STRING, "-o", "", "outPutFile", false, nil, "执行sql语句后,将查询结果导出到指定文件")
-	command.AddParameters(basic.STRING, "-f", "", "sqlFile", false, nil, "执行sql文件")
-	return command
+func (r *SqlServer) Register(cm iface.ComponentMeta) {
+	cm.AddParameters(cons.STRING, "-h", "sql.server.ip", "host", true, nil, "数据库Ip")
+	cm.AddParameters(cons.INT, "-p", "sql.server.port", "port", true, nil, "数据库port")
+	cm.AddParameters(cons.STRING, "-u", "sql.server.username", "username", true, nil, "数据库登录用户名")
+	cm.AddParameters(cons.STRING, "-w", "sql.server.password", "password", true, nil, "数据库登录密码")
+	cm.AddParameters(cons.STRING, "-d", "sql.server.dbname", "dbname", true, nil, "数据库名称")
+	cm.AddParameters(cons.STRING, "-s", "sql.server.searchPath", "searchPath", true, nil, "数据库结构")
+	cm.AddParameters(cons.STRING, "-e", "", "sql", false, nil, "执行sql语句")
+	cm.AddParameters(cons.STRING, "-o", "", "outPutFile", false, nil, "执行sql语句后,将查询结果导出到指定文件")
+	cm.AddParameters(cons.STRING, "-f", "", "sqlFile", false, nil, "执行sql文件")
 }
 
-func (r *SqlServer) Start(globalContext *basic.Context) error {
+func (r *SqlServer) Start() error {
 	return nil
 }
 

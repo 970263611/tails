@@ -1,7 +1,8 @@
 package tcp_server
 
 import (
-	"basic"
+	cons "basic/constants"
+	iface "basic/interfaces"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -13,45 +14,20 @@ func (t *TcpServer) GetDescribe() string {
 	return "tcp连接服务"
 }
 
-func GetInstance() *TcpServer {
+func GetInstance(globalContext iface.Context) iface.Component {
 	return &TcpServer{}
 }
 func (t *TcpServer) GetName() string {
 	return "tcp_server"
 }
 
-func (t *TcpServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
-	p1 := basic.Parameter{
-		ParamType:    basic.INT,
-		CommandName:  "-p",
-		StandardName: "tcp_port",
-		Required:     false,
-		Describe:     "统计已连接上的，某端口tcp连接数",
-	}
-	p2 := basic.Parameter{
-		ParamType:    basic.NO_VALUE,
-		CommandName:  "-e",
-		StandardName: "tcp_established",
-		Required:     false,
-		Describe:     "统计已连接上的，状态为“established的tcp连接数",
-	}
-	p3 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-i",
-		StandardName: "tcp_ip",
-		Required:     false,
-		Describe:     "统计已连接上的，某ip的tcp连接数",
-	}
-
-	return &basic.ComponentMeta{
-		//todo
-		//ComponentType: basic.EXECUTE,
-		Params:    []basic.Parameter{p1, p2, p3},
-		Component: t,
-	}
+func (t *TcpServer) Register(cm iface.ComponentMeta) {
+	cm.AddParameters(cons.INT, "-p", "", "tcp_port", false, nil, "统计已连接上的，某端口tcp连接数")
+	cm.AddParameters(cons.NO_VALUE, "-e", "", "tcp_established", false, nil, "统计已连接上的，状态为“established的tcp连接数")
+	cm.AddParameters(cons.STRING, "-i", "", "tcp_ip", false, nil, "统计已连接上的，某ip的tcp连接数")
 }
 
-func (t *TcpServer) Start(globalContext *basic.Context) error {
+func (t *TcpServer) Start() error {
 	return nil
 }
 func (t *TcpServer) Do(params map[string]any) (resp []byte) {

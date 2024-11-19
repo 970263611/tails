@@ -1,7 +1,8 @@
 package monitor_server
 
 import (
-	"basic"
+	cons "basic/constants"
+	iface "basic/interfaces"
 	"basic/tool/utils"
 	"bytes"
 	"encoding/json"
@@ -11,14 +12,14 @@ import (
 )
 
 type MonitorServer struct {
-	*basic.Context
+	iface.Context
 }
 
-func GetInstance() *MonitorServer {
-	return &MonitorServer{}
+func GetInstance(globalContext iface.Context) iface.Component {
+	return &MonitorServer{globalContext}
 }
 
-func (w *MonitorServer) GetName() string {
+func (r *MonitorServer) GetName() string {
 	return "monitor_server"
 }
 
@@ -26,27 +27,23 @@ func (r *MonitorServer) GetDescribe() string {
 	return "monitor监控指标服务"
 }
 
-func (r *MonitorServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
-	command := &basic.ComponentMeta{
-		Component: r,
-	}
-	command.AddParameters(basic.STRING, "-h", "monitor.server.ip", "host", true, func(s string) error {
+func (r *MonitorServer) Register(cm iface.ComponentMeta) {
+	cm.AddParameters(cons.STRING, "-h", "monitor.server.ip", "host", true, func(s string) error {
 		if !utils.CheckIp(s) {
 			return errors.New("监控服务ip不合法")
 		}
 		return nil
 	}, "监控服务的主机地址")
-	command.AddParameters(basic.INT, "-p", "monitor.server.port", "port", true, func(s string) error {
+	cm.AddParameters(cons.INT, "-p", "monitor.server.port", "port", true, func(s string) error {
 		if !utils.CheckPortByString(s) {
 			return errors.New("监控服务port不合法")
 		}
 		return nil
 	}, "监控服务的端口")
-	command.AddParameters(basic.STRING, "-u", "monitor.server.username", "username", true, nil, "监控服务的登录用户名")
-	command.AddParameters(basic.STRING, "-w", "monitor.server.password", "password", true, nil, "监控服务的登录密码")
-	return command
+	cm.AddParameters(cons.STRING, "-u", "monitor.server.username", "username", true, nil, "监控服务的登录用户名")
+	cm.AddParameters(cons.STRING, "-w", "monitor.server.password", "password", true, nil, "监控服务的登录密码")
 }
-func (r *MonitorServer) Start(globalContext *basic.Context) error {
+func (r *MonitorServer) Start() error {
 	return nil
 }
 

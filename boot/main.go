@@ -2,8 +2,8 @@ package main
 
 import (
 	"basic"
+	iface "basic/interfaces"
 	"basic/log_config"
-	_ "basic/onload"
 	"errors"
 	"fmt"
 	"os"
@@ -18,16 +18,18 @@ import (
 		--salt 解密密钥，解密方式jasypt-1.9.3.jar
 */
 func main() {
+	var context iface.Context = &basic.Context{}
+	basic.InitGlobalContext(context)
 	args := os.Args[1:]
-	err := loadConfig(args)
+	err := loadConfig(args, context)
 	if err != nil {
 		fmt.Println("加载配置文件失败:", err)
 		return
 	}
 	//日志初始化
-	initLogConfig()
+	initLogConfig(context)
 	//调用component，并打印
-	bytes := basic.Servlet(args, false)
+	bytes := context.Servlet(args, false)
 	fmt.Println(string(bytes))
 }
 
@@ -35,7 +37,7 @@ func main() {
 *
 加载配置文件,yaml
 */
-func loadConfig(args []string) error {
+func loadConfig(args []string, c iface.Context) error {
 	var path string
 	for i := 0; i < len(args); i++ {
 		if args[i] == "--path" {
@@ -49,10 +51,7 @@ func loadConfig(args []string) error {
 			break
 		}
 	}
-	if path == "" {
-		return nil
-	}
-	return basic.LoadConfig(path)
+	return c.LoadConfig(path)
 }
 
 type LogConfig struct {
@@ -71,11 +70,11 @@ type LogConfig struct {
 *
 日志初始化
 */
-func initLogConfig() {
+func initLogConfig(c iface.Context) {
 	logconfig := &LogConfig{}
-	basic.Unmarshal(logconfig)
+	c.Unmarshal(logconfig)
 	//初始化日志配置
-	config := log_config.NewLogConfig()
+	config := log_config.NewLogConfig(c)
 	if logconfig.Log.Filename != "" {
 		config.Filename = logconfig.Log.Filename
 	}

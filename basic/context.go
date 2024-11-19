@@ -1,6 +1,8 @@
 package basic
 
 import (
+	cons "basic/constants"
+	iface "basic/interfaces"
 	"basic/tool/utils"
 	"fmt"
 	"github.com/spf13/viper"
@@ -8,29 +10,30 @@ import (
 )
 
 type Context struct {
-	components map[string]*ComponentMeta // Component 组件区
+	components map[string]*componentMeta // Component 组件区
 	cache      map[string]map[string]any //Cache 缓存数据区
 	Config     *viper.Viper              //Config 配置信息
 }
 
-var globalContext = &Context{
-	components: make(map[string]*ComponentMeta),
-	cache:      make(map[string]map[string]any),
+var globalContext *Context
+
+func (c *Context) GetConfig() *viper.Viper {
+	return c.Config
 }
 
 /*
 *
 设置缓存
 */
-func SetCache(key string, value interface{}) bool {
+func (c *Context) SetCache(key string, value interface{}) bool {
 	tid := utils.GetGoroutineID()
 	if tid == "" {
 		return false
 	}
-	gmap, ok := globalContext.cache[tid]
+	gmap, ok := c.cache[tid]
 	if !ok {
 		gmap = make(map[string]any)
-		globalContext.cache[tid] = gmap
+		c.cache[tid] = gmap
 	}
 	gmap[key] = value
 	return true
@@ -40,12 +43,12 @@ func SetCache(key string, value interface{}) bool {
 *
 获取缓存数据
 */
-func GetCache(key string) (interface{}, bool) {
+func (c *Context) GetCache(key string) (interface{}, bool) {
 	tid := utils.GetGoroutineID()
 	if tid == "" {
 		return nil, false
 	}
-	gmap, ok := globalContext.cache[tid]
+	gmap, ok := c.cache[tid]
 	if !ok {
 		return nil, false
 	}
@@ -56,76 +59,21 @@ func GetCache(key string) (interface{}, bool) {
 *
 获取缓存数据
 */
-func DelCache() {
+func (c *Context) DelCache() {
 	tid := utils.GetGoroutineID()
 	if tid == "" {
 		return
 	}
-	delete(globalContext.cache, tid)
+	delete(c.cache, tid)
 }
-
-/*
-*
-这里设置配置文件默认值
-*/
-var defaultParams = map[string]any{}
 
 /*
 *
 配置信息转结构体
 */
-func Unmarshal(a any) error {
-	if globalContext.Config != nil {
-		if err := globalContext.Config.Unmarshal(a); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (c *Context) addComponentMeta(key string, componentMeta *ComponentMeta) bool {
-	c.components[key] = componentMeta
-	return true
-}
-
-/*
-*
-注册待初始化组件
-*/
-func (c *Context) assembleByName(key string) *ComponentMeta {
-	for _, cp := range initComponentList {
-		if cp.GetName() == key {
-			cm := cp.Register(globalContext)
-			globalContext.addComponentMeta(key, cm)
-			return cm
-		}
-	}
-	return nil
-}
-
-/*
-*
-注册待初始化组件
-*/
-func (c *Context) assembleAll() {
-	for _, cp := range initComponentList {
-		_, ok := c.components[cp.GetName()]
-		if !ok {
-			cm := cp.Register(globalContext)
-			globalContext.addComponentMeta(cm.GetName(), cm)
-		}
-	}
-}
-
-/*
-*
-注册待初始化组件
-*/
-func (c *Context) Start() error {
-	c.assembleAll()
-	for _, cm := range c.components {
-		err := cm.Start(c)
-		if err != nil {
+func (c *Context) Unmarshal(a any) error {
+	if c.Config != nil {
+		if err := c.Config.Unmarshal(a); err != nil {
 			return err
 		}
 	}
@@ -136,10 +84,10 @@ func (c *Context) Start() error {
 *
 根据参数名称和查询方类型，返回组件参数名称
 */
-func (c *Context) FindComponent(key string, isSystem bool) *ComponentMeta {
+func (c *Context) findComponent(key string, isSystem bool) *componentMeta {
 	cm, ok := c.components[key]
 	if ok {
-		if !isSystem && cm.ComponentType == EXECUTE {
+		if !isSystem && cm.ComponentType == cons.EXECUTE {
 			return cm
 		} else {
 			return cm
@@ -157,16 +105,16 @@ func (c *Context) FindComponent(key string, isSystem bool) *ComponentMeta {
 *
 根据组件名称及命令行参数名称，查询到指定参数的配置信息
 */
-func (c *Context) FindParameterType(componentKey string, commandName string) ParamType {
+func (c *Context) findParameterType(componentKey string, commandName string) cons.ParamType {
 	for _, value := range systemParam {
 		if value.CommandName == commandName {
 			return value.ParamType
 		}
 	}
 	if componentKey != "" {
-		componentMeta := c.FindComponent(componentKey, true)
-		if componentMeta != nil {
-			for _, value := range componentMeta.Params {
+		cm := c.findComponent(componentKey, true)
+		if cm != nil {
+			for _, value := range cm.params {
 				if value.CommandName == commandName {
 					return value.ParamType
 				}
@@ -181,7 +129,7 @@ func (c *Context) FindParameterType(componentKey string, commandName string) Par
 *
 Help组件，传入组件名称，生成组件的help信息并返回；如果是查询tails支持的所有组件，则传入base
 */
-func (c *Context) FindHelp(key string) string {
+func (c *Context) findHelp(key string) string {
 	linewordnum := 100
 	var sb strings.Builder
 	var lineBreak string = "\r\n"
@@ -197,6 +145,8 @@ func (c *Context) FindHelp(key string) string {
 		sb.WriteString(utils.GetBlankByNum(2, " ") + "调用组件命令格式: './boot 组件名称 组件参数列表'")
 		sb.WriteString(lineBreak)
 		sb.WriteString(utils.GetBlankByNum(2, " ") + "指定配置文件路径: './boot 组件名称 --path 配置文件全路径 组件参数列表'")
+		sb.WriteString(lineBreak)
+		sb.WriteString(utils.GetBlankByNum(2, " ") + "指定配置文件路径: './boot 组件名称 --f或--forword ip:port或域名'")
 		sb.WriteString(lineBreak)
 		sb.WriteString(utils.GetBlankByNum(2, " ") + "传输参数需要解密: './boot 组件名称 --salt 密钥 -p ENC(加密内容)' , 密钥也可配置在yml配置文件中,key为jasypt.salt")
 		sb.WriteString(lineBreak)
@@ -220,8 +170,8 @@ func (c *Context) FindHelp(key string) string {
 			}
 		}
 	} else {
-		components := globalContext.FindComponent(key, false)
-		if components == nil {
+		cm := globalContext.findComponent(key, false)
+		if cm == nil {
 			sb.WriteString(fmt.Sprintf("组件 %v 不存在，'./root --help' 查看组件列表", key))
 		} else {
 			sb.WriteString("参数列表查看规则:")
@@ -229,9 +179,9 @@ func (c *Context) FindHelp(key string) string {
 			sb.WriteString(utils.GetBlankByNum(2, " ") + "'参数名 是否必须 配置文件中配置名(仅支持配置文件时才有)'，下方为参数描述")
 			sb.WriteString(lineBreak)
 			sb.WriteString(fmt.Sprintf("组件 %v 参数列表:", key))
-			params := components.Params
+			params := cm.params
 			if params != nil {
-				for _, value := range components.Params {
+				for _, value := range cm.params {
 					sb.WriteString(lineBreak)
 					if value.Required {
 						sb.WriteString(utils.GetBlankByNum(2, " ") + value.CommandName + "  必要 " + value.ConfigName)
@@ -248,28 +198,53 @@ func (c *Context) FindHelp(key string) string {
 	return sb.String()
 }
 
+func (c *Context) addComponentMeta(key string, componentMeta *componentMeta) bool {
+	c.components[key] = componentMeta
+	return true
+}
+
 /*
 *
-添加config配置文件中的内容到入参中
+注册待初始化组件
 */
-func addConfigToMap(maps map[string]string) {
-	if globalContext.Config == nil {
-		return
-	}
-	s, ok := maps[COMPONENT_KEY]
-	if !ok {
-		return
-	}
-	component := globalContext.FindComponent(s, true)
-	if component == nil {
-		return
-	}
-	for _, v := range component.Params {
-		if _, ok = maps[v.CommandName]; v.ParamType != NO_VALUE && v.ConfigName != "" && !ok {
-			val := globalContext.Config.GetString(v.ConfigName)
-			if val != "" {
-				maps[v.CommandName] = val
-			}
+func (c *Context) assembleByName(key string) *componentMeta {
+	for _, cp := range initComponentList {
+		if cp.GetName() == key {
+			cm := newComponentMeta()
+			cm.Component = cp
+			var icm iface.ComponentMeta = cm
+			cp.Register(icm)
+			globalContext.addComponentMeta(key, cm)
+			return cm
 		}
 	}
+	return nil
+}
+
+/*
+*
+注册待初始化组件
+*/
+func (c *Context) assembleAll() {
+	for _, cp := range initComponentList {
+		_, ok := c.components[cp.GetName()]
+		if !ok {
+			c.assembleByName(cp.GetName())
+		}
+	}
+}
+
+/*
+*
+注册待初始化组件
+*/
+func (c *Context) start() error {
+	c.assembleAll()
+	for _, cm := range c.components {
+		err := cm.Start()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

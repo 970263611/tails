@@ -1,7 +1,8 @@
 package suspend_server
 
 import (
-	"basic"
+	cons "basic/constants"
+	iface "basic/interfaces"
 	"basic/tool/utils"
 	"errors"
 	"fmt"
@@ -10,7 +11,7 @@ import (
 
 type SuspendServer struct{}
 
-func GetInstance() *SuspendServer {
+func GetInstance(globalContext iface.Context) iface.Component {
 	return &SuspendServer{}
 }
 
@@ -22,39 +23,35 @@ func (s *SuspendServer) GetDescribe() string {
 	return "封停解封交易接口"
 }
 
-func (s *SuspendServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
-	command := &basic.ComponentMeta{
-		Component: s,
-	}
-	command.AddParameters(basic.STRING, "-h", "suspend.server.ip", "host", true, func(s string) error {
+func (s *SuspendServer) Register(cm iface.ComponentMeta) {
+	cm.AddParameters(cons.STRING, "-h", "suspend.server.ip", "host", true, func(s string) error {
 		if !utils.CheckIp(s) {
 			return errors.New("微服务管理平台地址不合法")
 		}
 		return nil
 	}, "微服务管理平台地址的主机地址")
-	command.AddParameters(basic.INT, "-p", "suspend.server.port", "port", true, func(s string) error {
+	cm.AddParameters(cons.INT, "-p", "suspend.server.port", "port", true, func(s string) error {
 		if !utils.CheckPortByString(s) {
 			return errors.New("微服务管理平台地址port不合法")
 		}
 		return nil
 	}, "微服务管理平台地址的端口")
-	command.AddParameters(basic.STRING, "-u", "suspend.server.username", "username", true, nil, "微服务管理平台的登录用户名")
-	command.AddParameters(basic.STRING, "-w", "suspend.server.password", "password", true, nil, "微服务管理平台的登录密码")
-	command.AddParameters(basic.STRING, "-s", "suspend.server.systemId", "systemId", true, nil, "系统ID")
-	command.AddParameters(basic.STRING, "-c", "suspend.server.code", "code", true, nil, "网关编码")
-	command.AddParameters(basic.STRING, "-n", "suspend.server.name", "name", true, nil, "组件名称")
-	command.AddParameters(basic.STRING, "-e", "suspend.server.enabled", "enabled", true, func(s string) error {
+	cm.AddParameters(cons.STRING, "-u", "suspend.server.username", "username", true, nil, "微服务管理平台的登录用户名")
+	cm.AddParameters(cons.STRING, "-w", "suspend.server.password", "password", true, nil, "微服务管理平台的登录密码")
+	cm.AddParameters(cons.STRING, "-s", "suspend.server.systemId", "systemId", true, nil, "系统ID")
+	cm.AddParameters(cons.STRING, "-c", "suspend.server.code", "code", true, nil, "网关编码")
+	cm.AddParameters(cons.STRING, "-n", "suspend.server.name", "name", true, nil, "组件名称")
+	cm.AddParameters(cons.STRING, "-e", "suspend.server.enabled", "enabled", true, func(s string) error {
 		if !utils.CheckIsBooleanByString(s) {
 			return errors.New("enabled不合法,必须是boolean类型")
 		}
 		return nil
 	}, "封停/解停uri: false 是封停, true是解停")
-	command.AddParameters(basic.STRING, "-U", "suspend.server.uri", "uri", true, nil, "要封停/解停的uri")
-	command.AddParameters(basic.STRING, "-a", "suspend.server.apiName", "apiName", true, nil, "uri所属API组名")
-	return command
+	cm.AddParameters(cons.STRING, "-U", "suspend.server.uri", "uri", true, nil, "要封停/解停的uri")
+	cm.AddParameters(cons.STRING, "-a", "suspend.server.apiName", "apiName", true, nil, "uri所属API组名")
 }
 
-func (s *SuspendServer) Start(globalContext *basic.Context) error {
+func (s *SuspendServer) Start() error {
 	return nil
 }
 func (s *SuspendServer) Do(params map[string]any) (resp []byte) {

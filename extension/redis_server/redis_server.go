@@ -1,7 +1,8 @@
 package redis_server
 
 import (
-	"basic"
+	cons "basic/constants"
+	iface "basic/interfaces"
 	redistool "basic/tool/redis"
 	"basic/tool/utils"
 	"encoding/json"
@@ -11,7 +12,7 @@ import (
 
 type RedisServer struct{}
 
-func GetInstance() *RedisServer {
+func GetInstance(globalContext iface.Context) iface.Component {
 	return &RedisServer{}
 }
 
@@ -23,99 +24,31 @@ func (c *RedisServer) GetDescribe() string {
 	return "redis连接服务"
 }
 
-func (r *RedisServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
-	p1 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-h",
-		ConfigName:   "redis.server.host",
-		StandardName: "host",
-		Required:     true,
-		CheckMethod: func(s string) error {
+func (r *RedisServer) Register(cm iface.ComponentMeta) {
+	cm.AddParameters(cons.STRING, "-h", "redis.server.host", "host", true,
+		func(s string) error {
 			if !utils.CheckIp(s) {
 				return errors.New("IP不合法")
 			}
 			return nil
-		},
-		Describe: "redis ip地址",
-	}
-	p2 := basic.Parameter{
-		ParamType:    basic.INT,
-		CommandName:  "-p",
-		StandardName: "port",
-		ConfigName:   "redis.server.port",
-		Required:     true,
-		CheckMethod: func(s string) error {
+		}, "redis ip地址")
+	cm.AddParameters(cons.INT, "-p", "redis.server.port", "port", true,
+		func(s string) error {
 			if !utils.CheckPortByString(s) {
 				return errors.New("端口不合法")
 			}
 			return nil
-		},
-		Describe: "redis端口",
-	}
-	p3 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-w",
-		StandardName: "password",
-		Required:     false,
-		Describe:     "redis密码",
-	}
-	p4 := basic.Parameter{
-		ParamType:    basic.INT,
-		CommandName:  "-d",
-		StandardName: "db",
-		Required:     false,
-		Describe:     "redis库号",
-	}
-	p5 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-k",
-		StandardName: "key",
-		Required:     false,
-		Describe:     "要查询的key值",
-	}
-	p6 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-Z",
-		StandardName: "zset_score",
-		Required:     false,
-		Describe:     "ZScore():获取某元素的score",
-	}
-	p7 := basic.Parameter{
-		ParamType:    basic.INT,
-		CommandName:  "-L",
-		StandardName: "list_index",
-		Required:     false,
-		Describe:     "LIndex():获取链表下标对应的元素",
-	}
-	p8 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-H",
-		StandardName: "hash_get",
-		Required:     false,
-		Describe:     "HGet():获取某个元素",
-	}
-	p9 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-S",
-		StandardName: "set_is",
-		Required:     false,
-		Describe:     "SIsMember():判断元素是否在集合中",
-	}
-	p10 := basic.Parameter{
-		ParamType:    basic.NO_VALUE,
-		CommandName:  "-D",
-		StandardName: "db_size",
-		Required:     false,
-		Describe:     "DBSize():查看当前数据库key的数量",
-	}
-
-	return &basic.ComponentMeta{
-		ComponentType: basic.EXECUTE,
-		Params:        []basic.Parameter{p1, p2, p3, p4, p5, p6, p7, p8, p9, p10},
-		Component:     r,
-	}
+		}, "redis端口")
+	cm.AddParameters(cons.STRING, "-w", "", "password", false, nil, "redis密码")
+	cm.AddParameters(cons.INT, "-d", "", "db", false, nil, "redis库号")
+	cm.AddParameters(cons.STRING, "-k", "", "key", false, nil, "要查询的key值")
+	cm.AddParameters(cons.STRING, "-Z", "", "zset_score", false, nil, "ZScore():获取某元素的score")
+	cm.AddParameters(cons.INT, "-L", "", "list_index", false, nil, "LIndex():获取链表下标对应的元素")
+	cm.AddParameters(cons.STRING, "-H", "", "hash_get", false, nil, "HGet():获取某个元素")
+	cm.AddParameters(cons.STRING, "-S", "", "set_is", false, nil, "SIsMember():判断元素是否在集合中")
+	cm.AddParameters(cons.NO_VALUE, "-D", "", "db_size", false, nil, "DBSize():查看当前数据库key的数量")
 }
-func (r *RedisServer) Start(globalContext *basic.Context) error {
+func (r *RedisServer) Start() error {
 	return nil
 }
 

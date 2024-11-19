@@ -1,7 +1,8 @@
 package edb_server
 
 import (
-	"basic"
+	cons "basic/constants"
+	iface "basic/interfaces"
 	"basic/tool/net"
 	"basic/tool/utils"
 	"errors"
@@ -11,7 +12,7 @@ import (
 
 type EdbServer struct{}
 
-func GetInstance() *EdbServer {
+func GetInstance(globalContext iface.Context) iface.Component {
 	return &EdbServer{}
 }
 
@@ -23,30 +24,26 @@ func (b *EdbServer) GetDescribe() string {
 	return "edb服务,用于文件处理异常恢复,针对于发送方与接收方. 发送方发送失败重发,接收方接收失败重发"
 }
 
-func (b *EdbServer) Register(globalContext *basic.Context) *basic.ComponentMeta {
-	command := &basic.ComponentMeta{
-		Component: b,
-	}
-	command.AddParameters(basic.STRING, "-h", "edb.server.ip", "host", true, func(s string) error {
+func (b *EdbServer) Register(cm iface.ComponentMeta) {
+	cm.AddParameters(cons.STRING, "-h", "edb.server.ip", "host", true, func(s string) error {
 		if !utils.CheckIp(s) {
 			return errors.New("edb服务的主机ip不合法")
 		}
 		return nil
 	}, "edb服务的主机ip地址")
-	command.AddParameters(basic.INT, "-p", "edb.server.port", "port", true, func(s string) error {
+	cm.AddParameters(cons.INT, "-p", "edb.server.port", "port", true, func(s string) error {
 		if !utils.CheckPortByString(s) {
 			return errors.New("edb服务的端口port不合法")
 		}
 		return nil
 	}, "edb服务的端口")
-	command.AddParameters(basic.STRING, "-u", "edb.server.username", "username", false, nil, "edb登录用户名")
-	command.AddParameters(basic.STRING, "-w", "edb.server.password", "password", false, nil, "edb登录密码")
-	command.AddParameters(basic.STRING, "-s", "", "sendFileName", false, nil, "发送方需要恢复的文件名称")
-	command.AddParameters(basic.STRING, "-r", "", "receiveFileName", false, nil, "接收方需要恢复的文件名称")
-	return command
+	cm.AddParameters(cons.STRING, "-u", "edb.server.username", "username", false, nil, "edb登录用户名")
+	cm.AddParameters(cons.STRING, "-w", "edb.server.password", "password", false, nil, "edb登录密码")
+	cm.AddParameters(cons.STRING, "-s", "", "sendFileName", false, nil, "发送方需要恢复的文件名称")
+	cm.AddParameters(cons.STRING, "-r", "", "receiveFileName", false, nil, "接收方需要恢复的文件名称")
 }
 
-func (b *EdbServer) Start(globalContext *basic.Context) error {
+func (b *EdbServer) Start() error {
 	return nil
 }
 

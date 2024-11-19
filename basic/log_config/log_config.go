@@ -1,7 +1,8 @@
 package log_config
 
 import (
-	"basic"
+	cons "basic/constants"
+	iface "basic/interfaces"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -30,21 +31,24 @@ type logConfig struct {
 	Level string
 	//1仅日志文件输出 2控制台和日志文件输出 3仅控制台输出
 	OutType int
+	iface.Context
 }
 
 /*
 *
 创建默认日志配置对象
 */
-func NewLogConfig() *logConfig {
-	return &logConfig{"./logs/all.log", 50, 10, 90, true, "info", 1}
+func NewLogConfig(c iface.Context) *logConfig {
+	return &logConfig{"./logs/all.log", 50, 10, 90, true, "info", 1, c}
 }
 
 /*
 *
 自定义日志格式化
 */
-type CustomFormatter struct{}
+type CustomFormatter struct {
+	iface.Context
+}
 
 /*
 *
@@ -53,7 +57,7 @@ type CustomFormatter struct{}
 func (f *CustomFormatter) Format(entry *log.Entry) ([]byte, error) {
 	timestamp := entry.Time.Format("2006-01-02 15:04:05")
 	fName := filepath.Base(entry.Caller.File)
-	gid, _ := basic.GetCache(basic.GID)
+	gid, _ := f.GetCache(cons.GID)
 	if gid != nil {
 		return []byte(fmt.Sprintf("[%s] [%s] [%s] [%s:%d %s] %s\n", timestamp, entry.Level, fmt.Sprintf("%v", gid), fName, entry.Caller.Line, entry.Caller.Function, entry.Message)), nil
 	} else {
@@ -67,7 +71,7 @@ func (f *CustomFormatter) Format(entry *log.Entry) ([]byte, error) {
 */
 func Init(cfg *logConfig) {
 	log.SetReportCaller(true)
-	log.SetFormatter(&CustomFormatter{})
+	log.SetFormatter(&CustomFormatter{cfg.Context})
 	log.SetLevel(logLevel(cfg.Level))
 	logger := &lumberjack.Logger{
 		Filename:   cfg.Filename,

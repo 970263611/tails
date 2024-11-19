@@ -1,7 +1,8 @@
 package command_exec
 
 import (
-	"basic"
+	cons "basic/constants"
+	iface "basic/interfaces"
 	commandtool "basic/tool/command"
 	log "github.com/sirupsen/logrus"
 	"runtime"
@@ -10,7 +11,7 @@ import (
 
 type CommandExec struct{}
 
-func GetInstance() basic.Component {
+func GetInstance(globalContext iface.Context) iface.Component {
 	return &CommandExec{}
 }
 
@@ -22,22 +23,11 @@ func (c CommandExec) GetDescribe() string {
 	return "执行系统命令行,例:command_exec -c 'ps -ef|grep java'"
 }
 
-func (c CommandExec) Register(globalContext *basic.Context) *basic.ComponentMeta {
-	p1 := basic.Parameter{
-		ParamType:    basic.STRING,
-		CommandName:  "-c",
-		StandardName: "command",
-		Required:     true,
-		Describe:     "命令行,用单引号或双引号包裹;例如:'ll -al' 或 'ps -ef|grep java'",
-	}
-	return &basic.ComponentMeta{
-		ComponentType: basic.EXECUTE,
-		Component:     c,
-		Params:        []basic.Parameter{p1},
-	}
+func (c CommandExec) Register(cm iface.ComponentMeta) {
+	cm.AddParameters(cons.STRING, "-c", "", "command", true, nil, "命令行,用单引号或双引号包裹;例如:'ll -al' 或 'ps -ef|grep java'")
 }
 
-func (c CommandExec) Start(globalContext *basic.Context) error {
+func (c CommandExec) Start() error {
 	return nil
 }
 

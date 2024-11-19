@@ -1,6 +1,7 @@
 package basic
 
 import (
+	cons "basic/constants"
 	"basic/tool/net"
 	"basic/tool/utils"
 	"errors"
@@ -9,21 +10,12 @@ import (
 	"strings"
 )
 
-const (
-	COMPONENT_KEY string = "componentKey"
-	WEB_KEY       string = "web_server"
-	NEEDHELP      string = "--help"
-	GID           string = "globalID"
-	SALT          string = "--salt"
-	CONFIG_SALT   string = "jasypt.salt"
-)
-
 /*
 *
 组件分发
 */
-func Servlet(commands []string, isSystem bool) []byte {
-	defer DelCache()
+func (c *Context) Servlet(commands []string, isSystem bool) []byte {
+	defer globalContext.DelCache()
 	commands = setGID(commands)
 	//参数中携带 --addr ip:port或域名 时进行请求转发
 	resp, b := forward(commands)
@@ -46,19 +38,19 @@ func execute(commands []string, isSystem bool) []byte {
 		return []byte(msg)
 	}
 	//获取组件帮助信息
-	if key, ok := maps[NEEDHELP]; ok {
+	if key, ok := maps[cons.NEEDHELP]; ok {
 		return help(key)
 	}
 	//配置文件配置注入参数中
 	addConfigToMap(maps)
-	key, ok := maps[COMPONENT_KEY]
+	key, ok := maps[cons.COMPONENT_KEY]
 	if !ok {
 		msg := "入参未指定组件名称"
 		log.Error(msg)
 		return []byte(msg)
 	}
 	//找到对应组件
-	c := globalContext.FindComponent(key, isSystem)
+	c := globalContext.findComponent(key, isSystem)
 	if c == nil {
 		msg := fmt.Sprintf("组件 %v 不存在", key)
 		log.Error(msg)
@@ -71,7 +63,7 @@ func execute(commands []string, isSystem bool) []byte {
 		log.Error(msg)
 		return []byte(msg)
 	}
-	if key == WEB_KEY {
+	if key == cons.WEB_KEY {
 		errStart := start()
 		if errStart != nil {
 			return []byte(errStart.Error())
@@ -96,7 +88,7 @@ func forward(commands []string) ([]byte, bool) {
 	var flag bool
 	//判断是否需要转发，并拼接转发参数
 	for i := 0; i < len(commands); i++ {
-		if commands[i] == "--addr" {
+		if commands[i] == "--forward" || commands[i] == "--f" {
 			flag = true
 			i++
 			if i < len(commands) {
@@ -122,7 +114,7 @@ func forward(commands []string) ([]byte, bool) {
 	}
 	log.Infof("请求转发，转发地址:[%s],转发参数:[%s]", addr, params)
 	//插入全局业务跟踪号
-	gid, ok := GetCache(GID)
+	gid, ok := globalContext.GetCache(cons.GID)
 	if ok {
 		id := fmt.Sprintf("%v", gid)
 		params += " --gid "
@@ -146,7 +138,7 @@ func forward(commands []string) ([]byte, bool) {
 设置全局ID
 */
 func setGID(commands []string) []string {
-	_, ok := GetCache(GID)
+	_, ok := globalContext.GetCache(cons.GID)
 	if ok {
 		return commands
 	}
@@ -166,45 +158,8 @@ func setGID(commands []string) []string {
 	if gid == "" {
 		gid, _ = utils.GenerateUUID()
 	}
-	SetCache(GID, gid)
+	globalContext.SetCache(cons.GID, gid)
 	return commands2
-}
-
-/*
-*
-系统参数列表
-*/
-var systemParam = []Parameter{
-	Parameter{
-		ParamType:    NO_VALUE,
-		CommandName:  "--help",
-		StandardName: "",
-		Required:     false,
-		Describe:     "查看系统或组件帮助",
-	},
-	Parameter{
-		ParamType:    STRING,
-		CommandName:  "--path",
-		StandardName: "",
-		Required:     false,
-		CheckMethod: func(s string) error {
-			if s == "" {
-				return errors.New("配置文件路径为空")
-			}
-			if !utils.FileExists(s) {
-				msg := "配置文件不存在"
-				log.Error(msg)
-				return errors.New(msg)
-			}
-			if !utils.IsFileReadable(s) {
-				msg := "配置文件不可读"
-				log.Error(msg)
-				return errors.New(msg)
-			}
-			return nil
-		},
-		Describe: "帮助",
-	},
 }
 
 /*
@@ -212,7 +167,7 @@ var systemParam = []Parameter{
 方法帮助
 */
 func help(key string) []byte {
-	return []byte(globalContext.FindHelp(key))
+	return []byte(globalContext.findHelp(key))
 }
 
 /*
@@ -220,7 +175,7 @@ func help(key string) []byte {
 start执行
 */
 func start() error {
-	err := globalContext.Start()
+	err := globalContext.start()
 	if err != nil {
 		return err
 	}
@@ -240,7 +195,7 @@ func commandsToMap(commands []string) (map[string]string, error) {
 	}
 	//第1个参数是 组件componentkey
 	componentKey := commands[0]
-	maps[COMPONENT_KEY] = componentKey
+	maps[cons.COMPONENT_KEY] = componentKey
 	//第2个到最后一个参数为 component入参，少于2个参数肯定就是没入参,只有大于等于三个参数，才存在入参
 	var params []string
 	if len(commands) > 1 {
@@ -251,7 +206,7 @@ func commandsToMap(commands []string) (map[string]string, error) {
 		str := params[i]
 		//系统参数必定以--开头，后面跟若干字母
 		if utils.RegularValidate(str, utils.REGEX_2DASE_AND_WORD) {
-			if globalContext.FindParameterType(componentKey, str) != NO_VALUE {
+			if globalContext.findParameterType(componentKey, str) != cons.NO_VALUE {
 				i++
 				maps[str] = params[i]
 			} else {
@@ -262,7 +217,7 @@ func commandsToMap(commands []string) (map[string]string, error) {
 			p := str[1:]
 			//只有单一参数才能跟值
 			if len(p) == 1 {
-				if globalContext.FindParameterType(componentKey, str) != NO_VALUE {
+				if globalContext.findParameterType(componentKey, str) != cons.NO_VALUE {
 					i++
 					maps[str] = params[i]
 				} else {
@@ -278,9 +233,9 @@ func commandsToMap(commands []string) (map[string]string, error) {
 		}
 	}
 	//ENC(data)内容解密
-	password, ok := maps[SALT]
+	password, ok := maps[cons.SALT]
 	if !ok {
-		password = globalContext.Config.GetString(CONFIG_SALT)
+		password = globalContext.Config.GetString(cons.CONFIG_SALT)
 	}
 	if password != "" {
 		for key, value := range maps {
@@ -295,4 +250,30 @@ func commandsToMap(commands []string) (map[string]string, error) {
 		}
 	}
 	return maps, nil
+}
+
+/*
+*
+添加config配置文件中的内容到入参中
+*/
+func addConfigToMap(maps map[string]string) {
+	if globalContext.Config == nil {
+		return
+	}
+	s, ok := maps[cons.COMPONENT_KEY]
+	if !ok {
+		return
+	}
+	cm := globalContext.findComponent(s, true)
+	if cm == nil {
+		return
+	}
+	for _, v := range cm.params {
+		if _, ok = maps[v.CommandName]; v.ParamType != cons.NO_VALUE && v.ConfigName != "" && !ok {
+			val := globalContext.Config.GetString(v.ConfigName)
+			if val != "" {
+				maps[v.CommandName] = val
+			}
+		}
+	}
 }
