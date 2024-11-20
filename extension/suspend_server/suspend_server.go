@@ -20,7 +20,7 @@ func (s *SuspendServer) GetName() string {
 }
 
 func (s *SuspendServer) GetDescribe() string {
-	return "封停解封交易接口"
+	return "gateway封停解封交易接口服务 例: suspend_server  -h 127.0.0.1 -p 9999 -u gateway -w gateway -s 885e492d-bec8-4268-a2fc-ce0162c066fc -c GATEWAY-GSCT-TEST -n cfzt-edb -e false -U \"/cfzt-edb/query\" -a cfzt-edb "
 }
 
 func (s *SuspendServer) Register(cm iface.ComponentMeta) {
@@ -47,7 +47,7 @@ func (s *SuspendServer) Register(cm iface.ComponentMeta) {
 		}
 		return nil
 	}, "封停/解停uri: false 是封停, true是解停")
-	cm.AddParameters(cons.STRING, "-U", "suspend.server.uri", "uri", true, nil, "要封停/解停的uri")
+	cm.AddParameters(cons.STRING, "-U", "suspend.server.uri", "uri", true, nil, "(大写)要封停/解停的uri")
 	cm.AddParameters(cons.STRING, "-a", "suspend.server.apiName", "apiName", true, nil, "uri所属API组名")
 }
 

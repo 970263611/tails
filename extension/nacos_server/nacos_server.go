@@ -23,7 +23,7 @@ func (w *NacosServer) GetName() string {
 }
 
 func (r *NacosServer) GetDescribe() string {
-	return "Nacos上下线,用于封停/解停相关服务"
+	return "Nacos上下线,用于封停/解停相关服务 例:nacos_server -h 127.0.0.1 -p 8848 -u nacos -w nacos -n test111 -e false -s sysName -H 127.0.0.1 -P 9090"
 }
 
 func (r *NacosServer) Register(cm iface.ComponentMeta) {
@@ -49,8 +49,8 @@ func (r *NacosServer) Register(cm iface.ComponentMeta) {
 		return nil
 	}, "是否要封停/解停, true是解停服务,false是封停服务")
 	cm.AddParameters(cons.STRING, "-s", "", "serviceName", true, nil, "要封停/解停系统服务名")
-	cm.AddParameters(cons.STRING, "-H", "", "serviceIp", true, nil, "要封停/解停系统ip")
-	cm.AddParameters(cons.STRING, "-P", "", "servicePort", true, nil, "要封停/解停系统port")
+	cm.AddParameters(cons.STRING, "-H", "", "serviceIp", true, nil, "(大写)要封停/解停系统ip")
+	cm.AddParameters(cons.STRING, "-P", "", "servicePort", true, nil, "(大写)要封停/解停系统port")
 }
 func (r *NacosServer) Start() error {
 	return nil

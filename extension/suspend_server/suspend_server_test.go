@@ -15,7 +15,7 @@ func TestDoHandler(t *testing.T) {
 		"code":     "GATEWAY-GSCT-TEST",
 		"name":     "cfzt-edb",
 	}
-	instance := GetInstance()
+	instance := GetInstance(nil)
 	resp := instance.Do(params)
 	if resp != nil {
 		fmt.Println(string(resp))
@@ -36,7 +36,7 @@ func TestCreateApi(t *testing.T) {
 		"uri":      "/cfzt-edb/query/2",
 		"apiName":  "cfzt-edb-ddd",
 	}
-	instance := GetInstance()
+	instance := GetInstance(nil)
 	resp := instance.Do(params)
 	if resp != nil {
 		fmt.Println(string(resp))
@@ -57,7 +57,7 @@ func TestUpdateApi(t *testing.T) {
 		"uri":      "/cfzt-edb/query/2",
 		"apiName":  "cfzt-edb",
 	}
-	instance := GetInstance()
+	instance := GetInstance(nil)
 	resp := instance.Do(params)
 	if resp != nil {
 		fmt.Println(string(resp))
@@ -78,7 +78,7 @@ func TestUpdateApi02(t *testing.T) {
 		"uri":      "/cfzt-edb/query/2",
 		"apiName":  "cfzt-edb",
 	}
-	instance := GetInstance()
+	instance := GetInstance(nil)
 	resp := instance.Do(params)
 	if resp != nil {
 		fmt.Println(string(resp))
@@ -99,7 +99,7 @@ func TestUpdateApi03(t *testing.T) {
 		"uri":      "/cfzt-edb/query",
 		"apiName":  "cfzt-edb",
 	}
-	instance := GetInstance()
+	instance := GetInstance(nil)
 	resp := instance.Do(params)
 	if resp != nil {
 		fmt.Println(string(resp))
@@ -120,7 +120,7 @@ func TestUpdateApi04(t *testing.T) {
 		"uri":      "/cfzt-edb/query/2",
 		"apiName":  "cfzt-edb",
 	}
-	instance := GetInstance()
+	instance := GetInstance(nil)
 	resp := instance.Do(params)
 	if resp != nil {
 		fmt.Println(string(resp))
@@ -141,7 +141,7 @@ func TestUpdateApi05(t *testing.T) {
 		"uri":      "/cfzt-edb/query",
 		"apiName":  "cfzt-edb",
 	}
-	instance := GetInstance()
+	instance := GetInstance(nil)
 	resp := instance.Do(params)
 	if resp != nil {
 		fmt.Println(string(resp))

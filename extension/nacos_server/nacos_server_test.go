@@ -17,7 +17,7 @@ func TestDoHandler(t *testing.T) {
 		"serviceIp":   "172.20.10.2",
 		"servicePort": "9090",
 	}
-	instance := GetInstance()
+	instance := GetInstance(nil)
 	resp := instance.Do(params)
 	if resp != nil {
 		fmt.Println(string(resp))

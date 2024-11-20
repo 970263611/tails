@@ -21,7 +21,7 @@ func (b *EdbServer) GetName() string {
 }
 
 func (b *EdbServer) GetDescribe() string {
-	return "edb服务,用于文件处理异常恢复,针对于发送方与接收方. 发送方发送失败重发,接收方接收失败重发"
+	return "edb服务,用于文件处理异常恢复,针对于发送方与接收方. 发送方发送失败重发,接收方接收失败重发 例: edb_server -h 127.0.0.1 -p 9999 -u edb -w edb -s \"edbFile\""
 }
 
 func (b *EdbServer) Register(cm iface.ComponentMeta) {

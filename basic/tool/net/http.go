@@ -195,8 +195,13 @@ func Put(urlStr string, params url.Values, postData interface{}, headersMap http
 		}
 		reqBody = strings.NewReader(string(postDataBytes))
 	}
-	// 创建请求
-	req, err := http.NewRequest(http.MethodPut, fullURL, reqBody)
+	var req *http.Request
+	var err error
+	if reqBody == nil {
+		req, err = http.NewRequest(http.MethodPut, fullURL, nil)
+	} else {
+		req, err = http.NewRequest(http.MethodPut, fullURL, reqBody)
+	}
 	// 遍历headersMap并添加到请求的Header中
 	for key, values := range headersMap {
 		joinedValues := strings.Join(values, ",")

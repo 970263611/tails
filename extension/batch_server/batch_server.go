@@ -21,7 +21,7 @@ func (b *BatchServer) GetName() string {
 }
 
 func (b *BatchServer) GetDescribe() string {
-	return "batch job 服务,用于通过传入的任务名称 查询任务状态与重新执行任务功能"
+	return "batch job 服务,用于通过传入的任务名称 查询任务状态与重新执行任务功能 例: batch_server -h 127.0.0.1 -p 9999 -u batch -w batch -q \"jobName\" "
 }
 
 func (b *BatchServer) Register(cm iface.ComponentMeta) {
