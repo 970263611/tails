@@ -7,6 +7,7 @@ import (
 	"extension/command_exec"
 	"extension/db_conn_num"
 	"extension/edb_server"
+	"extension/high_availability"
 	"extension/monitor_server"
 	"extension/nacos_server"
 	"extension/redis_server"
@@ -24,7 +25,7 @@ func InitGlobalContext(ctx iface.Context) {
 	}
 }
 
-func init() {
+func InitComponent() {
 	addInitComponent(check_server.GetInstance(globalContext))
 	addInitComponent(command_exec.GetInstance(globalContext))
 	addInitComponent(db_conn_num.GetInstance(globalContext))
@@ -37,4 +38,5 @@ func init() {
 	addInitComponent(nacos_server.GetInstance(globalContext))
 	addInitComponent(batch_server.GetInstance(globalContext))
 	addInitComponent(edb_server.GetInstance(globalContext))
+	addInitComponent(high_availability.GetInstance(globalContext))
 }

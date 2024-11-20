@@ -17,6 +17,7 @@ type HighAvailability struct {
 	context          iface.Context
 	onlineAddrTable  map[string]int64
 	offlineAddrTable map[string]int64
+	running          bool
 }
 
 func GetInstance(globalContext iface.Context) iface.Component {
@@ -24,6 +25,7 @@ func GetInstance(globalContext iface.Context) iface.Component {
 		context:          globalContext,
 		onlineAddrTable:  make(map[string]int64),
 		offlineAddrTable: make(map[string]int64),
+		running:          false,
 	}
 }
 
@@ -58,11 +60,17 @@ func (h *HighAvailability) Do(params map[string]any) (resp []byte) {
 	}
 	r, ok := params["run"]
 	if ok {
-		err := h.start(r.(string))
-		if err != nil {
-			return nil
+		if !h.running {
+			h.running = true
+			err := h.start(r.(string))
+			if err != nil {
+				h.running = false
+				return nil
+			}
+			return []byte("高可用模块启动成功")
+		} else {
+			return []byte("高可用模块已经启动，请不要重复操作")
 		}
-		return []byte("高可用模块启动成功")
 	}
 	t, ok := params["transport"]
 	if ok {

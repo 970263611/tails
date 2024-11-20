@@ -20,6 +20,7 @@ import (
 func main() {
 	var context iface.Context = &basic.Context{}
 	basic.InitGlobalContext(context)
+	basic.InitComponent()
 	args := os.Args[1:]
 	err := loadConfig(args, context)
 	if err != nil {
