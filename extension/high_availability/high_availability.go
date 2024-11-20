@@ -91,7 +91,7 @@ func (h *HighAvailability) start(adds string) error {
 	if component == nil {
 		return errors.New("需要前置模块【web_server】")
 	}
-	serverPort := h.context.GetConfig().GetInt("web.server.port")
+	serverPort := h.context.GetConfig().GetInt("web_server.port")
 	myAddr := getLocalIp() + ":" + strconv.Itoa(serverPort)
 	h.onlineAddrTable[myAddr] = time.Now().Unix()
 	configAddresses := strings.Split(adds, ",")

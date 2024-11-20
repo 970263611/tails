@@ -1,3 +1,0 @@
-[2024-11-20 17:03:33] [error] [14466de136784a2bab95e899442f909c] [servlet.go:38 basic.execute] 入参解析失败 ： 参数错误,参数应以-或--开头
-[2024-11-20 17:04:13] [info] [d069bfb984db41218b24b09348d5396a] [servlet.go:68 basic.execute] 组件执行开始:[web_server],组件入参:[web_server -p 17001]
-[2024-11-20 17:04:13] [info] [d069bfb984db41218b24b09348d5396a] [web.go:19 basic/tool/net.Web] Web will start at 17001

@@ -39,6 +39,7 @@ func (r *WebServer) Register(cm iface.ComponentMeta) {
 func (r *WebServer) Do(params map[string]any) (resp []byte) {
 	port := params["port"].(int)
 	handlers := make(map[string]func(req map[string]any) (resp []byte))
+	r.Context.GetConfig().SetDefault("web_server.port", port)
 	handlers["/do"] = r.handler1
 	err := net.Web(port, handlers)
 	return []byte("服务启动失败:" + err.Error())
