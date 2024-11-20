@@ -9,6 +9,13 @@ const (
 	CONFIG_SALT   string = "jasypt.salt"
 )
 
+const (
+	RESULT_CODE    = "code"
+	RESULT_DATA    = "data"
+	RESULT_SUCCESS = "00"
+	RESULT_ERROR   = "99"
+)
+
 // ParamType ================start=============
 type ParamTypeIface interface {
 	GetParamType() int
