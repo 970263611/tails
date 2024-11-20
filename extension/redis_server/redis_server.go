@@ -7,6 +7,7 @@ import (
 	"basic/tool/utils"
 	"encoding/json"
 	"errors"
+	log "github.com/sirupsen/logrus"
 	"strconv"
 )
 
@@ -21,11 +22,11 @@ func (c *RedisServer) GetName() string {
 }
 
 func (c *RedisServer) GetDescribe() string {
-	return "redis连接服务"
+	return "redis连接服务，例：redis_server -h 127.0.0.1 -p 6379 -k keyStr"
 }
 
 func (r *RedisServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.STRING, "-h", "redis.server.host", "host", true,
+	cm.AddParameters(cons.STRING, "-h", "redis.server.ip", "host", true,
 		func(s string) error {
 			if !utils.CheckIp(s) {
 				return errors.New("IP不合法")
@@ -39,14 +40,14 @@ func (r *RedisServer) Register(cm iface.ComponentMeta) {
 			}
 			return nil
 		}, "redis端口")
-	cm.AddParameters(cons.STRING, "-w", "", "password", false, nil, "redis密码")
-	cm.AddParameters(cons.INT, "-d", "", "db", false, nil, "redis库号")
-	cm.AddParameters(cons.STRING, "-k", "", "key", false, nil, "要查询的key值")
-	cm.AddParameters(cons.STRING, "-Z", "", "zset_score", false, nil, "ZScore():获取某元素的score")
-	cm.AddParameters(cons.INT, "-L", "", "list_index", false, nil, "LIndex():获取链表下标对应的元素")
-	cm.AddParameters(cons.STRING, "-H", "", "hash_get", false, nil, "HGet():获取某个元素")
-	cm.AddParameters(cons.STRING, "-S", "", "set_is", false, nil, "SIsMember():判断元素是否在集合中")
-	cm.AddParameters(cons.NO_VALUE, "-D", "", "db_size", false, nil, "DBSize():查看当前数据库key的数量")
+	cm.AddParameters(cons.STRING, "-w", "redis.server.password", "password", false, nil, "redis密码")
+	cm.AddParameters(cons.INT, "-d", "redis.server.db", "db", false, nil, "redis库号")
+	cm.AddParameters(cons.STRING, "-k", "", "key", false, nil, "要查询的key值，例：redis_server -h 127.0.0.1 -p 6379 -k keyStr")
+	cm.AddParameters(cons.STRING, "-Z", "", "zset_score", false, nil, "获取某元素的score，例：redis_server -h 127.0.0.1 -p 6379 -k zset -Z zsetScore")
+	cm.AddParameters(cons.INT, "-L", "", "list_index", false, nil, "获取链表下标对应的元素，例：redis_server -h 127.0.0.1 -p 6379 -k list -L list_index")
+	cm.AddParameters(cons.STRING, "-H", "", "hash_get", false, nil, "获取某个元素，例：redis_server -h 127.0.0.1 -p 6379 -k hash -H name")
+	cm.AddParameters(cons.STRING, "-S", "", "set_is", false, nil, "判断元素是否在集合中，例：redis_server -h 127.0.0.1 -p 6379 -k set -S abc")
+	cm.AddParameters(cons.NO_VALUE, "-D", "", "db_size", false, nil, "查看当前数据库key的数量，例：redis_server -h 127.0.0.1 -p 6379 -D")
 }
 func (r *RedisServer) Start() error {
 	return nil
@@ -66,14 +67,18 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		dbStr = 0
 	}
 	var client *redistool.RedisClient
-	client = redistool.CreateRedisClient(addrstr, passwordStr, dbStr)
+	client, err := redistool.CreateRedisClient(addrstr, passwordStr, dbStr)
+	if err != nil {
+		return []byte("redis连接失败")
+	}
 
 	//查看当前数据库key的数量
 	_, ok := params["db_size"]
 	if ok {
 		vel, err := client.DBSize(client.Context).Result()
 		if err != nil {
-			return []byte("-D参数解析结果为空")
+			log.Error("-D参数解析结果为空", err.Error())
+			return []byte("-D参数解析结果为空" + err.Error())
 		}
 		return []byte(strconv.FormatInt(vel, 10))
 	}
@@ -81,7 +86,8 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 	//获取key值
 	keyStr, _ := params["key"].(string)
 	if len(keyStr) == 0 {
-		return []byte("-k参数解析结果为空")
+		log.Error("-K参数解析结果为空,key值为：", keyStr)
+		return []byte("-k参数解析结果为空,key值为：" + keyStr)
 	}
 
 	//获取值类型
@@ -90,6 +96,7 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 	case "string":
 		vel, err := client.Get(client.Context, keyStr).Result()
 		if err != nil {
+			log.Error("查询异常：", keyStr)
 			return []byte("查询异常：" + keyStr)
 		}
 		return []byte(vel)
@@ -99,6 +106,7 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		if list_indexStr > 0 {
 			vel, err := client.LIndex(client.Context, keyStr, int64(list_indexStr)).Result()
 			if err != nil {
+				log.Error("-L参数解析结果为空,key值为：", keyStr)
 				return []byte("-L参数解析结果为空,key值为：" + keyStr)
 			}
 			return []byte(vel)
@@ -109,10 +117,12 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		if length > 0 {
 			vel, err := client.LRange(client.Context, keyStr, 0, length-1).Result()
 			if err != nil {
+				log.Error("查询异常：", keyStr)
 				return []byte("查询异常：" + keyStr)
 			}
 			data, err := json.Marshal(vel)
 			if err != nil {
+				log.Error("类型转换失败：", keyStr)
 				return []byte("类型转换失败：" + keyStr)
 			}
 			return data
@@ -123,6 +133,7 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		if len(set_isStr) > 0 {
 			vel, err := client.SIsMember(client.Context, keyStr, set_isStr).Result()
 			if err != nil {
+				log.Error("-S参数解析结果为空,key值为：", keyStr)
 				return []byte("-S参数解析结果为空,key值为：" + keyStr)
 			}
 			if vel {
@@ -135,10 +146,12 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		//默认获取所有元素
 		vel, err := client.SMembers(client.Context, keyStr).Result()
 		if err != nil {
+			log.Error("查询异常：", keyStr)
 			return []byte("查询异常：" + keyStr)
 		}
 		data, err := json.Marshal(vel)
 		if err != nil {
+			log.Error("类型转换失败：", keyStr)
 			return []byte("类型转换失败：" + keyStr)
 		}
 		return data
@@ -148,6 +161,7 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		if len(zset_scoreStr) > 0 {
 			vel, err := client.ZScore(client.Context, keyStr, zset_scoreStr).Result()
 			if err != nil {
+				log.Error("-Z参数解析结果为空,key值为：", keyStr)
 				return []byte("-Z参数解析结果为空,key值为：" + keyStr)
 			}
 			return []byte(strconv.FormatFloat(vel, 'f', -1, 64))
@@ -158,10 +172,12 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		if count > 0 {
 			vel, err := client.ZRange(client.Context, keyStr, 0, count-1).Result()
 			if err != nil {
+				log.Error("查询异常：", keyStr)
 				return []byte("查询异常：" + keyStr)
 			}
 			data, err := json.Marshal(vel)
 			if err != nil {
+				log.Error("类型转换失败：", keyStr)
 				return []byte("类型转换失败：" + keyStr)
 			}
 			return data
@@ -173,6 +189,7 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		if len(hash_getStr) > 0 {
 			vel, err := client.HGet(client.Context, keyStr, hash_getStr).Result()
 			if err != nil {
+				log.Error("-H参数解析结果为空,key值为：", keyStr)
 				return []byte("-H参数解析结果为空,key值为：" + keyStr)
 			}
 			return []byte(vel)
@@ -181,15 +198,19 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		//默认获取全部元素
 		vel, err := client.HGetAll(client.Context, keyStr).Result()
 		if err != nil {
+			log.Error("查询异常：", keyStr)
 			return []byte("查询异常：" + keyStr)
 		}
 		data, err := json.Marshal(vel)
 		if err != nil {
+			log.Error("类型转换失败：", keyStr)
 			return []byte("类型转换失败：" + keyStr)
 		}
 		return data
 	default:
-		return []byte("当前类型暂不支持解析")
+		log.Error("当前key不存在或类型暂不支持解析", keyStr)
+		return []byte("当前key不存在或类型暂不支持解析" + keyStr)
 	}
-	return []byte("当前key不存")
+	log.Error("当前key不存在或类型暂不支持解析", keyStr)
+	return []byte("当前key不存在或类型暂不支持解析" + keyStr)
 }

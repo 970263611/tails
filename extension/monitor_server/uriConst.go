@@ -63,7 +63,7 @@ func (f findResult) a1() {
 	queryParams.Add("orderMethodId", "0")
 	queryParams.Add("selectTimeDimension", "2")
 	//昨日时间
-	//queryParams.Add("selectTime", previousDay())
+	queryParams.Add("selectTime", previousDay())
 	f.result.A1.Desc = "昨日交易成功率"
 	A1Resp, err := findSuccessRate(f, queryParams)
 	if err != nil {
@@ -86,7 +86,7 @@ func (f findResult) a2() {
 	queryParams.Add("orderMethodId", "0")
 	queryParams.Add("selectTimeDimension", "2")
 	//当日时间
-	/*queryParams.Add("selectTime", "2024-11-07+00:00:00")*/
+	queryParams.Add("selectTime", currentDay())
 	f.result.A2.Desc = "当日实时成功率和TPS"
 	A1Resp, err := findSuccessRate(f, queryParams)
 	if err != nil {
@@ -109,7 +109,7 @@ func (f findResult) a3() {
 	queryParams.Add("orderMethodId", "0")
 	queryParams.Add("selectTimeDimension", "2")
 	//当日时间
-	/*queryParams.Add("selectTime", "2024-11-07+00:00:00")*/
+	queryParams.Add("selectTime", currentDay())
 	f.result.A3.Desc = "外部系统交易成功率"
 	A1Resp, err := findSuccessRate(f, queryParams)
 	if err != nil {
@@ -132,7 +132,7 @@ func (f findResult) a4() {
 	queryParams.Add("orderMethodId", "0")
 	queryParams.Add("selectTimeDimension", "2")
 	//当日时间
-	/*queryParams.Add("selectTime", "2024-11-07+00:00:00")*/
+	queryParams.Add("selectTime", currentDay())
 	f.result.A4.Desc = "子系统交易成功率"
 	A1Resp, err := findSuccessRate(f, queryParams)
 	if err != nil {

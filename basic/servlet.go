@@ -234,7 +234,7 @@ func commandsToMap(commands []string) (map[string]string, error) {
 	}
 	//ENC(data)内容解密
 	password, ok := maps[cons.SALT]
-	if !ok {
+	if !ok && globalContext.Config != nil {
 		password = globalContext.Config.GetString(cons.CONFIG_SALT)
 	}
 	if password != "" {
@@ -273,6 +273,22 @@ func addConfigToMap(maps map[string]string) {
 			val := globalContext.Config.GetString(v.ConfigName)
 			if val != "" {
 				maps[v.CommandName] = val
+				if strings.HasPrefix(val, "ENC(") && strings.HasSuffix(val, ")") {
+					salt, ok := maps[cons.SALT]
+					if !ok && globalContext.Config != nil {
+						salt = globalContext.Config.GetString(cons.CONFIG_SALT)
+					}
+					val = val[4 : len(val)-1]
+					val, err := utils.JasyptDec(val, salt)
+					if err != nil {
+						log.Error("参数解密失败", err.Error())
+					}
+					maps[v.CommandName] = val
+
+				} else {
+					maps[v.CommandName] = val
+				}
+
 			}
 		}
 	}
