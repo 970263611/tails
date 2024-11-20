@@ -13,11 +13,12 @@ type Context interface {
 	DelCache()
 	Unmarshal(a any) error
 	LoadConfig(path string) error
+	FindComponent(key string, isSystem bool) ComponentMeta
 }
 
 type ComponentMeta interface {
 	SetComponentType(componentType cons.ComponentType)
-	AddParameters(paramType cons.ParamType, commandName string, configName string, standardName string, required bool, method func(s string) error, describe string)
+	AddParameters(paramType cons.ParamType, commandName cons.CommandName, configName string, standardName string, required bool, method func(s string) error, describe string)
 }
 
 type Component interface {

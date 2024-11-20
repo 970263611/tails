@@ -84,6 +84,14 @@ func (c *Context) Unmarshal(a any) error {
 *
 根据参数名称和查询方类型，返回组件参数名称
 */
+func (c *Context) FindComponent(key string, isSystem bool) iface.ComponentMeta {
+	return c.findComponent(key, isSystem)
+}
+
+/*
+*
+根据参数名称和查询方类型，返回组件参数名称
+*/
 func (c *Context) findComponent(key string, isSystem bool) *componentMeta {
 	cm, ok := c.components[key]
 	if ok {
