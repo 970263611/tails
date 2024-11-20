@@ -51,9 +51,6 @@ func (s *SuspendServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.LOWER_G, "suspend.server.apiName", "apiName", true, nil, "uri所属API组名")
 }
 
-func (s *SuspendServer) Start() error {
-	return nil
-}
 func (s *SuspendServer) Do(params map[string]any) (resp []byte) {
 	res := &findResult{
 		host:     params["host"].(string),

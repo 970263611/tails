@@ -44,10 +44,6 @@ func (d DbConnNum) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.LOWER_S, "db_conn_num.searchpath", "schema", true, nil, "数据库schema")
 }
 
-func (d DbConnNum) Start() error {
-	return nil
-}
-
 func (d DbConnNum) Do(params map[string]any) (resp []byte) {
 	config := &dbtool.DbConfig{
 		Host:     params["host"].(string),

@@ -6,7 +6,7 @@ import (
 )
 
 type Context interface {
-	Servlet(commands []string, isSystem bool) []byte
+	Servlet(commands []string, isSystem bool) ([]byte, error)
 	GetConfig() *viper.Viper
 	SetCache(key string, value interface{}) bool
 	GetCache(key string) (interface{}, bool)
@@ -25,6 +25,5 @@ type Component interface {
 	GetName() string
 	GetDescribe() string
 	Register(ComponentMeta)
-	Start() error
 	Do(param map[string]any) (resp []byte)
 }

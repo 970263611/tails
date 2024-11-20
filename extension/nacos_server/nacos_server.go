@@ -52,9 +52,6 @@ func (r *NacosServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.UPPER_H, "", "serviceIp", true, nil, "(大写)要封停/解停系统ip")
 	cm.AddParameters(cons.STRING, cons.UPPER_P, "", "servicePort", true, nil, "(大写)要封停/解停系统port")
 }
-func (r *NacosServer) Start() error {
-	return nil
-}
 
 func (r *NacosServer) Do(params map[string]any) (resp []byte) {
 	host := params["host"].(string)

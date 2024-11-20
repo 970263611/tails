@@ -29,8 +29,12 @@ func main() {
 	//日志初始化
 	initLogConfig(context)
 	//调用component，并打印
-	bytes := context.Servlet(args, false)
-	fmt.Println(string(bytes))
+	bytes, err := context.Servlet(args, false)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println(string(bytes))
+	}
 }
 
 /*

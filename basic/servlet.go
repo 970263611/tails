@@ -14,13 +14,13 @@ import (
 *
 组件分发
 */
-func (c *Context) Servlet(commands []string, isSystem bool) []byte {
+func (c *Context) Servlet(commands []string, isSystem bool) ([]byte, error) {
 	defer globalContext.DelCache()
 	commands = setGID(commands)
 	//参数中携带 --addr ip:port或域名 时进行请求转发
-	resp, b := forward(commands)
+	resp, err, b := forward(commands)
 	if b {
-		return resp
+		return resp, err
 	}
 	return execute(commands, isSystem)
 }
@@ -29,17 +29,17 @@ func (c *Context) Servlet(commands []string, isSystem bool) []byte {
 *
 命令执行
 */
-func execute(commands []string, isSystem bool) []byte {
+func execute(commands []string, isSystem bool) ([]byte, error) {
 	//解析命令行为map
 	maps, err := commandsToMap(commands)
 	if err != nil {
 		msg := fmt.Sprintf("入参解析失败 ： %v", err)
 		log.Error(msg)
-		return []byte(msg)
+		return nil, errors.New(msg)
 	}
 	//获取组件帮助信息
 	if key, ok := maps[cons.NEEDHELP]; ok {
-		return help(key)
+		return help(key), nil
 	}
 	//配置文件配置注入参数中
 	addConfigToMap(maps)
@@ -47,27 +47,21 @@ func execute(commands []string, isSystem bool) []byte {
 	if !ok {
 		msg := "入参未指定组件名称"
 		log.Error(msg)
-		return []byte(msg)
+		return nil, errors.New(msg)
 	}
 	//找到对应组件
 	c := globalContext.findComponent(key, isSystem)
 	if c == nil {
 		msg := fmt.Sprintf("组件 %v 不存在", key)
 		log.Error(msg)
-		return []byte(msg)
+		return nil, errors.New(msg)
 	}
 	//参数验证
 	params, err := c.check(maps)
 	if err != nil {
 		msg := fmt.Sprintf("参数验证失败 : %v", err)
 		log.Error(msg)
-		return []byte(msg)
-	}
-	if key == cons.WEB_KEY {
-		errStart := start()
-		if errStart != nil {
-			return []byte(errStart.Error())
-		}
+		return nil, errors.New(msg)
 	}
 	//组件功能执行
 	log.Infof("组件执行开始:[%v],组件入参:%v", key, commands)
@@ -76,14 +70,14 @@ func execute(commands []string, isSystem bool) []byte {
 		log.Infof("组件执行完成:[%v],组件执行结果大小:[%d byte]", key, len(res))
 	}
 	log.Debugf("组件执行结果:%v", string(res))
-	return res
+	return res, nil
 }
 
 /*
 *
 web请求转发
 */
-func forward(commands []string) ([]byte, bool) {
+func forward(commands []string) ([]byte, error, bool) {
 	var addr, params string
 	var flag bool
 	//判断是否需要转发，并拼接转发参数
@@ -97,20 +91,20 @@ func forward(commands []string) ([]byte, bool) {
 			if addr == "" {
 				msg := fmt.Sprintf("请求转发的ip端口为空")
 				log.Error(msg)
-				return []byte(msg), true
+				return nil, errors.New(msg), true
 			}
 		} else {
 			params += commands[i] + " "
 		}
 	}
 	if !flag {
-		return nil, flag
+		return nil, nil, flag
 	}
 	//校验转发地址是否合法
 	if !utils.CheckAddr(addr) {
 		msg := fmt.Sprintf("地址不合法")
 		log.Error(msg)
-		return []byte(msg), flag
+		return nil, errors.New(msg), flag
 	}
 	log.Infof("请求转发，转发地址:[%s],转发参数:[%s]", addr, params)
 	//插入全局业务跟踪号
@@ -127,9 +121,9 @@ func forward(commands []string) ([]byte, bool) {
 	}, nil)
 	if err != nil {
 		log.Errorf("转发请求 %v 错误，错误原因 : &v", uri, err)
-		return []byte(err.Error()), flag
+		return nil, err, flag
 	} else {
-		return []byte(resp), flag
+		return []byte(resp), nil, flag
 	}
 }
 
@@ -168,18 +162,6 @@ func setGID(commands []string) []string {
 */
 func help(key string) []byte {
 	return []byte(globalContext.findHelp(key))
-}
-
-/*
-*
-start执行
-*/
-func start() error {
-	err := globalContext.start()
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 /*

@@ -43,10 +43,6 @@ func (b *BatchServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.LOWER_R, "", "execJobByName", false, nil, "任务名称,通过任务名称重新执行任务")
 }
 
-func (b *BatchServer) Start() error {
-	return nil
-}
-
 func (b *BatchServer) Do(params map[string]any) (resp []byte) {
 	host := params["host"].(string)
 	port := params["port"].(int)

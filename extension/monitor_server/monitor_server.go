@@ -44,9 +44,6 @@ func (r *MonitorServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.LOWER_U, "monitor.server.username", "username", true, nil, "监控服务的登录用户名")
 	cm.AddParameters(cons.STRING, cons.LOWER_W, "monitor.server.password", "password", true, nil, "监控服务的登录密码")
 }
-func (r *MonitorServer) Start() error {
-	return nil
-}
 
 func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
 	res := &findResult{

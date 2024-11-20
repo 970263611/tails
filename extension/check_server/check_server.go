@@ -41,10 +41,6 @@ func (c *CheckServer) Register(cm iface.ComponentMeta) {
 		}, "端口号,0 ~ 65535之间")
 }
 
-func (c *CheckServer) Start() error {
-	return nil
-}
-
 func (c *CheckServer) Do(params map[string]any) (resp []byte) {
 	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", params["host"].(string), params["port"].(int)), 3*time.Second)
 	if err != nil {

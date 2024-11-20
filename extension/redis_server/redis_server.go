@@ -49,9 +49,6 @@ func (r *RedisServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.UPPER_S, "", "set_is", false, nil, "判断元素是否在集合中，例：redis_server -h 127.0.0.1 -p 6379 -k set -S abc")
 	cm.AddParameters(cons.NO_VALUE, cons.UPPER_D, "", "db_size", false, nil, "查看当前数据库key的数量，例：redis_server -h 127.0.0.1 -p 6379 -D")
 }
-func (r *RedisServer) Start() error {
-	return nil
-}
 
 func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 	//创建redis连接

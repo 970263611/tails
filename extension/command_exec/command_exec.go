@@ -27,10 +27,6 @@ func (c CommandExec) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.LOWER_C, "", "command", true, nil, "命令行,用单引号或双引号包裹;例如:'ll -al' 或 'ps -ef|grep java'")
 }
 
-func (c CommandExec) Start() error {
-	return nil
-}
-
 func (c CommandExec) Do(params map[string]any) (resp []byte) {
 	commandStr := params["command"].(string)
 	var result string

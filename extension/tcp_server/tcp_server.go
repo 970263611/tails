@@ -27,9 +27,6 @@ func (t *TcpServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.LOWER_H, "", "tcp_ip", false, nil, "统计已连接上的，某ip的tcp连接数，例：tcp_server -i 127.0.0.1")
 }
 
-func (t *TcpServer) Start() error {
-	return nil
-}
 func (t *TcpServer) Do(params map[string]any) (resp []byte) {
 	cmd := exec.Command("netstat", "-ant")
 	output, err := cmd.Output()

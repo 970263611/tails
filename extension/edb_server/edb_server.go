@@ -43,10 +43,6 @@ func (b *EdbServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.UPPER_N, "", "receiveFileName", false, nil, "接收方需要恢复的文件名称")
 }
 
-func (b *EdbServer) Start() error {
-	return nil
-}
-
 func (b *EdbServer) Do(params map[string]any) (resp []byte) {
 	host := params["host"].(string)
 	port := params["port"].(int)

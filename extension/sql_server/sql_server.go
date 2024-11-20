@@ -44,10 +44,6 @@ func (r *SqlServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.NO_VALUE, cons.LOWER_F, "", "force", false, nil, "强制执行")
 }
 
-func (r *SqlServer) Start() error {
-	return nil
-}
-
 func (r *SqlServer) Do(params map[string]any) (resp []byte) {
 	config := &dbtool.DbConfig{
 		Host:     params["host"].(string),

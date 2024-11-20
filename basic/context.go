@@ -241,18 +241,3 @@ func (c *Context) assembleAll() {
 		}
 	}
 }
-
-/*
-*
-注册待初始化组件
-*/
-func (c *Context) start() error {
-	c.assembleAll()
-	for _, cm := range c.components {
-		err := cm.Start()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}

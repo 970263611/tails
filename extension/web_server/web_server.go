@@ -34,10 +34,6 @@ func (r *WebServer) Register(cm iface.ComponentMeta) {
 		}, "发布web服务的端口号")
 }
 
-func (r *WebServer) Start() error {
-	return nil
-}
-
 func (r *WebServer) Do(params map[string]any) (resp []byte) {
 	port := params["port"].(int)
 	handlers := make(map[string]func(req map[string]any) (resp []byte))
@@ -59,5 +55,10 @@ func (r *WebServer) handler1(req map[string]any) []byte {
 	if len(commands) <= 0 {
 		return []byte("参数param不能为空")
 	}
-	return r.Servlet(commands, false)
+	data, err := r.Servlet(commands, false)
+	if err != nil {
+		return []byte(err.Error())
+	} else {
+		return []byte(data)
+	}
 }
