@@ -14,7 +14,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -42,6 +41,7 @@ func (r *SqlServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, "-e", "", "sql", false, nil, "执行sql语句")
 	cm.AddParameters(cons.STRING, "-o", "", "outPutFile", false, nil, "执行sql语句后,将查询结果导出到指定文件")
 	cm.AddParameters(cons.STRING, "-f", "", "sqlFile", false, nil, "执行sql文件")
+	cm.AddParameters(cons.STRING, "--force", "", "--force", false, nil, "强制执行")
 }
 
 func (r *SqlServer) Start() error {
@@ -156,7 +156,7 @@ func ExecSql(params map[string]any, db *dbtool.BaseDb) (string, error) {
 		}
 		rowsAffected = result.RowsAffected
 		log.Info(fmt.Sprintf("Exec Success!,%d 行已操作", rowsAffected))
-		return strconv.FormatInt(rowsAffected, 10), nil
+		return fmt.Sprintf("Exec Success!,%d 行已操作", rowsAffected), nil
 	}
 	return "", nil
 }

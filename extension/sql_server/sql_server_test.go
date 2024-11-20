@@ -14,7 +14,8 @@ func TestDoHandler(t *testing.T) {
 		"password":   "postgre",
 		"dbname":     "postgres",
 		"searchPath": "public",
-		"sql":        "SELECT * FROM test",
+		"sql":        "INSERT INTO public.test (id, name, age,address) VALUES (555, 'zhh', 21,'北京丰台'),(666, 'zhh', 21,'北京丰台');",
+		"--force":    "",
 	}
 	instance := GetInstance(nil)
 	resp := instance.Do(params)
