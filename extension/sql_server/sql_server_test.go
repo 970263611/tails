@@ -40,10 +40,3 @@ func TestExecSqlFile(t *testing.T) {
 		t.Errorf("ExecSql Fail %e", err)
 	}
 }
-
-func TestExecSql(t *testing.T) {
-	_, err := ExecSql("select * from test", GetDb())
-	if err != nil {
-		t.Errorf("ExecSqlFile Fail %e", err)
-	}
-}

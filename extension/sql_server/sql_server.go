@@ -7,6 +7,7 @@ import (
 	"bufio"
 	"bytes"
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/olekukonko/tablewriter"
 	log "github.com/sirupsen/logrus"
@@ -64,7 +65,7 @@ func (r *SqlServer) Do(params map[string]any) (resp []byte) {
 	}
 	//执行单个sql,并输出到指定文件
 	if params["sql"] != nil {
-		str, err := ExecSql(params["sql"].(string), dbBase)
+		str, err := ExecSql(params, dbBase)
 		if err != nil {
 			log.Error(err)
 			return []byte(err.Error())
@@ -117,7 +118,7 @@ func (r *SqlServer) Do(params map[string]any) (resp []byte) {
 			fmt.Println("Exiting...")
 			break
 		}
-		execSql, err := ExecSql(input, dbBase)
+		execSql, err := ExecSql(params, dbBase)
 		if err != nil {
 			log.Error(err.Error())
 		}
@@ -126,14 +127,14 @@ func (r *SqlServer) Do(params map[string]any) (resp []byte) {
 	return []byte("sql执行结束")
 }
 
-func ExecSql(sqlStr string, db *dbtool.BaseDb) (string, error) {
+func ExecSql(params map[string]any, db *dbtool.BaseDb) (string, error) {
+	sqlStr := params["sql"].(string)
 	re := regexp.MustCompile(`^"+|"+$`)
 	sqlStr = re.ReplaceAllString(sqlStr, "")
 	switch {
 	case strings.HasPrefix(strings.ToUpper(sqlStr), "SELECT"):
 		rows, err := db.Raw(sqlStr).Rows()
 		if err != nil {
-			// 处理错误，可能是 SQL 语法错误或数据库连接问题
 			log.Error("sql执行失败: ", err)
 			return "", err
 		}
@@ -141,7 +142,11 @@ func ExecSql(sqlStr string, db *dbtool.BaseDb) (string, error) {
 		//返回渲染格式化字符串
 		return rendering(rows)
 	default:
-		// 对于增删改操作，使用 Exec 方法
+		// 对于增删改操作，需要判断是否强制执行
+		_, ok := params[cons.FORCE]
+		if !ok {
+			return "", errors.New("发现非查询语句,未输入强制执行命令,请确认！")
+		}
 		var rowsAffected int64
 		var err error
 		result := db.Exec(sqlStr)
