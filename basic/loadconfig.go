@@ -76,11 +76,4 @@ var systemParam = []parameter{
 		},
 		Describe: "帮助",
 	},
-	parameter{
-		ParamType:    cons.NO_VALUE,
-		CommandName:  "--force",
-		StandardName: "",
-		Required:     false,
-		Describe:     "强制执行",
-	},
 }
