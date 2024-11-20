@@ -28,7 +28,7 @@ func (c *SqlServer) GetName() string {
 }
 
 func (r *SqlServer) GetDescribe() string {
-	return "sql执行服务"
+	return "sql执行服务 例: sql_server -h 127.0.0.1 -p 5432 -u postgres -w postgre -d postgres -s public -e \"select * from test \" "
 }
 
 func (r *SqlServer) Register(cm iface.ComponentMeta) {
@@ -134,7 +134,7 @@ func ExecSql(sqlStr string, db *dbtool.BaseDb) (string, error) {
 		rows, err := db.Raw(sqlStr).Rows()
 		if err != nil {
 			// 处理错误，可能是 SQL 语法错误或数据库连接问题
-			log.Error("sql执行失败: %v", err)
+			log.Error("sql执行失败: ", err)
 			return "", err
 		}
 		defer rows.Close()
@@ -150,7 +150,7 @@ func ExecSql(sqlStr string, db *dbtool.BaseDb) (string, error) {
 			return "", err
 		}
 		rowsAffected = result.RowsAffected
-		log.Info("Exec Success!,%d 行已操作", rowsAffected)
+		log.Info(fmt.Sprintf("Exec Success!,%d 行已操作", rowsAffected))
 		return strconv.FormatInt(rowsAffected, 10), nil
 	}
 	return "", nil
@@ -183,7 +183,7 @@ func ExecSqlFile(sqlFilePath string, db *dbtool.BaseDb) error {
 func rendering(rows *sql.Rows) (string, error) {
 	columns, err := rows.Columns()
 	if err != nil {
-		log.Error("错误的得到了字段集: %v", err)
+		log.Error(fmt.Sprintf("错误的得到了字段集: %v", err))
 		return "", err
 	}
 	// 创建一个 bytes.Buffer 来捕获输出
@@ -194,31 +194,28 @@ func rendering(rows *sql.Rows) (string, error) {
 	// 为每列创建一个变量，并创建一个切片来保存这些变量的地址
 	columnPtrs := make([]interface{}, len(columns))
 	columnValues := make([]interface{}, len(columns))
-	// 遍历查询结果并添加到表格中
+	// 遍历每一行并写入数据
 	for rows.Next() {
 		for i := range columnPtrs {
 			columnPtrs[i] = &columnValues[i]
 		}
-		// 遍历每一行并写入数据
-		for rows.Next() {
-			// 使用预先创建的变量地址切片来扫描行数据
-			err = rows.Scan(columnPtrs...)
-			if err != nil {
-				return "", err
-			}
-			// 将扫描到的数据转换为字符串切片
-			var valueStrings []string
-			for _, val := range columnValues {
-				// 这里需要处理不同类型的数据，确保转换为字符串时不会出错
-				// 例如，如果 val 是 nil，则可能需要特别处理
-				if val == nil {
-					valueStrings = append(valueStrings, "NULL")
-				} else {
-					valueStrings = append(valueStrings, fmt.Sprintf("%v", val))
-				}
-			}
-			table.Append(valueStrings)
+		// 使用预先创建的变量地址切片来扫描行数据
+		err = rows.Scan(columnPtrs...)
+		if err != nil {
+			return "", err
 		}
+		// 将扫描到的数据转换为字符串切片
+		var valueStrings []string
+		for _, val := range columnValues {
+			// 这里需要处理不同类型的数据，确保转换为字符串时不会出错
+			// 例如，如果 val 是 nil，则可能需要特别处理
+			if val == nil {
+				valueStrings = append(valueStrings, "NULL")
+			} else {
+				valueStrings = append(valueStrings, fmt.Sprintf("%v", val))
+			}
+		}
+		table.Append(valueStrings)
 	}
 	// 获取捕获的输出
 	table.Render()
