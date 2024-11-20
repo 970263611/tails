@@ -49,6 +49,9 @@ func (h *HighAvailability) Register(cm iface.ComponentMeta) {
 func (h *HighAvailability) Do(params map[string]any) (resp []byte) {
 	_, ok := params["view"]
 	if ok {
+		if !h.running {
+			return []byte("请先启动高可用模块")
+		}
 		result := make(map[string]map[string]int64)
 		result["online"] = h.onlineAddrTable
 		result["offline"] = h.offlineAddrTable
