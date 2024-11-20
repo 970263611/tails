@@ -25,7 +25,7 @@ func (r *WebServer) GetDescribe() string {
 }
 
 func (r *WebServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.INT, "-p", "web_server.port", "port", true,
+	cm.AddParameters(cons.INT, cons.LOWER_P, "web_server.port", "port", true,
 		func(s string) error {
 			if !utils.CheckPortByString(s) {
 				return errors.New("端口不合法")

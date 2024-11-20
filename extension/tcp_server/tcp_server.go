@@ -22,9 +22,9 @@ func (t *TcpServer) GetName() string {
 }
 
 func (t *TcpServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.INT, "-p", "", "tcp_port", false, nil, "统计已连接上的，某端口tcp连接数，例：tcp_server -p 8080")
-	cm.AddParameters(cons.NO_VALUE, "-e", "", "tcp_established", false, nil, "统计已连接上的，状态为“established的tcp连接数，例：tcp_server -e")
-	cm.AddParameters(cons.STRING, "-i", "", "tcp_ip", false, nil, "统计已连接上的，某ip的tcp连接数，例：tcp_server -i 127.0.0.1")
+	cm.AddParameters(cons.INT, cons.LOWER_P, "", "tcp_port", false, nil, "统计已连接上的，某端口tcp连接数，例：tcp_server -p 8080")
+	cm.AddParameters(cons.NO_VALUE, cons.LOWER_E, "", "tcp_established", false, nil, "统计已连接上的，状态为“established的tcp连接数，例：tcp_server -e")
+	cm.AddParameters(cons.STRING, cons.LOWER_H, "", "tcp_ip", false, nil, "统计已连接上的，某ip的tcp连接数，例：tcp_server -i 127.0.0.1")
 }
 
 func (t *TcpServer) Start() error {

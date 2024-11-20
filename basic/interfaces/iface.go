@@ -18,7 +18,7 @@ type Context interface {
 
 type ComponentMeta interface {
 	SetComponentType(componentType cons.ComponentType)
-	AddParameters(paramType cons.ParamType, commandName cons.CommandName, configName string, standardName string, required bool, method func(s string) error, describe string)
+	AddParameters(paramType cons.ParamTypeIface, commandName cons.CommandNameIface, configName string, standardName string, required bool, method func(s string) error, describe string)
 }
 
 type Component interface {

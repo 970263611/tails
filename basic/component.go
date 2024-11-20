@@ -41,10 +41,10 @@ func (c *componentMeta) SetComponentType(componentType cons.ComponentType) {
 *
 组件添加参数
 */
-func (c *componentMeta) AddParameters(paramType cons.ParamType, commandName string, configName string, standardName string, required bool, method func(s string) error, describe string) {
+func (c *componentMeta) AddParameters(paramType cons.ParamTypeIface, commandName cons.CommandNameIface, configName string, standardName string, required bool, method func(s string) error, describe string) {
 	p := parameter{
-		ParamType:    paramType,
-		CommandName:  commandName,
+		ParamType:    paramType.(cons.ParamType),
+		CommandName:  commandName.GetCommandName(),
 		ConfigName:   configName,
 		StandardName: standardName,
 		Required:     required,

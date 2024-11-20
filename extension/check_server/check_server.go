@@ -25,14 +25,14 @@ func (c *CheckServer) GetDescribe() string {
 }
 
 func (c *CheckServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.STRING, "-h", "", "host", true,
+	cm.AddParameters(cons.STRING, cons.LOWER_H, "", "host", true,
 		func(s string) error {
 			if !utils.CheckIp(s) {
 				return errors.New("IP不合法")
 			}
 			return nil
 		}, "IP地址,支持ipv4,例:192.168.0.1")
-	cm.AddParameters(cons.INT, "-p", "", "port", true,
+	cm.AddParameters(cons.INT, cons.LOWER_P, "", "port", true,
 		func(s string) error {
 			if !utils.CheckPortByString(s) {
 				return errors.New("端口不合法")

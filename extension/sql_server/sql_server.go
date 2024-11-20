@@ -32,15 +32,15 @@ func (r *SqlServer) GetDescribe() string {
 }
 
 func (r *SqlServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.STRING, "-h", "sql.server.ip", "host", true, nil, "数据库Ip")
-	cm.AddParameters(cons.INT, "-p", "sql.server.port", "port", true, nil, "数据库port")
-	cm.AddParameters(cons.STRING, "-u", "sql.server.username", "username", true, nil, "数据库登录用户名")
-	cm.AddParameters(cons.STRING, "-w", "sql.server.password", "password", true, nil, "数据库登录密码")
-	cm.AddParameters(cons.STRING, "-d", "sql.server.dbname", "dbname", true, nil, "数据库名称")
-	cm.AddParameters(cons.STRING, "-s", "sql.server.searchPath", "searchPath", true, nil, "数据库结构")
-	cm.AddParameters(cons.STRING, "-e", "", "sql", false, nil, "执行sql语句")
-	cm.AddParameters(cons.STRING, "-o", "", "outPutFile", false, nil, "执行sql语句后,将查询结果导出到指定文件")
-	cm.AddParameters(cons.STRING, "-f", "", "sqlFile", false, nil, "执行sql文件")
+	cm.AddParameters(cons.STRING, cons.LOWER_H, "sql.server.ip", "host", true, nil, "数据库Ip")
+	cm.AddParameters(cons.INT, cons.LOWER_P, "sql.server.port", "port", true, nil, "数据库port")
+	cm.AddParameters(cons.STRING, cons.LOWER_U, "sql.server.username", "username", true, nil, "数据库登录用户名")
+	cm.AddParameters(cons.STRING, cons.LOWER_W, "sql.server.password", "password", true, nil, "数据库登录密码")
+	cm.AddParameters(cons.STRING, cons.LOWER_D, "sql.server.dbname", "dbname", true, nil, "数据库名称")
+	cm.AddParameters(cons.STRING, cons.LOWER_S, "sql.server.searchPath", "searchPath", true, nil, "数据库结构")
+	cm.AddParameters(cons.STRING, cons.LOWER_C, "", "sql", false, nil, "执行sql语句")
+	cm.AddParameters(cons.STRING, cons.LOWER_O, "", "outPutFile", false, nil, "执行sql语句后,将查询结果导出到指定文件")
+	cm.AddParameters(cons.STRING, cons.LOWER_N, "", "sqlFile", false, nil, "执行sql文件")
 }
 
 func (r *SqlServer) Start() error {

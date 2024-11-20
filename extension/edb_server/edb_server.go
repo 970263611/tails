@@ -25,22 +25,22 @@ func (b *EdbServer) GetDescribe() string {
 }
 
 func (b *EdbServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.STRING, "-h", "edb.server.ip", "host", true, func(s string) error {
+	cm.AddParameters(cons.STRING, cons.LOWER_H, "edb.server.ip", "host", true, func(s string) error {
 		if !utils.CheckIp(s) {
 			return errors.New("edb服务的主机ip不合法")
 		}
 		return nil
 	}, "edb服务的主机ip地址")
-	cm.AddParameters(cons.INT, "-p", "edb.server.port", "port", true, func(s string) error {
+	cm.AddParameters(cons.INT, cons.LOWER_P, "edb.server.port", "port", true, func(s string) error {
 		if !utils.CheckPortByString(s) {
 			return errors.New("edb服务的端口port不合法")
 		}
 		return nil
 	}, "edb服务的端口")
-	cm.AddParameters(cons.STRING, "-u", "edb.server.username", "username", false, nil, "edb登录用户名")
-	cm.AddParameters(cons.STRING, "-w", "edb.server.password", "password", false, nil, "edb登录密码")
-	cm.AddParameters(cons.STRING, "-s", "", "sendFileName", false, nil, "发送方需要恢复的文件名称")
-	cm.AddParameters(cons.STRING, "-r", "", "receiveFileName", false, nil, "接收方需要恢复的文件名称")
+	cm.AddParameters(cons.STRING, cons.LOWER_U, "edb.server.username", "username", false, nil, "edb登录用户名")
+	cm.AddParameters(cons.STRING, cons.LOWER_W, "edb.server.password", "password", false, nil, "edb登录密码")
+	cm.AddParameters(cons.STRING, cons.LOWER_N, "", "sendFileName", false, nil, "发送方需要恢复的文件名称")
+	cm.AddParameters(cons.STRING, cons.UPPER_N, "", "receiveFileName", false, nil, "接收方需要恢复的文件名称")
 }
 
 func (b *EdbServer) Start() error {

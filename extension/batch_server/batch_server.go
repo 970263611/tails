@@ -25,22 +25,22 @@ func (b *BatchServer) GetDescribe() string {
 }
 
 func (b *BatchServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.STRING, "-h", "batch.server.ip", "host", true, func(s string) error {
+	cm.AddParameters(cons.STRING, cons.LOWER_H, "batch.server.ip", "host", true, func(s string) error {
 		if !utils.CheckIp(s) {
 			return errors.New("batch服务的主机ip不合法")
 		}
 		return nil
 	}, "batch服务的主机ip地址")
-	cm.AddParameters(cons.INT, "-p", "batch.server.port", "port", true, func(s string) error {
+	cm.AddParameters(cons.INT, cons.LOWER_P, "batch.server.port", "port", true, func(s string) error {
 		if !utils.CheckPortByString(s) {
 			return errors.New("batch服务的端口port不合法")
 		}
 		return nil
 	}, "batch服务的端口")
-	cm.AddParameters(cons.STRING, "-u", "batch.server.username", "username", false, nil, "batch登录用户名")
-	cm.AddParameters(cons.STRING, "-w", "batch.server.password", "password", false, nil, "batch登录密码")
-	cm.AddParameters(cons.STRING, "-q", "", "jobName", false, nil, "任务名称,通过任务名称查询任务状态")
-	cm.AddParameters(cons.STRING, "-e", "", "execJobByName", false, nil, "任务名称,通过任务名称重新执行任务")
+	cm.AddParameters(cons.STRING, cons.LOWER_U, "batch.server.username", "username", false, nil, "batch登录用户名")
+	cm.AddParameters(cons.STRING, cons.LOWER_W, "batch.server.password", "password", false, nil, "batch登录密码")
+	cm.AddParameters(cons.STRING, cons.LOWER_S, "", "jobName", false, nil, "任务名称,通过任务名称查询任务状态")
+	cm.AddParameters(cons.STRING, cons.LOWER_R, "", "execJobByName", false, nil, "任务名称,通过任务名称重新执行任务")
 }
 
 func (b *BatchServer) Start() error {

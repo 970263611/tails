@@ -26,28 +26,28 @@ func (c *RedisServer) GetDescribe() string {
 }
 
 func (r *RedisServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.STRING, "-h", "redis.server.ip", "host", true,
+	cm.AddParameters(cons.STRING, cons.LOWER_H, "redis.server.ip", "host", true,
 		func(s string) error {
 			if !utils.CheckIp(s) {
 				return errors.New("IP不合法")
 			}
 			return nil
 		}, "redis ip地址")
-	cm.AddParameters(cons.INT, "-p", "redis.server.port", "port", true,
+	cm.AddParameters(cons.INT, cons.LOWER_P, "redis.server.port", "port", true,
 		func(s string) error {
 			if !utils.CheckPortByString(s) {
 				return errors.New("端口不合法")
 			}
 			return nil
 		}, "redis端口")
-	cm.AddParameters(cons.STRING, "-w", "redis.server.password", "password", false, nil, "redis密码")
-	cm.AddParameters(cons.INT, "-d", "redis.server.db", "db", false, nil, "redis库号")
-	cm.AddParameters(cons.STRING, "-k", "", "key", false, nil, "要查询的key值，例：redis_server -h 127.0.0.1 -p 6379 -k keyStr")
-	cm.AddParameters(cons.STRING, "-Z", "", "zset_score", false, nil, "获取某元素的score，例：redis_server -h 127.0.0.1 -p 6379 -k zset -Z zsetScore")
-	cm.AddParameters(cons.INT, "-L", "", "list_index", false, nil, "获取链表下标对应的元素，例：redis_server -h 127.0.0.1 -p 6379 -k list -L list_index")
-	cm.AddParameters(cons.STRING, "-H", "", "hash_get", false, nil, "获取某个元素，例：redis_server -h 127.0.0.1 -p 6379 -k hash -H name")
-	cm.AddParameters(cons.STRING, "-S", "", "set_is", false, nil, "判断元素是否在集合中，例：redis_server -h 127.0.0.1 -p 6379 -k set -S abc")
-	cm.AddParameters(cons.NO_VALUE, "-D", "", "db_size", false, nil, "查看当前数据库key的数量，例：redis_server -h 127.0.0.1 -p 6379 -D")
+	cm.AddParameters(cons.STRING, cons.LOWER_W, "redis.server.password", "password", false, nil, "redis密码")
+	cm.AddParameters(cons.INT, cons.LOWER_N, "redis.server.db", "db", false, nil, "redis库号")
+	cm.AddParameters(cons.STRING, cons.LOWER_K, "", "key", false, nil, "要查询的key值，例：redis_server -h 127.0.0.1 -p 6379 -k keyStr")
+	cm.AddParameters(cons.STRING, cons.UPPER_Z, "", "zset_score", false, nil, "获取某元素的score，例：redis_server -h 127.0.0.1 -p 6379 -k zset -Z zsetScore")
+	cm.AddParameters(cons.INT, cons.UPPER_L, "", "list_index", false, nil, "获取链表下标对应的元素，例：redis_server -h 127.0.0.1 -p 6379 -k list -L list_index")
+	cm.AddParameters(cons.STRING, cons.UPPER_H, "", "hash_get", false, nil, "获取某个元素，例：redis_server -h 127.0.0.1 -p 6379 -k hash -H name")
+	cm.AddParameters(cons.STRING, cons.UPPER_S, "", "set_is", false, nil, "判断元素是否在集合中，例：redis_server -h 127.0.0.1 -p 6379 -k set -S abc")
+	cm.AddParameters(cons.NO_VALUE, cons.UPPER_D, "", "db_size", false, nil, "查看当前数据库key的数量，例：redis_server -h 127.0.0.1 -p 6379 -D")
 }
 func (r *RedisServer) Start() error {
 	return nil

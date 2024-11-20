@@ -24,24 +24,24 @@ func (c DbConnNum) GetDescribe() string {
 }
 
 func (d DbConnNum) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.STRING, "-h", "db_conn_num.host", "host", true,
+	cm.AddParameters(cons.STRING, cons.LOWER_H, "db_conn_num.host", "host", true,
 		func(s string) error {
 			if !utils.CheckIp(s) {
 				return errors.New("IP不合法")
 			}
 			return nil
 		}, "IP地址,支持ipv4,例:192.168.0.1")
-	cm.AddParameters(cons.INT, "-p", "db_conn_num.port", "port", true,
+	cm.AddParameters(cons.INT, cons.LOWER_P, "db_conn_num.port", "port", true,
 		func(s string) error {
 			if !utils.CheckPortByString(s) {
 				return errors.New("端口不合法")
 			}
 			return nil
 		}, "端口号,0 ~ 65535之间")
-	cm.AddParameters(cons.STRING, "-u", "db_conn_num.username", "username", true, nil, "数据库用户名")
-	cm.AddParameters(cons.STRING, "-P", "db_conn_num.password", "password", true, nil, "数据库密码")
-	cm.AddParameters(cons.STRING, "-d", "db_conn_num.dbname", "dbname", true, nil, "数据库名称")
-	cm.AddParameters(cons.STRING, "-s", "db_conn_num.searchpath", "schema", true, nil, "数据库schema")
+	cm.AddParameters(cons.STRING, cons.LOWER_U, "db_conn_num.username", "username", true, nil, "数据库用户名")
+	cm.AddParameters(cons.STRING, cons.LOWER_W, "db_conn_num.password", "password", true, nil, "数据库密码")
+	cm.AddParameters(cons.STRING, cons.LOWER_D, "db_conn_num.dbname", "dbname", true, nil, "数据库名称")
+	cm.AddParameters(cons.STRING, cons.LOWER_S, "db_conn_num.searchpath", "schema", true, nil, "数据库schema")
 }
 
 func (d DbConnNum) Start() error {
