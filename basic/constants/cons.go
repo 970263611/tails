@@ -80,11 +80,13 @@ const (
 	UPPER_P CommandName = "-P" //第二端口
 	LOWER_N CommandName = "-n" //名称，发送方名称
 	UPPER_N CommandName = "-N" //名称，接收方名称
-	LOWER_R CommandName = "-r" //重试，重复执行
+	LOWER_R CommandName = "-r" //重试，重复执行，启动高可用模块
 	LOWER_S CommandName = "-s" //状态展示status
 	UPPER_S CommandName = "-S" //redis set
+	LOWER_T CommandName = "-t" //节点信息交互
 	LOWER_U CommandName = "-u" //用户名
 	UPPER_U CommandName = "-U" //uri
+	LOWER_V CommandName = "-v" //查看节点信息
 	LOWER_W CommandName = "-w" //第一密码
 	UPPER_W CommandName = "-W" //第二密码
 	LOWER_X CommandName = "-x" //占用其它类型，无意义
