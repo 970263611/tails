@@ -41,7 +41,7 @@ func (r *SqlServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, "-e", "", "sql", false, nil, "执行sql语句")
 	cm.AddParameters(cons.STRING, "-o", "", "outPutFile", false, nil, "执行sql语句后,将查询结果导出到指定文件")
 	cm.AddParameters(cons.STRING, "-f", "", "sqlFile", false, nil, "执行sql文件")
-	cm.AddParameters(cons.STRING, "--force", "", "--force", false, nil, "强制执行")
+	cm.AddParameters(cons.NO_VALUE, "-F", "", "force", false, nil, "(大写)强制执行,针对于非查询语句")
 }
 
 func (r *SqlServer) Start() error {
@@ -143,7 +143,7 @@ func ExecSql(params map[string]any, db *dbtool.BaseDb) (string, error) {
 		return rendering(rows)
 	default:
 		// 对于增删改操作，需要判断是否强制执行
-		_, ok := params[cons.FORCE]
+		_, ok := params["force"]
 		if !ok {
 			return "", errors.New("发现非查询语句,未输入强制执行命令,请确认！")
 		}
@@ -158,7 +158,6 @@ func ExecSql(params map[string]any, db *dbtool.BaseDb) (string, error) {
 		log.Info(fmt.Sprintf("Exec Success!,%d 行已操作", rowsAffected))
 		return fmt.Sprintf("Exec Success!,%d 行已操作", rowsAffected), nil
 	}
-	return "", nil
 }
 
 func ExecSqlFile(sqlFilePath string, db *dbtool.BaseDb) error {

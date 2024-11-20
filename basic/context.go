@@ -156,8 +156,6 @@ func (c *Context) findHelp(key string) string {
 		sb.WriteString(lineBreak)
 		sb.WriteString(utils.GetBlankByNum(2, " ") + "重定向地址路径: './boot 组件名称 --f或--forword ip:port或域名'")
 		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "强制执行: './boot 组件名称 --force")
-		sb.WriteString(lineBreak)
 		sb.WriteString(utils.GetBlankByNum(2, " ") + "传输参数需要解密: './boot 组件名称 --salt 密钥 -p ENC(加密内容)' , 密钥也可配置在yml配置文件中,key为jasypt.salt")
 		sb.WriteString(lineBreak)
 		sb.WriteString(utils.GetBlankByNum(2, " ") + "通过web调用时忽略: './boot', 参数格式 params=组件名称 组件参数列表,支持post或get请求")
