@@ -4,6 +4,7 @@ import (
 	cons "basic/constants"
 	"basic/tool/net"
 	"basic/tool/utils"
+	"encoding/json"
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
@@ -117,13 +118,29 @@ func forward(commands []string) ([]byte, error, bool) {
 	//转发请求并返回结果
 	uri := fmt.Sprintf("http://%s/do", addr)
 	resp, err := net.PostRespString(uri, map[string]string{
-		"params": params,
+		"params":   params,
+		"isSystem": "",
 	}, nil)
 	if err != nil {
 		log.Errorf("转发请求 %v 错误，错误原因 : &v", uri, err)
 		return nil, err, flag
 	} else {
-		return []byte(resp), nil, flag
+		resultMap := map[string]string{}
+		err := json.Unmarshal([]byte(resp), &resultMap)
+		if err != nil {
+			log.Errorf("JSON decoding failed:%v", err)
+			return nil, errors.New(resp), flag
+		}
+		code, ok := resultMap[cons.RESULT_CODE]
+		if ok {
+			if code == cons.RESULT_SUCCESS {
+				return []byte(resultMap[cons.RESULT_DATA]), nil, flag
+			} else {
+				return nil, errors.New(resultMap[cons.RESULT_DATA]), flag
+			}
+		} else {
+			return nil, errors.New(resp), flag
+		}
 	}
 }
 

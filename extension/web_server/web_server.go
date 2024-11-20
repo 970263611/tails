@@ -5,7 +5,9 @@ import (
 	iface "basic/interfaces"
 	"basic/tool/net"
 	"basic/tool/utils"
+	"encoding/json"
 	"errors"
+	log "github.com/sirupsen/logrus"
 )
 
 type WebServer struct {
@@ -56,9 +58,27 @@ func (r *WebServer) handler1(req map[string]any) []byte {
 		return []byte("参数param不能为空")
 	}
 	data, err := r.Servlet(commands, false)
-	if err != nil {
-		return []byte(err.Error())
+	_, ok = req["isSystem"]
+	if ok {
+		rmap := map[string]string{}
+		if err != nil {
+			rmap[cons.RESULT_CODE] = cons.RESULT_ERROR
+			rmap[cons.RESULT_DATA] = err.Error()
+		} else {
+			rmap[cons.RESULT_CODE] = cons.RESULT_SUCCESS
+			rmap[cons.RESULT_DATA] = string(data)
+		}
+		jsonData, err := json.Marshal(rmap)
+		if err != nil {
+			log.Errorf("JSON encoding failed:%v", err)
+			return []byte(err.Error())
+		}
+		return jsonData
 	} else {
-		return []byte(data)
+		if err != nil {
+			return []byte(err.Error())
+		} else {
+			return []byte(data)
+		}
 	}
 }
