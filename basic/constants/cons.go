@@ -63,6 +63,7 @@ const (
 	LOWER_D CommandName = "-d" //数据库名
 	UPPER_D CommandName = "-D" //查看当前数据库key的数量
 	LOWER_E CommandName = "-e" //enable
+	LOWER_F CommandName = "-f" //强制执行
 	LOWER_G CommandName = "-g" //组名，组别
 	LOWER_H CommandName = "-h" //ip地址
 	UPPER_H CommandName = "-H" //ip2地址
