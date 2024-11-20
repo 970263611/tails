@@ -7,6 +7,7 @@ const (
 	GID           string = "globalID"
 	SALT          string = "--salt"
 	CONFIG_SALT   string = "jasypt.salt"
+	FORCE         string = "--force"
 )
 
 // ParamType ================start=============

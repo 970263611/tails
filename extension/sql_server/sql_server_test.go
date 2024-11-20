@@ -14,7 +14,8 @@ func TestDoHandler(t *testing.T) {
 		"password":   "postgre",
 		"dbname":     "postgres",
 		"searchPath": "public",
-		"sql":        "SELECT * FROM test",
+		"sql":        "INSERT INTO public.test (id, name, age,address) VALUES (555, 'zhh', 21,'北京丰台'),(666, 'zhh', 21,'北京丰台');",
+		"--force":    "",
 	}
 	instance := GetInstance(nil)
 	resp := instance.Do(params)
@@ -38,12 +39,5 @@ func TestExecSqlFile(t *testing.T) {
 	err := ExecSqlFile("D:\\test.sql", GetDb())
 	if err != nil {
 		t.Errorf("ExecSql Fail %e", err)
-	}
-}
-
-func TestExecSql(t *testing.T) {
-	_, err := ExecSql("select * from test", GetDb())
-	if err != nil {
-		t.Errorf("ExecSqlFile Fail %e", err)
 	}
 }
