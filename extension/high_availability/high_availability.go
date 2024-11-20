@@ -68,7 +68,7 @@ func (h *HighAvailability) Do(params map[string]any) (resp []byte) {
 			err := h.start(r.(string))
 			if err != nil {
 				h.running = false
-				return nil
+				return []byte("高可用模块启动失败")
 			}
 			return []byte("高可用模块启动成功")
 		} else {
@@ -77,6 +77,9 @@ func (h *HighAvailability) Do(params map[string]any) (resp []byte) {
 	}
 	t, ok := params["transport"]
 	if ok {
+		if !h.running {
+			return []byte("请先启动高可用模块")
+		}
 		transport, err := h.acceptTransport(t.(string))
 		if err != nil {
 			return nil
@@ -94,13 +97,16 @@ func (h *HighAvailability) start(adds string) error {
 	serverPort := h.context.GetConfig().GetInt("web_server.port")
 	myAddr := getLocalIp() + ":" + strconv.Itoa(serverPort)
 	h.onlineAddrTable[myAddr] = time.Now().Unix()
-	configAddresses := strings.Split(adds, ",")
-	for _, c := range configAddresses {
-		err := h.transport(c, true)
-		if err == nil {
-			h.onlineAddrTable[c] = time.Now().Unix()
-		} else {
-			h.offlineAddrTable[c] = time.Now().Unix()
+	if adds != myAddr && adds != "localhost:"+strconv.Itoa(serverPort) && adds != "127.0.0.1:"+strconv.Itoa(serverPort) {
+		configAddresses := strings.Split(adds, ",")
+		for _, c := range configAddresses {
+			err := h.transport(c, true)
+			if err == nil {
+				h.onlineAddrTable[c] = time.Now().Unix()
+			} else {
+				h.offlineAddrTable[c] = time.Now().Unix()
+				return err
+			}
 		}
 	}
 	return nil
@@ -116,15 +122,17 @@ func (h *HighAvailability) transport(addr string, needOffline bool) error {
 	}
 	commands := []string{
 		h.GetName(),
-		"-n",
+		cons.LOWER_T.GetCommandName(),
 		string(marshal),
+		"--f",
+		addr,
 	}
 	result, err2 := h.context.Servlet(commands, false)
 	if err2 != nil {
 		if needOffline {
 			go h.offline(addr)
 		}
-		log.Error("请求[%s]失败", addr)
+		log.Errorf("请求[%s]失败", addr)
 		return err2
 	}
 	onlineAndOfflineAddr := make(map[string]map[string]int64)
@@ -133,7 +141,7 @@ func (h *HighAvailability) transport(addr string, needOffline bool) error {
 		if needOffline {
 			go h.offline(addr)
 		}
-		log.Error("反序列化[%s]地址列表失败", addr)
+		log.Errorf("反序列化[%s]地址列表失败", addr)
 		return err1
 	}
 	receiveOnlineAddr := onlineAndOfflineAddr["online"]
