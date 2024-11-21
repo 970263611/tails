@@ -24,31 +24,31 @@ func (s *SuspendServer) GetDescribe() string {
 }
 
 func (s *SuspendServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.STRING, cons.LOWER_H, "uri_switch.ip", "host", true, func(s string) error {
+	cm.AddParameters(cons.STRING, cons.LOWER_H, "ip", "host", true, func(s string) error {
 		if !utils.CheckIp(s) {
 			return errors.New("微服务管理平台地址不合法")
 		}
 		return nil
 	}, "微服务管理平台地址的主机地址")
-	cm.AddParameters(cons.INT, cons.LOWER_P, "suspend.server.port", "port", true, func(s string) error {
+	cm.AddParameters(cons.INT, cons.LOWER_P, "port", "port", true, func(s string) error {
 		if !utils.CheckPortByString(s) {
 			return errors.New("微服务管理平台地址port不合法")
 		}
 		return nil
 	}, "微服务管理平台地址的端口")
-	cm.AddParameters(cons.STRING, cons.LOWER_U, "uri_switch.username", "username", true, nil, "微服务管理平台的登录用户名")
-	cm.AddParameters(cons.STRING, cons.LOWER_W, "uri_switch.password", "password", true, nil, "微服务管理平台的登录密码")
-	cm.AddParameters(cons.STRING, cons.LOWER_X, "uri_switch.systemId", "systemId", true, nil, "系统ID")
-	cm.AddParameters(cons.STRING, cons.LOWER_Y, "uri_switch.code", "code", true, nil, "网关编码")
-	cm.AddParameters(cons.STRING, cons.LOWER_N, "uri_switch.name", "name", true, nil, "组件名称")
-	cm.AddParameters(cons.STRING, cons.LOWER_E, "uri_switch.enabled", "enabled", true, func(s string) error {
+	cm.AddParameters(cons.STRING, cons.LOWER_U, "username", "username", true, nil, "微服务管理平台的登录用户名")
+	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", true, nil, "微服务管理平台的登录密码")
+	cm.AddParameters(cons.STRING, cons.LOWER_X, "systemId", "systemId", true, nil, "系统ID")
+	cm.AddParameters(cons.STRING, cons.LOWER_Y, "code", "code", true, nil, "网关编码")
+	cm.AddParameters(cons.STRING, cons.LOWER_N, "name", "name", true, nil, "组件名称")
+	cm.AddParameters(cons.STRING, cons.LOWER_E, "enabled", "enabled", true, func(s string) error {
 		if !utils.CheckIsBooleanByString(s) {
 			return errors.New("enabled不合法,必须是boolean类型")
 		}
 		return nil
 	}, "封停/解停uri: false 是封停, true是解停")
-	cm.AddParameters(cons.STRING, cons.UPPER_U, "uri_switch.uri", "uri", true, nil, "(大写)要封停/解停的uri")
-	cm.AddParameters(cons.STRING, cons.LOWER_G, "uri_switch.apiName", "apiName", true, nil, "uri所属API组名")
+	cm.AddParameters(cons.STRING, cons.UPPER_U, "uri", "uri", true, nil, "(大写)要封停/解停的uri")
+	cm.AddParameters(cons.STRING, cons.LOWER_G, "apiName", "apiName", true, nil, "uri所属API组名")
 }
 
 func (s *SuspendServer) Do(params map[string]any) (resp []byte) {

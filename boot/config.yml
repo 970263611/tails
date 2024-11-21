@@ -1,28 +1,27 @@
-nacos:
-  server:
-    ip: 127.0.0.1
-    port: 8848
-    username: nacos
-    password: nacos
-    namespace: cdl
+svc_switch.:
+  ip: 127.0.0.1
+  port: 8848
+  username: nacos
+  password: nacos
+  namespace: test111
 
-monitor:
-  server:
-    ip: 127.0.0.1
-    port: 9999
-    username: sysadmin
-    password: Grcf#jk9527
+monitor_server:
+  cfzt:
+    aaabbc:
+      ip: 127.0.0.1
+      port: 9999
+      username: sysadmin
+      password: Grcf#jk9527
 
-sql:
-  server:
-  - key: cfzt
+db_tool:
+  cfzt:
     ip: 127.0.0.1
     port: 5432
     username: postgres
     password: postgres
     dbname: postgres
     searchPath: public
-  - key: gscf
+  gscf:
     ip: 127.0.0.1
     port: 5432
     username: postgres
@@ -42,6 +41,9 @@ jasypt:
   salt: 123456
 redis:
   server:
-    ip: 192.168.56.128
-    port: 17001
-    password: ENC(K6FNl1c/9aOW1RNhnxGNRI+usHFynK/m)
+    - sourceName: a
+      ip: 192.168.56.128
+      port: 17001
+      password: ENC(K6FNl1c/9aOW1RNhnxGNRI+usHFynK/m)
+
+redis_tool :
