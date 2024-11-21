@@ -23,6 +23,8 @@ func main() {
 	var context iface.Context = &basic.Context{}
 	basic.InitGlobalContext(context)
 	defer context.DelCache()
+	//初始化组件
+	basic.InitComponent()
 	//解析入参中的系统参数
 	args, err := context.LoadSystemParams(args)
 	if err != nil {
@@ -32,17 +34,11 @@ func main() {
 	//解析配置文件
 	err = context.LoadConfig()
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println("加载配置文件失败:", err)
 		return
 	}
 	//日志初始化
 	initLogConfig(context)
-	//初始化组件
-	basic.InitComponent()
-	if err != nil {
-		fmt.Println("加载配置文件失败:", err)
-		return
-	}
 	//调用组件
 	bytes, err := context.Servlet(args, false)
 	//结果打印

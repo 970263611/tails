@@ -114,7 +114,7 @@ func (r *SqlServer) Do(params map[string]any) (resp []byte) {
 			fmt.Println("Exiting...")
 			break
 		}
-		execSql, err := ExecSql(params, dbBase)
+		execSql, err := ExecSqlRead(input, dbBase)
 		if err != nil {
 			log.Error(err.Error())
 		}
@@ -143,6 +143,33 @@ func ExecSql(params map[string]any, db *dbtool.BaseDb) (string, error) {
 		if !ok {
 			return "", errors.New("发现非查询语句,未输入强制执行命令,请确认！")
 		}
+		var rowsAffected int64
+		var err error
+		result := db.Exec(sqlStr)
+		if err = result.Error; err != nil {
+			log.Error("sql执行失败:" + err.Error())
+			return "", err
+		}
+		rowsAffected = result.RowsAffected
+		log.Info(fmt.Sprintf("Exec Success!,%d 行已操作", rowsAffected))
+		return fmt.Sprintf("Exec Success!,%d 行已操作", rowsAffected), nil
+	}
+}
+func ExecSqlRead(sqlStr string, db *dbtool.BaseDb) (string, error) {
+	re := regexp.MustCompile(`^"+|"+$`)
+	sqlStr = re.ReplaceAllString(sqlStr, "")
+	switch {
+	case strings.HasPrefix(strings.ToUpper(sqlStr), "SELECT"):
+		rows, err := db.Raw(sqlStr).Rows()
+		if err != nil {
+			log.Error("sql执行失败: ", err)
+			return "", err
+		}
+		defer rows.Close()
+		//返回渲染格式化字符串
+		return rendering(rows)
+	default:
+		// 对于增删改操作，需要判断是否强制执行
 		var rowsAffected int64
 		var err error
 		result := db.Exec(sqlStr)
