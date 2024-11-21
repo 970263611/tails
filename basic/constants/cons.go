@@ -2,11 +2,11 @@ package cons
 
 const (
 	COMPONENT_KEY string = "componentKey"
-	WEB_KEY       string = "web_server"
 	NEEDHELP      string = "--help"
 	GID           string = "globalID"
 	SALT          string = "--salt"
 	CONFIG_SALT   string = "jasypt.salt"
+	WEB_SVC       string = "web_svc"
 )
 
 const (

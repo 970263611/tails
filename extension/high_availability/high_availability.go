@@ -90,7 +90,7 @@ func (h *HighAvailability) Do(params map[string]any) (resp []byte) {
 }
 
 func (h *HighAvailability) start(adds string) error {
-	component := h.context.FindComponent("web_server", false)
+	component := h.context.FindComponent(cons.WEB_SVC, false)
 	if component == nil {
 		return errors.New("需要前置模块【web_server】")
 	}
@@ -176,7 +176,7 @@ func (h *HighAvailability) acceptTransport(n string) ([]byte, error) {
 }
 
 func (h *HighAvailability) heartbeat() {
-	serverPort := h.context.GetConfig().GetInt("web.server.port")
+	serverPort := h.context.GetConfig().GetInt("web_svc.port")
 	myAddr := getLocalIp() + ":" + strconv.Itoa(serverPort)
 	h.onlineAddrTable[myAddr] = time.Now().Unix()
 	addr := getSendAddr(myAddr, h.onlineAddrTable)
