@@ -1,4 +1,4 @@
-package oneclick_inspection
+package monitor_check
 
 // LoginResp login接口返回体结构
 type LoginResp struct {

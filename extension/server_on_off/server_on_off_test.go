@@ -1,4 +1,4 @@
-package svc_switch
+package server_on_off
 
 import (
 	"fmt"

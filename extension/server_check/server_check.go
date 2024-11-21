@@ -1,4 +1,4 @@
-package svc_check
+package server_check
 
 import (
 	cons "basic/constants"
@@ -17,7 +17,7 @@ func GetInstance(globalContext iface.Context) iface.Component {
 }
 
 func (c *CheckServer) GetName() string {
-	return "svc_check"
+	return "server_check"
 }
 
 func (c *CheckServer) GetDescribe() string {

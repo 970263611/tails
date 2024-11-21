@@ -16,7 +16,7 @@ func GetInstance(globalContext iface.Context) iface.Component {
 }
 
 func (s *SuspendServer) GetName() string {
-	return "uri_switch"
+	return "url_on_off"
 }
 
 func (s *SuspendServer) GetDescribe() string {

@@ -1,4 +1,4 @@
-package svc_switch
+package server_on_off
 
 import (
 	cons "basic/constants"
@@ -19,7 +19,7 @@ func GetInstance(globalContext iface.Context) iface.Component {
 }
 
 func (w *NacosServer) GetName() string {
-	return "svc_switch"
+	return "server_on_off"
 }
 
 func (r *NacosServer) GetDescribe() string {

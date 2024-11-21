@@ -1,4 +1,4 @@
-package oneclick_inspection
+package monitor_check
 
 import (
 	cons "basic/constants"
@@ -21,7 +21,7 @@ func GetInstance(globalContext iface.Context) iface.Component {
 }
 
 func (r *MonitorServer) GetName() string {
-	return "oneclick_inspection"
+	return "monitor_check"
 }
 
 func (r *MonitorServer) GetDescribe() string {

@@ -1,4 +1,4 @@
-package oneclick_inspection
+package monitor_check
 
 import (
 	"fmt"

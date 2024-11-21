@@ -1,4 +1,4 @@
-package web_svc
+package web_server
 
 import (
 	cons "basic/constants"
@@ -19,7 +19,7 @@ func GetInstance(globalContext iface.Context) iface.Component {
 }
 
 func (w *WebServer) GetName() string {
-	return "web_svc"
+	return "web_server"
 }
 
 func (r *WebServer) GetDescribe() string {
@@ -27,7 +27,7 @@ func (r *WebServer) GetDescribe() string {
 }
 
 func (r *WebServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.INT, cons.LOWER_P, "web_svc.port", "port", true,
+	cm.AddParameters(cons.INT, cons.LOWER_P, "port", "port", true,
 		func(s string) error {
 			if !utils.CheckPortByString(s) {
 				return errors.New("端口不合法")

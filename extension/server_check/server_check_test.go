@@ -1,4 +1,4 @@
-package svc_check
+package server_check
 
 import (
 	"testing"

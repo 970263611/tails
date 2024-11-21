@@ -11,12 +11,6 @@ import (
 
 /*
 *
-这里设置配置文件默认值
-*/
-var defaultParams = map[string]any{}
-
-/*
-*
 配置文件解析
 */
 func (c *Context) LoadConfig() error {
@@ -24,11 +18,12 @@ func (c *Context) LoadConfig() error {
 		return nil
 	}
 	v := viper.New()
+	v.SetConfigType("yaml")
+	for key, value := range defaultParams {
+		v.SetDefault(key, value)
+	}
 	path := c.findSystemParams("--path")
 	if path != "" {
-		for key, value := range defaultParams {
-			v.SetDefault(key, value)
-		}
 		v.SetConfigFile(path)
 		if err := v.ReadInConfig(); err != nil {
 			msg := fmt.Sprintf("配置文件 %v 读取失败，请检查路径和格式是否正确，仅支持yml或yaml格式文件,错误信息 : %v", path, err)
