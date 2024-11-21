@@ -70,7 +70,11 @@ func (f findResult) a1() {
 		f.result.A1.Value = fmt.Sprintf("查询失败 ： %v", err)
 	}
 	if A1Resp.Code == 0 {
-		f.result.A1.Value = fmt.Sprint(A1Resp.Data[0].TotalSucRate)
+		if A1Resp.Data == nil {
+			f.result.A1.Value = "查询结果为空"
+		} else {
+			f.result.A1.Value = fmt.Sprint(A1Resp.Data[0].TotalSucRate)
+		}
 	} else {
 		f.result.A1.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
 	}
@@ -93,7 +97,11 @@ func (f findResult) a2() {
 		f.result.A2.Value = fmt.Sprintf("查询失败 ： %v", err)
 	}
 	if A1Resp.Code == 0 {
-		f.result.A2.Value = fmt.Sprintf("%v 和 %v", A1Resp.Data[0].TotalSucRate, A1Resp.Data[0].TradeTps)
+		if A1Resp.Data == nil {
+			f.result.A2.Value = "查询结果为空"
+		} else {
+			f.result.A2.Value = fmt.Sprintf("%v 和 %v", A1Resp.Data[0].TotalSucRate, A1Resp.Data[0].TradeTps)
+		}
 	} else {
 		f.result.A2.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
 	}
@@ -116,7 +124,11 @@ func (f findResult) a3() {
 		f.result.A3.Value = fmt.Sprintf("查询失败 ： %v", err)
 	}
 	if A1Resp.Code == 0 {
-		f.result.A3.Value = fmt.Sprint(A1Resp.Data[0].TotalSucRate)
+		if A1Resp.Data == nil {
+			f.result.A3.Value = "查询结果为空"
+		} else {
+			f.result.A3.Value = fmt.Sprint(A1Resp.Data[0].TotalSucRate)
+		}
 	} else {
 		f.result.A3.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
 	}
@@ -139,7 +151,11 @@ func (f findResult) a4() {
 		f.result.A4.Value = fmt.Sprintf("查询失败 ： %v", err)
 	}
 	if A1Resp.Code == 0 {
-		f.result.A4.Value = fmt.Sprint(A1Resp.Data[0].TotalSucRate)
+		if A1Resp.Data == nil {
+			f.result.A4.Value = "查询结果为空"
+		} else {
+			f.result.A4.Value = fmt.Sprint(A1Resp.Data[0].TotalSucRate)
+		}
 	} else {
 		f.result.A4.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
 	}
@@ -162,22 +178,26 @@ func (f findResult) a5() {
 		f.result.A5.Value = fmt.Sprintf("查询失败 ： %v", err)
 	}
 	if A5Resp.Code == 0 {
-		for i := 0; i < len(A5Resp.Data); i++ {
-			status := A5Resp.Data[i].AlarmStatus
-			statusStr := ""
-			if status {
-				statusStr = "正常"
-			} else {
-				statusStr = "异常"
+		if A5Resp.Data == nil {
+			f.result.A5.Value = "查询结果为空"
+		} else {
+			for i := 0; i < len(A5Resp.Data); i++ {
+				status := A5Resp.Data[i].AlarmStatus
+				statusStr := ""
+				if status {
+					statusStr = "正常"
+				} else {
+					statusStr = "异常"
+				}
+				f.result.A5.Value += fmt.Sprintf("%v服务，%v，最小节点数%v，当前节点数%v，当前异常节点数%v，当前异常ip %v； ",
+					A5Resp.Data[i].SubsystemName,
+					statusStr,
+					A5Resp.Data[i].TotalNum,
+					A5Resp.Data[i].CurrentNum,
+					A5Resp.Data[i].ErrorNum,
+					A5Resp.Data[i].ErrorIp,
+				)
 			}
-			f.result.A5.Value += fmt.Sprintf("%v服务，%v，最小节点数%v，当前节点数%v，当前异常节点数%v，当前异常ip %v； ",
-				A5Resp.Data[i].SubsystemName,
-				statusStr,
-				A5Resp.Data[i].TotalNum,
-				A5Resp.Data[i].CurrentNum,
-				A5Resp.Data[i].ErrorNum,
-				A5Resp.Data[i].ErrorIp,
-			)
 		}
 	} else {
 		f.result.A5.Value = fmt.Sprintf("查询失败 ： %v", A5Resp.Message)
@@ -201,19 +221,24 @@ func (f findResult) a6() {
 		f.result.A6.Value = fmt.Sprintf("查询失败 ： %v", err)
 	}
 	if A6Resp.Code == 0 {
-		for i := 0; i < len(A6Resp.Data); i++ {
-			status := A6Resp.Data[i].PortState
-			statusStr := ""
-			if status {
-				statusStr = "正常"
-			} else {
-				statusStr = "异常"
+		if A6Resp.Data == nil {
+			f.result.A6.Value = "查询结果为空"
+		} else {
+
+			for i := 0; i < len(A6Resp.Data); i++ {
+				status := A6Resp.Data[i].PortState
+				statusStr := ""
+				if status {
+					statusStr = "正常"
+				} else {
+					statusStr = "异常"
+				}
+				f.result.A6.Value += fmt.Sprintf("%v中心，%v端口，%v； ",
+					A6Resp.Data[i].CenterFlag,
+					A6Resp.Data[i].HostPort,
+					statusStr,
+				)
 			}
-			f.result.A6.Value += fmt.Sprintf("%v中心，%v端口，%v； ",
-				A6Resp.Data[i].CenterFlag,
-				A6Resp.Data[i].HostPort,
-				statusStr,
-			)
 		}
 	} else {
 		f.result.A6.Value = fmt.Sprintf("查询失败 ： %v", A6Resp.Message)
@@ -237,30 +262,34 @@ func (f findResult) a10() {
 		f.result.A10.Value = fmt.Sprintf("查询失败 ： %v", err)
 	}
 	if A10Resp.Code == 0 {
-		for i := 0; i < len(A10Resp.Data); i++ {
-			level := A10Resp.Data[i].Level
-			levelStr := ""
-			switch level {
-			case 0:
-				levelStr = "正常"
-				break
-			case 1:
-				levelStr = "预警"
-				break
-			case 2:
-				levelStr = "告警"
-				break
-			case 3:
-				levelStr = "严重告警"
-				break
-			default:
-				break
+		if A10Resp.Data == nil {
+			f.result.A10.Value = "查询结果为空"
+		} else {
+			for i := 0; i < len(A10Resp.Data); i++ {
+				level := A10Resp.Data[i].Level
+				levelStr := ""
+				switch level {
+				case 0:
+					levelStr = "正常"
+					break
+				case 1:
+					levelStr = "预警"
+					break
+				case 2:
+					levelStr = "告警"
+					break
+				case 3:
+					levelStr = "严重告警"
+					break
+				default:
+					break
+				}
+				f.result.A10.Value += fmt.Sprintf("%v指标，%v开始，%v； ",
+					A10Resp.Data[i].JobName,
+					formatTime(A10Resp.Data[i].BeginTime),
+					levelStr,
+				)
 			}
-			f.result.A10.Value += fmt.Sprintf("%v指标，%v开始，%v； ",
-				A10Resp.Data[i].JobName,
-				formatTime(A10Resp.Data[i].BeginTime),
-				levelStr,
-			)
 		}
 	} else {
 		f.result.A10.Value = fmt.Sprintf("查询失败 ： %v", A10Resp.Message)

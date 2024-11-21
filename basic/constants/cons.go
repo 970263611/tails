@@ -65,6 +65,7 @@ func (c CommandName) GetCommandName() string {
 }
 
 const (
+	LOWER_A CommandName = "-a" //ip地址
 	LOWER_C CommandName = "-c" //字符串输入，命令行输入
 	LOWER_D CommandName = "-d" //数据库名
 	UPPER_D CommandName = "-D" //查看当前数据库key的数量

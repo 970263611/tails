@@ -7,8 +7,10 @@ import (
 	"basic/tool/utils"
 	"encoding/json"
 	"errors"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"strconv"
+	"strings"
 )
 
 type RedisServer struct{}
@@ -22,39 +24,30 @@ func (c *RedisServer) GetName() string {
 }
 
 func (c *RedisServer) GetDescribe() string {
-	return "redis连接服务，例：redis_tool -h 127.0.0.1 -p 6379 -k keyStr"
+	return "redis连接服务，例：redis_tool -addr 127.0.0.1:6379 -k keyStr"
 }
 
 func (r *RedisServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.STRING, cons.LOWER_H, "redis_tool.ip", "host", true,
+	cm.AddParameters(cons.STRING, cons.LOWER_A, "addr", "addr", true,
 		func(s string) error {
-			if !utils.CheckIp(s) {
-				return errors.New("IP不合法")
+			if !utils.CheckAddr(s) {
+				return errors.New("主机地址不合法")
 			}
 			return nil
-		}, "redis ip地址")
-	cm.AddParameters(cons.INT, cons.LOWER_P, "redis_tool.port", "port", true,
-		func(s string) error {
-			if !utils.CheckPortByString(s) {
-				return errors.New("端口不合法")
-			}
-			return nil
-		}, "redis端口")
-	cm.AddParameters(cons.STRING, cons.LOWER_W, "redis_tool.password", "password", false, nil, "redis密码")
-	cm.AddParameters(cons.INT, cons.LOWER_N, "redis_tool.db", "db", false, nil, "redis库号")
-	cm.AddParameters(cons.STRING, cons.LOWER_K, "", "key", false, nil, "要查询的key值，例：redis_server -h 127.0.0.1 -p 6379 -k keyStr")
-	cm.AddParameters(cons.STRING, cons.UPPER_Z, "", "zset_score", false, nil, "获取某元素的score，例：redis_server -h 127.0.0.1 -p 6379 -k zset -Z zsetScore")
-	cm.AddParameters(cons.INT, cons.UPPER_L, "", "list_index", false, nil, "获取链表下标对应的元素，例：redis_server -h 127.0.0.1 -p 6379 -k list -L list_index")
-	cm.AddParameters(cons.STRING, cons.UPPER_H, "", "hash_get", false, nil, "获取某个元素，例：redis_server -h 127.0.0.1 -p 6379 -k hash -H name")
-	cm.AddParameters(cons.STRING, cons.UPPER_S, "", "set_is", false, nil, "判断元素是否在集合中，例：redis_server -h 127.0.0.1 -p 6379 -k set -S abc")
-	cm.AddParameters(cons.NO_VALUE, cons.UPPER_D, "", "db_size", false, nil, "查看当前数据库key的数量，例：redis_server -h 127.0.0.1 -p 6379 -D")
+		}, "redis主机地址")
+	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", false, nil, "redis密码")
+	cm.AddParameters(cons.INT, cons.LOWER_N, "db", "db", false, nil, "redis库号")
+	cm.AddParameters(cons.STRING, cons.LOWER_K, "", "key", false, nil, "要查询的key值，例：redis_server -addr 127.0.0.1:6379 -k keyStr")
+	cm.AddParameters(cons.STRING, cons.UPPER_Z, "", "zset_score", false, nil, "获取某元素的score，例：redis_server -addr 127.0.0.1:6379 -k zset -Z zsetScore")
+	cm.AddParameters(cons.INT, cons.UPPER_L, "", "list_index", false, nil, "获取链表下标对应的元素，例：redis_server -addr 127.0.0.1:6379 -k list -L list_index")
+	cm.AddParameters(cons.STRING, cons.UPPER_H, "", "hash_get", false, nil, "获取某个元素，例：redis_server -addr 127.0.0.1:6379 -k hash -H name")
+	cm.AddParameters(cons.STRING, cons.UPPER_S, "", "set_is", false, nil, "判断元素是否在集合中，例：redis_server -addr 127.0.0.1:6379 -k set -S abc")
+	cm.AddParameters(cons.NO_VALUE, cons.UPPER_D, "", "db_size", false, nil, "查看当前数据库key的数量，例：redis_server -addr 127.0.0.1:6379 -D")
 }
 
 func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 	//创建redis连接
-	hostStr := params["host"].(string)
-	poststr := strconv.Itoa(params["port"].(int))
-	addrstr := hostStr + ":" + poststr
+	addrstr := params["addr"].(string)
 	passwordStr, flag := params["password"].(string)
 	if !flag {
 		passwordStr = ""
@@ -64,11 +57,22 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 		dbStr = 0
 	}
 	var client *redistool.RedisClient
-	client, err := redistool.CreateRedisClient(addrstr, passwordStr, dbStr)
-	if err != nil {
-		return []byte("redis连接失败")
+	errorList := make([]string, 0) // 用于收集错误信息的切片
+	parts := strings.Split(addrstr, ",")
+	for _, part := range parts {
+		fmt.Println(part)
+		c, err := redistool.CreateRedisClient(part, passwordStr, dbStr)
+		if err != nil {
+			errorList = append(errorList, fmt.Sprintf("创建Redis客户端失败，地址: %s，错误: %v", part, err))
+			continue
+		}
+		client = c
+		// 如果成功创建了客户端，就跳出循环，不需要继续尝试其他地址了
+		break
 	}
-
+	if client == nil {
+		return []byte(strings.Join(errorList, "\n"))
+	}
 	//查看当前数据库key的数量
 	_, ok := params["db_size"]
 	if ok {

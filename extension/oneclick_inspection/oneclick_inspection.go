@@ -29,20 +29,20 @@ func (r *MonitorServer) GetDescribe() string {
 }
 
 func (r *MonitorServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.STRING, cons.LOWER_H, "oneclick_inspection.ip", "host", true, func(s string) error {
+	cm.AddParameters(cons.STRING, cons.LOWER_H, "ip", "host", true, func(s string) error {
 		if !utils.CheckIp(s) {
 			return errors.New("监控服务ip不合法")
 		}
 		return nil
 	}, "监控服务的主机地址")
-	cm.AddParameters(cons.INT, cons.LOWER_P, "oneclick_inspection.port", "port", true, func(s string) error {
+	cm.AddParameters(cons.INT, cons.LOWER_P, "port", "port", true, func(s string) error {
 		if !utils.CheckPortByString(s) {
 			return errors.New("监控服务port不合法")
 		}
 		return nil
 	}, "监控服务的端口")
-	cm.AddParameters(cons.STRING, cons.LOWER_U, "oneclick_inspection.username", "username", true, nil, "监控服务的登录用户名")
-	cm.AddParameters(cons.STRING, cons.LOWER_W, "oneclick_inspection.password", "password", true, nil, "监控服务的登录密码")
+	cm.AddParameters(cons.STRING, cons.LOWER_U, "username", "username", true, nil, "监控服务的登录用户名")
+	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", true, nil, "监控服务的登录密码")
 }
 
 func (r *MonitorServer) Do(params map[string]any) (resp []byte) {

@@ -22,9 +22,9 @@ func (t *TcpServer) GetName() string {
 }
 
 func (t *TcpServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.INT, cons.LOWER_P, "", "tcp_port", false, nil, "统计已连接上的，某端口tcp连接数，例：tcp_server -p 8080")
-	cm.AddParameters(cons.NO_VALUE, cons.LOWER_E, "", "tcp_established", false, nil, "统计已连接上的，状态为“established的tcp连接数，例：tcp_server -e")
-	cm.AddParameters(cons.STRING, cons.LOWER_H, "", "tcp_ip", false, nil, "统计已连接上的，某ip的tcp连接数，例：tcp_server -i 127.0.0.1")
+	cm.AddParameters(cons.INT, cons.LOWER_P, "", "port", false, nil, "统计已连接上的，某端口tcp连接数，例：tcp_num -p 8080")
+	cm.AddParameters(cons.NO_VALUE, cons.LOWER_E, "", "established", false, nil, "统计已连接上的，状态为“established的tcp连接数，例：tcp_num -e")
+	cm.AddParameters(cons.STRING, cons.LOWER_H, "", "ip", false, nil, "统计已连接上的，某ip的tcp连接数，例：tcp_num -i 127.0.0.1")
 }
 
 func (t *TcpServer) Do(params map[string]any) (resp []byte) {
@@ -37,7 +37,7 @@ func (t *TcpServer) Do(params map[string]any) (resp []byte) {
 	count := 0
 
 	//统计已连接上的，某端口tcp连接数
-	tcp_portStr, tcp_port_ok := params["tcp_port"].(int)
+	tcp_portStr, tcp_port_ok := params["port"].(int)
 	if tcp_port_ok {
 		if tcp_portStr != 0 {
 			for _, line := range lines {
@@ -50,7 +50,7 @@ func (t *TcpServer) Do(params map[string]any) (resp []byte) {
 	}
 
 	//统计已连接上的，状态为“established的tcp连接数
-	_, tcp_established_ok := params["tcp_established"].(string)
+	_, tcp_established_ok := params["established"].(string)
 	if tcp_established_ok {
 		for _, line := range lines {
 			if strings.Contains(line, "ESTABLISHED") {
@@ -61,7 +61,7 @@ func (t *TcpServer) Do(params map[string]any) (resp []byte) {
 	}
 
 	//统计已连接上的，某iptcp连接数
-	tcp_ip, tcp_ip_ok := params["tcp_ip"].(string)
+	tcp_ip, tcp_ip_ok := params["ip"].(string)
 	if tcp_ip_ok {
 		if len(tcp_ip) > 0 {
 			for _, line := range lines {
