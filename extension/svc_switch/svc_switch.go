@@ -27,30 +27,30 @@ func (r *NacosServer) GetDescribe() string {
 }
 
 func (r *NacosServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.STRING, cons.LOWER_H, "svc_switch.ip", "host", true, func(s string) error {
+	cm.AddParameters(cons.STRING, cons.LOWER_H, "ip", "host", true, func(s string) error {
 		if !utils.CheckIp(s) {
 			return errors.New("nacos服务ip不合法")
 		}
 		return nil
 	}, "nacos服务的主机地址")
-	cm.AddParameters(cons.INT, cons.LOWER_P, "svc_switch.port", "port", true, func(s string) error {
+	cm.AddParameters(cons.INT, cons.LOWER_P, "port", "port", true, func(s string) error {
 		if !utils.CheckPortByString(s) {
 			return errors.New("nacos服务port不合法")
 		}
 		return nil
 	}, "nacos服务的端口")
-	cm.AddParameters(cons.STRING, cons.LOWER_U, "svc_switch.username", "username", true, nil, "nacos登录用户名")
-	cm.AddParameters(cons.STRING, cons.LOWER_W, "svc_switch.password", "password", true, nil, "nacos登录密码")
-	cm.AddParameters(cons.STRING, cons.LOWER_N, "svc_switch.namespace", "namespace", true, nil, "要封停/解停系统所在命名空间")
-	cm.AddParameters(cons.STRING, cons.LOWER_E, "", "enabled", true, func(s string) error {
+	cm.AddParameters(cons.STRING, cons.LOWER_U, "username", "username", true, nil, "nacos登录用户名")
+	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", true, nil, "nacos登录密码")
+	cm.AddParameters(cons.STRING, cons.LOWER_N, "namespace", "namespace", true, nil, "要封停/解停系统所在命名空间")
+	cm.AddParameters(cons.STRING, cons.LOWER_E, "enabled", "enabled", true, func(s string) error {
 		if !utils.CheckIsBooleanByString(s) {
 			return errors.New("enabled不合法,必须是boolean类型")
 		}
 		return nil
 	}, "是否要封停/解停, true是解停服务,false是封停服务")
-	cm.AddParameters(cons.STRING, cons.UPPER_N, "", "serviceName", true, nil, "要封停/解停系统服务名")
-	cm.AddParameters(cons.STRING, cons.UPPER_H, "", "serviceIp", true, nil, "(大写)要封停/解停系统ip")
-	cm.AddParameters(cons.STRING, cons.UPPER_P, "", "servicePort", true, nil, "(大写)要封停/解停系统port")
+	cm.AddParameters(cons.STRING, cons.UPPER_N, "serviceName", "serviceName", true, nil, "要封停/解停系统服务名")
+	cm.AddParameters(cons.STRING, cons.UPPER_H, "serviceIp", "serviceIp", true, nil, "(大写)要封停/解停系统ip")
+	cm.AddParameters(cons.STRING, cons.UPPER_P, "servicePort", "servicePort", true, nil, "(大写)要封停/解停系统port")
 }
 
 func (r *NacosServer) Do(params map[string]any) (resp []byte) {

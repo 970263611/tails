@@ -32,12 +32,12 @@ func (r *SqlServer) GetDescribe() string {
 }
 
 func (r *SqlServer) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.STRING, cons.LOWER_H, "db_tool.ip", "host", true, nil, "数据库Ip")
-	cm.AddParameters(cons.INT, cons.LOWER_P, "db_tool.port", "port", true, nil, "数据库port")
-	cm.AddParameters(cons.STRING, cons.LOWER_U, "db_tool.username", "username", true, nil, "数据库登录用户名")
-	cm.AddParameters(cons.STRING, cons.LOWER_W, "db_tool.password", "password", true, nil, "数据库登录密码")
-	cm.AddParameters(cons.STRING, cons.LOWER_D, "db_tool.dbname", "dbname", true, nil, "数据库名称")
-	cm.AddParameters(cons.STRING, cons.LOWER_S, "db_tool.searchPath", "searchPath", true, nil, "数据库结构")
+	cm.AddParameters(cons.STRING, cons.LOWER_H, "ip", "host", true, nil, "数据库Ip")
+	cm.AddParameters(cons.INT, cons.LOWER_P, "port", "port", true, nil, "数据库port")
+	cm.AddParameters(cons.STRING, cons.LOWER_U, "username", "username", true, nil, "数据库登录用户名")
+	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", true, nil, "数据库登录密码")
+	cm.AddParameters(cons.STRING, cons.LOWER_D, "dbname", "dbname", true, nil, "数据库名称")
+	cm.AddParameters(cons.STRING, cons.LOWER_S, "searchPath", "searchPath", true, nil, "数据库结构")
 	cm.AddParameters(cons.STRING, cons.LOWER_C, "", "sql", false, nil, "执行sql语句")
 	cm.AddParameters(cons.STRING, cons.LOWER_O, "", "outPutFile", false, nil, "执行sql语句后,将查询结果导出到指定文件")
 	cm.AddParameters(cons.STRING, cons.LOWER_N, "", "sqlFile", false, nil, "执行sql文件")
