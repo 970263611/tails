@@ -30,7 +30,7 @@ func (s *SuspendServer) Register(cm iface.ComponentMeta) {
 		}
 		return nil
 	}, "微服务管理平台地址的主机地址")
-	cm.AddParameters(cons.INT, cons.LOWER_P, "suspend.server.port", "port", true, func(s string) error {
+	cm.AddParameters(cons.INT, cons.LOWER_P, "port", "port", true, func(s string) error {
 		if !utils.CheckPortByString(s) {
 			return errors.New("微服务管理平台地址port不合法")
 		}
