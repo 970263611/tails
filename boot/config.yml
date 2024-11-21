@@ -1,4 +1,4 @@
-svc_switch.:
+svc_switch:
   ip: 127.0.0.1
   port: 8848
   username: nacos
@@ -14,10 +14,18 @@ monitor_server:
       password: Grcf#jk9527
 
 db_tool:
+  gscf:
     ip: 127.0.0.1
     port: 5432
     username: postgres
-    password: postgres
+    password: postgre
+    dbname: postgres
+    searchPath: public
+  cpyy:
+    ip: 127.0.0.1
+    port: 5432
+    username: postgres
+    password: postgress
     dbname: postgres
     searchPath: public
 
