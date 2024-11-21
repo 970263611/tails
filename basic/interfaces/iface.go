@@ -7,12 +7,13 @@ import (
 
 type Context interface {
 	Servlet(commands []string, isSystem bool) ([]byte, error)
+	LoadSystemParams(commands []string) ([]string, error)
 	GetConfig() *viper.Viper
 	SetCache(key string, value interface{}) bool
 	GetCache(key string) (interface{}, bool)
 	DelCache()
 	Unmarshal(a any) error
-	LoadConfig(path string) error
+	LoadConfig() error
 	FindComponent(key string, isSystem bool) ComponentMeta
 }
 

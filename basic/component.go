@@ -26,11 +26,11 @@ func addInitComponent(cp iface.Component) {
 type componentMeta struct {
 	cons.ComponentType
 	iface.Component
-	params []parameter
+	params []*parameter
 }
 
 func newComponentMeta() *componentMeta {
-	return &componentMeta{ComponentType: cons.EXECUTE, params: []parameter{}}
+	return &componentMeta{ComponentType: cons.EXECUTE, params: []*parameter{}}
 }
 
 func (c *componentMeta) SetComponentType(componentType cons.ComponentType) {
@@ -42,7 +42,7 @@ func (c *componentMeta) SetComponentType(componentType cons.ComponentType) {
 组件添加参数
 */
 func (c *componentMeta) AddParameters(paramType cons.ParamTypeIface, commandName cons.CommandNameIface, configName string, standardName string, required bool, method func(s string) error, describe string) {
-	p := parameter{
+	p := &parameter{
 		ParamType:    paramType.(cons.ParamType),
 		CommandName:  commandName.GetCommandName(),
 		ConfigName:   configName,

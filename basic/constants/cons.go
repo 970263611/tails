@@ -2,11 +2,11 @@ package cons
 
 const (
 	COMPONENT_KEY string = "componentKey"
-	NEEDHELP      string = "--help"
 	GID           string = "globalID"
-	SALT          string = "--salt"
 	CONFIG_SALT   string = "jasypt.salt"
 	WEB_SVC       string = "web_svc"
+	SYSTEM_PARAMS string = "systemparams"
+	DIFFUSE       string = "diffuse"
 )
 
 const (
@@ -14,6 +14,15 @@ const (
 	RESULT_DATA    = "data"
 	RESULT_SUCCESS = "00"
 	RESULT_ERROR   = "99"
+)
+
+const (
+	SYSPARAM_HELP    string = "--help"
+	SYSPARAM_PATH    string = "--path"
+	SYSPARAM_KEY     string = "--key"
+	SYSPARAM_SALT    string = "--salt"
+	SYSPARAM_FORWORD string = "--f,--forword"
+	SYSPARAM_GID     string = "--gid"
 )
 
 // ParamType ================start=============

@@ -16,7 +16,6 @@ import (
 组件分发
 */
 func (c *Context) Servlet(commands []string, isSystem bool) ([]byte, error) {
-	defer globalContext.DelCache()
 	commands = setGID(commands)
 	//参数中携带 --addr ip:port或域名 时进行请求转发
 	resp, err, b := forward(commands)
@@ -39,8 +38,8 @@ func execute(commands []string, isSystem bool) ([]byte, error) {
 		return nil, errors.New(msg)
 	}
 	//获取组件帮助信息
-	if key, ok := maps[cons.NEEDHELP]; ok {
-		return help(key), nil
+	if value := globalContext.findSystemParams(cons.SYSPARAM_HELP); value != "" {
+		return help(value), nil
 	}
 	//配置文件配置注入参数中
 	addConfigToMap(maps)
@@ -65,7 +64,7 @@ func execute(commands []string, isSystem bool) ([]byte, error) {
 		return nil, errors.New(msg)
 	}
 	//组件功能执行
-	log.Infof("组件执行开始:[%v],组件入参:%v", key, commands)
+	log.Infof("组件执行开始:[%v],组件入参:%v,调用组件参数个数:[%d]", key, commands, len(maps)-1)
 	res := c.Do(params)
 	if res != nil {
 		log.Infof("组件执行完成:[%v],组件执行结果大小:[%d byte]", key, len(res))
@@ -82,23 +81,8 @@ func forward(commands []string) ([]byte, error, bool) {
 	var addr, params string
 	var flag bool
 	//判断是否需要转发，并拼接转发参数
-	for i := 0; i < len(commands); i++ {
-		if commands[i] == "--forward" || commands[i] == "--f" {
-			flag = true
-			i++
-			if i < len(commands) {
-				addr = commands[i]
-			}
-			if addr == "" {
-				msg := fmt.Sprintf("请求转发的ip端口为空")
-				log.Error(msg)
-				return nil, errors.New(msg), true
-			}
-		} else {
-			params += commands[i] + " "
-		}
-	}
-	if !flag {
+	addr = globalContext.findSystemParams(cons.SYSPARAM_FORWORD)
+	if addr == "" {
 		return nil, nil, flag
 	}
 	//校验转发地址是否合法
@@ -107,12 +91,13 @@ func forward(commands []string) ([]byte, error, bool) {
 		log.Error(msg)
 		return nil, errors.New(msg), flag
 	}
+	params = strings.Join(commands, " ")
 	log.Infof("请求转发，转发地址:[%s],转发参数:[%s]", addr, params)
 	//插入全局业务跟踪号
 	gid, ok := globalContext.GetCache(cons.GID)
 	if ok {
 		id := fmt.Sprintf("%v", gid)
-		params += " --gid "
+		params += " " + cons.SYSPARAM_GID + " "
 		params += id
 	}
 	//转发请求并返回结果
@@ -186,14 +171,13 @@ func help(key string) []byte {
 命令行数组转换为maps
 */
 func commandsToMap(commands []string) (map[string]string, error) {
-	//go run main.go componentKey 至少应该有两个参数
-	maps := make(map[string]string)
 	if len(commands) == 0 {
-		maps["--help"] = "base"
-		return maps, nil
+		return nil, nil
 	}
 	//第1个参数是 组件componentkey
 	componentKey := commands[0]
+	//go run main.go componentKey 至少应该有两个参数
+	maps := make(map[string]string)
 	maps[cons.COMPONENT_KEY] = componentKey
 	//第2个到最后一个参数为 component入参，少于2个参数肯定就是没入参,只有大于等于三个参数，才存在入参
 	var params []string
@@ -203,21 +187,20 @@ func commandsToMap(commands []string) (map[string]string, error) {
 	//入参解析
 	for i := 0; i < len(params); i++ {
 		str := params[i]
-		//系统参数必定以--开头，后面跟若干字母
-		if utils.RegularValidate(str, utils.REGEX_2DASE_AND_WORD) {
-			if globalContext.findParameterType(componentKey, str) != cons.NO_VALUE {
-				i++
-				maps[str] = params[i]
-			} else {
-				maps[str] = componentKey
-			}
-			//组件参数必定以-开头，后面跟若干字母
-		} else if utils.RegularValidate(str, utils.REGEX_DASE_AND_WORD) {
+		if utils.RegularValidate(str, utils.REGEX_DASE_AND_WORD) {
 			p := str[1:]
 			//只有单一参数才能跟值
 			if len(p) == 1 {
-				if globalContext.findParameterType(componentKey, str) != cons.NO_VALUE {
+				pt, err := globalContext.findParameter(componentKey, str)
+				if err != nil {
+					return nil, err
+				} else if pt.ParamType != cons.NO_VALUE {
 					i++
+					if i >= len(params) {
+						msg := fmt.Sprintf("参数 %s 解析失败,该参数必须有值", str)
+						err = errors.New(msg)
+						return nil, err
+					}
 					maps[str] = params[i]
 				} else {
 					maps[str] = ""
@@ -227,20 +210,18 @@ func commandsToMap(commands []string) (map[string]string, error) {
 					maps["-"+p[m:m+1]] = ""
 				}
 			}
-		} else {
-			return nil, errors.New("参数错误,参数应以-或--开头")
 		}
 	}
 	//ENC(data)内容解密
-	password, ok := maps[cons.SALT]
-	if !ok && globalContext.Config != nil {
-		password = globalContext.Config.GetString(cons.CONFIG_SALT)
+	salt := globalContext.findSystemParams(cons.SYSPARAM_SALT)
+	if salt == "" && globalContext.Config != nil {
+		salt = globalContext.Config.GetString(cons.CONFIG_SALT)
 	}
-	if password != "" {
+	if salt != "" {
 		for key, value := range maps {
 			if value != "" && strings.HasPrefix(value, "ENC(") && strings.HasSuffix(value, ")") {
 				value = value[4 : len(value)-1]
-				value, err := utils.JasyptDec(value, password)
+				value, err := utils.JasyptDec(value, salt)
 				if err != nil {
 					return nil, errors.New("参数解密失败:" + err.Error())
 				}
@@ -269,25 +250,27 @@ func addConfigToMap(maps map[string]string) {
 	}
 	for _, v := range cm.params {
 		if _, ok = maps[v.CommandName]; v.ParamType != cons.NO_VALUE && v.ConfigName != "" && !ok {
-			val := globalContext.Config.GetString(v.ConfigName)
+			key := globalContext.findSystemParams(cons.SYSPARAM_KEY)
+			if key != "" {
+				key = cm.GetName() + "." + key + "." + v.ConfigName
+			} else {
+				key = cm.GetName() + "." + v.ConfigName
+			}
+			val := globalContext.Config.GetString(key)
 			if val != "" {
 				maps[v.CommandName] = val
 				if strings.HasPrefix(val, "ENC(") && strings.HasSuffix(val, ")") {
-					salt, ok := maps[cons.SALT]
-					if !ok && globalContext.Config != nil {
+					salt := globalContext.findSystemParams(cons.SYSPARAM_SALT)
+					if salt == "" && globalContext.Config != nil {
 						salt = globalContext.Config.GetString(cons.CONFIG_SALT)
 					}
 					val = val[4 : len(val)-1]
-					val, err := utils.JasyptDec(val, salt)
+					val2, err := utils.JasyptDec(val, salt)
 					if err != nil {
 						log.Error("参数解密失败", err.Error())
 					}
-					maps[v.CommandName] = val
-
-				} else {
-					maps[v.CommandName] = val
+					maps[v.CommandName] = val2
 				}
-
 			}
 		}
 	}

@@ -14,14 +14,6 @@ monitor_server:
       password: Grcf#jk9527
 
 db_tool:
-  cfzt:
-    ip: 127.0.0.1
-    port: 5432
-    username: postgres
-    password: postgres
-    dbname: postgres
-    searchPath: public
-  gscf:
     ip: 127.0.0.1
     port: 5432
     username: postgres
@@ -35,7 +27,7 @@ web_server:
 log:
   filename: ./logs/all.log
   level: info
-  out_type: 2
+  out_type: 3
 
 jasypt:
   salt: 123456
@@ -45,5 +37,3 @@ redis:
       ip: 192.168.56.128
       port: 17001
       password: ENC(K6FNl1c/9aOW1RNhnxGNRI+usHFynK/m)
-
-redis_tool :

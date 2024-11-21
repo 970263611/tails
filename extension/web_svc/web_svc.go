@@ -50,34 +50,49 @@ func (r *WebServer) Do(params map[string]any) (resp []byte) {
 web请求处理逻辑
 */
 func (r *WebServer) handler1(req map[string]any) []byte {
+	defer r.DelCache()
 	param, ok := req["params"].(string)
+	_, isSystem := req["isSystem"]
 	if !ok {
-		return []byte("参数param不能为空")
+		return msgFormat("", "参数param不能为空", isSystem)
 	}
 	commands := utils.SplitString(param)
 	if len(commands) <= 0 {
-		return []byte("参数param不能为空")
+		return msgFormat("", "参数param不能为空", isSystem)
 	}
-	data, err := r.Servlet(commands, false)
-	_, ok = req["isSystem"]
-	if ok {
+	//解析入参中的系统参数
+	args, err := r.LoadSystemParams(commands)
+	if err != nil {
+		return msgFormat("", err.Error(), isSystem)
+	}
+	data, err := r.Servlet(args, false)
+	if err != nil {
+		return msgFormat("", err.Error(), isSystem)
+	} else {
+		return msgFormat(string(data), "", isSystem)
+	}
+}
+
+func msgFormat(data string, errmsg string, isSystem bool) []byte {
+	if isSystem {
 		rmap := map[string]string{}
-		if err != nil {
+		if errmsg != "" {
 			rmap[cons.RESULT_CODE] = cons.RESULT_ERROR
-			rmap[cons.RESULT_DATA] = err.Error()
+			rmap[cons.RESULT_DATA] = errmsg
 		} else {
 			rmap[cons.RESULT_CODE] = cons.RESULT_SUCCESS
-			rmap[cons.RESULT_DATA] = string(data)
+			rmap[cons.RESULT_DATA] = data
 		}
 		jsonData, err := json.Marshal(rmap)
 		if err != nil {
-			log.Errorf("JSON encoding failed:%v", err)
+			log.Errorf("转换报文的map:%v", rmap)
+			log.Errorf("格式化报文错误:%v", err)
 			return []byte(err.Error())
 		}
 		return jsonData
 	} else {
-		if err != nil {
-			return []byte(err.Error())
+		if errmsg != "" {
+			return []byte(errmsg)
 		} else {
 			return []byte(data)
 		}

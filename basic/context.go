@@ -4,6 +4,7 @@ import (
 	cons "basic/constants"
 	iface "basic/interfaces"
 	"basic/tool/utils"
+	"errors"
 	"fmt"
 	"github.com/spf13/viper"
 	"strings"
@@ -52,7 +53,8 @@ func (c *Context) GetCache(key string) (interface{}, bool) {
 	if !ok {
 		return nil, false
 	}
-	return gmap[key], true
+	value, ok := gmap[key]
+	return value, ok
 }
 
 /*
@@ -113,10 +115,13 @@ func (c *Context) findComponent(key string, isSystem bool) *componentMeta {
 *
 根据组件名称及命令行参数名称，查询到指定参数的配置信息
 */
-func (c *Context) findParameterType(componentKey string, commandName string) cons.ParamType {
+func (c *Context) findParameter(componentKey string, commandName string) (*parameter, error) {
 	for _, value := range systemParam {
-		if value.CommandName == commandName {
-			return value.ParamType
+		arrs := strings.Split(value.CommandName, ",")
+		for _, arr := range arrs {
+			if arr == commandName {
+				return value, nil
+			}
 		}
 	}
 	if componentKey != "" {
@@ -124,13 +129,13 @@ func (c *Context) findParameterType(componentKey string, commandName string) con
 		if cm != nil {
 			for _, value := range cm.params {
 				if value.CommandName == commandName {
-					return value.ParamType
+					return value, nil
 				}
 			}
 		}
 	}
-
-	return -1
+	msg := fmt.Sprintf("参数 %s 不存在", commandName)
+	return nil, errors.New(msg)
 }
 
 /*
@@ -146,21 +151,21 @@ func (c *Context) findHelp(key string) string {
 		//./root 组件名 组件参数列表
 		sb.WriteString("命令格式:")
 		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "获取全部组件列表: './boot base --help'")
+		sb.WriteString(utils.GetBlankByNum(2, " ") + "获取全部组件列表: 'base --help'")
 		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "获取组件帮助信息: './boot 组件名称 --help'")
+		sb.WriteString(utils.GetBlankByNum(2, " ") + "获取组件帮助信息: '组件名称 --help'")
 		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "调用组件命令格式: './boot 组件名称 组件参数列表'")
+		sb.WriteString(utils.GetBlankByNum(2, " ") + "调用组件命令格式: '组件名称 组件参数列表'")
 		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "指定配置文件路径: './boot 组件名称 --path 配置文件全路径 组件参数列表'")
+		sb.WriteString(utils.GetBlankByNum(2, " ") + "指定配置文件路径: '组件名称 --path 配置文件全路径 组件参数列表'")
 		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "重定向地址路径: './boot 组件名称 --f或--forword ip:port或域名'")
+		sb.WriteString(utils.GetBlankByNum(2, " ") + "组件转发请求: '组件名称 --f或--forword ip:port或域名'")
 		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "传输参数需要解密: './boot 组件名称 --salt 密钥 -p ENC(加密内容)' , 密钥也可配置在yml配置文件中,key为jasypt.salt")
+		sb.WriteString(utils.GetBlankByNum(2, " ") + "传输参数需要解密: '组件名称 --salt 密钥 -p ENC(加密内容)' , 密钥也可配置在yml配置文件中,key为jasypt.salt")
 		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "通过web调用时忽略: './boot', 参数格式 params=组件名称 组件参数列表,支持post或get请求")
+		sb.WriteString(utils.GetBlankByNum(2, " ") + "多配置项目选择: '组件名称 --key aabb',如果组件配置是web_svc.port,则此时取web_svc.aabb.port，仅组件参数支持此配置方式")
 		sb.WriteString(lineBreak)
-		sb.WriteString("组件列表")
+		sb.WriteString("组件列表:")
 		components := c.components
 		for _, component := range components {
 			sb.WriteString(lineBreak)
@@ -192,10 +197,18 @@ func (c *Context) findHelp(key string) string {
 				for _, value := range cm.params {
 					sb.WriteString(lineBreak)
 					if value.Required {
-						sb.WriteString(utils.GetBlankByNum(2, " ") + value.CommandName + "  必要 " + value.ConfigName)
+						if strings.ToUpper(value.CommandName) == value.CommandName {
+							sb.WriteString(utils.GetBlankByNum(2, " ") + value.CommandName + "(大写)  必要 " + cm.GetName() + "." + value.ConfigName)
+						} else {
+							sb.WriteString(utils.GetBlankByNum(2, " ") + value.CommandName + "(小写)  必要 " + cm.GetName() + "." + value.ConfigName)
+						}
 						sb.WriteString(lineBreak)
 					} else {
-						sb.WriteString(utils.GetBlankByNum(2, " ") + value.CommandName + "  可选 " + value.ConfigName)
+						if strings.ToUpper(value.CommandName) == value.CommandName {
+							sb.WriteString(utils.GetBlankByNum(2, " ") + value.CommandName + "(大写)  可选 " + cm.GetName() + "." + value.ConfigName)
+						} else {
+							sb.WriteString(utils.GetBlankByNum(2, " ") + value.CommandName + "(小写)  可选 " + cm.GetName() + "." + value.ConfigName)
+						}
 						sb.WriteString(lineBreak)
 					}
 					sb.WriteString(utils.GetBlankByNum(6, " ") + value.Describe)

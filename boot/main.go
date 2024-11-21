@@ -4,7 +4,6 @@ import (
 	"basic"
 	iface "basic/interfaces"
 	"basic/log_config"
-	"errors"
 	"fmt"
 	"os"
 )
@@ -13,50 +12,45 @@ import (
 *
 系统参数  --help 获取组件帮助
 
-		--path 指定配置文件路径
-	    --addr ip:port或域名 时进行请求转发
-		--salt 解密密钥，解密方式jasypt-1.9.3.jar
+	        --key 配置文件参数拼接
+			--path 指定配置文件路径
+		    --addr ip:port或域名 时进行请求转发
+			--salt 解密密钥，解密方式jasypt-1.9.3.jar
 */
 func main() {
+	args := os.Args[1:]
+	//创建全局context
 	var context iface.Context = &basic.Context{}
 	basic.InitGlobalContext(context)
-	basic.InitComponent()
-	args := os.Args[1:]
-	err := loadConfig(args, context)
+	defer context.DelCache()
+	//解析入参中的系统参数
+	args, err := context.LoadSystemParams(args)
 	if err != nil {
-		fmt.Println("加载配置文件失败:", err)
+		fmt.Println(err.Error())
+		return
+	}
+	//解析配置文件
+	err = context.LoadConfig()
+	if err != nil {
+		fmt.Println(err.Error())
 		return
 	}
 	//日志初始化
 	initLogConfig(context)
-	//调用component，并打印
+	//初始化组件
+	basic.InitComponent()
+	if err != nil {
+		fmt.Println("加载配置文件失败:", err)
+		return
+	}
+	//调用组件
 	bytes, err := context.Servlet(args, false)
+	//结果打印
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println(string(bytes))
 	}
-}
-
-/*
-*
-加载配置文件,yaml
-*/
-func loadConfig(args []string, c iface.Context) error {
-	var path string
-	for i := 0; i < len(args); i++ {
-		if args[i] == "--path" {
-			i++
-			if i < len(args) {
-				path = args[i]
-			}
-			if path == "" {
-				return errors.New("传入配置文件路径为空")
-			}
-			break
-		}
-	}
-	return c.LoadConfig(path)
 }
 
 type LogConfig struct {
