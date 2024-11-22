@@ -26,27 +26,54 @@ type result struct {
 
 type findResult struct {
 	*result
-	host      string
-	port      int
-	username  string
-	password  string
-	token     string
-	urlPrefix string
-	c         chan int
+	host             string
+	port             int
+	username         string
+	password         string
+	token            string
+	urlPrefix        string
+	c                chan int
+	version          string
+	identifyCode     string
+	identifyCodeUuid string
 }
 
 func (f findResult) login() (string, error) {
 	var loginResp LoginResp
-	err := net.PostRespStruct(f.urlPrefix+"/api/cert/actions/login",
-		map[string]string{
+	var mapparams map[string]string
+	if f.version == "2" {
+		mapparams = map[string]string{
+			"userId":           f.username,
+			"passWord":         f.password,
+			"identifyCode":     f.identifyCode,
+			"identifyCodeUuid": f.identifyCodeUuid,
+		}
+
+	} else {
+		mapparams = map[string]string{
 			"userId":   f.username,
-			"password": f.password,
-		}, nil, &loginResp)
+			"passWord": f.password,
+		}
+	}
+	err := net.PostRespStruct(f.urlPrefix+"/api/cert/actions/login",
+		mapparams, nil, &loginResp)
 	if err != nil {
-		return "", err
+		return "登录失败", err
 	}
 	entries := loginResp.Data
 	return entries.Token, nil
+}
+
+// 获取登录页面验证码
+func (f findResult) getIdentifyCode() (*GetIdentifyCode, error) {
+	var GetIdentifyCode GetIdentifyCode
+	header := http.Header{}
+	header.Set("Content-Type", "application/josn;charset=UTF-8")
+	err := net.GetRespStruct(f.urlPrefix+"/api/cert/actions/identifyCode", nil, header, &GetIdentifyCode)
+	if err != nil {
+		return nil, err
+	}
+	return &GetIdentifyCode, nil
 }
 
 func (f findResult) deferMethod() {

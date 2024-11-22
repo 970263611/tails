@@ -97,6 +97,7 @@ const (
 	LOWER_U CommandName = "-u" //用户名
 	UPPER_U CommandName = "-U" //uri
 	LOWER_V CommandName = "-v" //查看节点信息
+	UPPER_V CommandName = "-V" //占用其它类型，无意义
 	LOWER_W CommandName = "-w" //第一密码
 	UPPER_W CommandName = "-W" //第二密码
 	LOWER_X CommandName = "-x" //占用其它类型，无意义

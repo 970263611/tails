@@ -12,6 +12,17 @@ type LoginRespEntry struct {
 	Token string
 }
 
+// 获取验证码
+type GetIdentifyCode struct {
+	Code int
+	Data Identify
+}
+
+type Identify struct {
+	Code     string
+	codeUuid string
+}
+
 type A1Resp struct {
 	Code    int
 	Data    []A1RespEntry
