@@ -16,7 +16,7 @@ func TestDoHandler(t *testing.T) {
 		"serviceName": "cdl",
 		"serviceIp":   "172.20.10.2",
 		"servicePort": "9090",
-		/*"groupName":   "zhh",*/
+		"groupName":   "zhh",
 	}
 	instance := GetInstance(nil)
 	resp := instance.Do(params)
