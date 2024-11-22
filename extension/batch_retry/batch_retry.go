@@ -21,7 +21,7 @@ func (b *BatchServer) GetName() string {
 }
 
 func (b *BatchServer) GetDescribe() string {
-	return "batch job 服务,用于通过传入的任务名称 查询任务状态与重新执行任务功能 例: batch_retry -h 127.0.0.1 -p 9999 -u batch -w batch -q \"jobName\" "
+	return "batch job 服务,用于通过传入的任务名称 查询任务状态与重新执行任务功能 例: batch_retry -h 127.0.0.1 -p 9999 -u batch -w batch -s \"jobName\" "
 }
 
 func (b *BatchServer) Register(cm iface.ComponentMeta) {
@@ -47,7 +47,7 @@ func (b *BatchServer) Do(params map[string]any) (resp []byte) {
 	host := params["host"].(string)
 	port := params["port"].(int)
 	urlPrefix := fmt.Sprintf("%s://%s:%d", "http", host, port)
-	jobName, ok := params["jobName"].(string)
+	jobName, ok := params["queryJobName"].(string)
 	if ok {
 		m := map[string]string{
 			"name": jobName,
@@ -67,6 +67,8 @@ func (b *BatchServer) Do(params map[string]any) (resp []byte) {
 		} else {
 			return []byte("查询接口失败:" + resp.Data)
 		}
+	} else {
+		log.Info("未传入查询任务名称...")
 	}
 	return []byte("批量任务执行结束")
 }

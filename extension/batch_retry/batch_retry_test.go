@@ -11,9 +11,8 @@ func TestDoHandler(t *testing.T) {
 		"port":     9999,
 		"username": "sysadmin",
 		"password": "Grcf#jk9527",
-		"jobName":  "xxxJob",
 	}
-	instance := GetInstance()
+	instance := GetInstance(nil)
 	resp := instance.Do(params)
 	if resp != nil {
 		fmt.Println(string(resp))

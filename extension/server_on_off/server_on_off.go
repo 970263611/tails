@@ -23,7 +23,7 @@ func (w *NacosServer) GetName() string {
 }
 
 func (r *NacosServer) GetDescribe() string {
-	return "Nacos上下线,用于封停/解停相关服务 例:svc_switch -h 127.0.0.1 -p 8848 -u nacos -w nacos -n test111 -e false -s sysName -H 127.0.0.1 -P 9090"
+	return "Nacos上下线,用于封停/解停相关服务 例:server_on_off -h 127.0.0.1 -p 8848 -u nacos -w nacos -n test111 -e false -N sysName -H 127.0.0.1 -P 9090"
 }
 
 func (r *NacosServer) Register(cm iface.ComponentMeta) {
@@ -49,8 +49,9 @@ func (r *NacosServer) Register(cm iface.ComponentMeta) {
 		return nil
 	}, "是否要封停/解停, true是解停服务,false是封停服务")
 	cm.AddParameters(cons.STRING, cons.UPPER_N, "serviceName", "serviceName", true, nil, "要封停/解停系统服务名")
-	cm.AddParameters(cons.STRING, cons.UPPER_H, "serviceIp", "serviceIp", true, nil, "(大写)要封停/解停系统ip")
-	cm.AddParameters(cons.STRING, cons.UPPER_P, "servicePort", "servicePort", true, nil, "(大写)要封停/解停系统port")
+	cm.AddParameters(cons.STRING, cons.LOWER_G, "groupName", "groupName", false, nil, "系统服务所在组名,不传默认DEFAULT_GROUP")
+	cm.AddParameters(cons.STRING, cons.UPPER_H, "serviceIp", "serviceIp", true, nil, "要封停/解停系统ip")
+	cm.AddParameters(cons.STRING, cons.UPPER_P, "servicePort", "servicePort", true, nil, "要封停/解停系统port")
 }
 
 func (r *NacosServer) Do(params map[string]any) (resp []byte) {
@@ -65,7 +66,9 @@ func (r *NacosServer) Do(params map[string]any) (resp []byte) {
 	queryParams.Add("serviceName", params["serviceName"].(string))
 	queryParams.Add("ip", params["serviceIp"].(string))
 	queryParams.Add("port", params["servicePort"].(string))
-
+	if params["groupName"] != nil {
+		queryParams.Add("groupName", params["groupName"].(string))
+	}
 	respString, err := net.PutRespString(urlPrefix+"/nacos/v1/ns/instance", queryParams, nil, nil)
 	if err != nil {
 		return []byte("发送Nacos上下线接口失败:, " + err.Error())

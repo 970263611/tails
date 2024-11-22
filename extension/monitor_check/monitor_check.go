@@ -25,7 +25,7 @@ func (r *MonitorServer) GetName() string {
 }
 
 func (r *MonitorServer) GetDescribe() string {
-	return "应急一键检查指标，例：oneclick_inspection -h 127.0.0.1 -p 8080 -u sysadmin -w Psbc@2023"
+	return "应急一键检查指标，例：monitor_check -h 127.0.0.1 -p 8080 -u sysadmin -w Psbc@2023"
 }
 
 func (r *MonitorServer) Register(cm iface.ComponentMeta) {

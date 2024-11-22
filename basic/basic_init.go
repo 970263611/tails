@@ -8,9 +8,13 @@ import (
 	"extension/db_tool"
 	"extension/edb_retry"
 	"extension/high_availability"
+	"extension/monitor_check"
 	"extension/redis_tool"
+	"extension/server_check"
+	"extension/server_on_off"
 	"extension/tcp_num"
-	"extension/uri_switch"
+	uri_switch "extension/url_on_off"
+	"extension/web_server"
 )
 
 /*

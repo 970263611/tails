@@ -11,11 +11,12 @@ func TestDoHandler(t *testing.T) {
 		"port":        8848,
 		"username":    "nacos",
 		"password":    "nacos",
-		"enabled":     "false",
+		"enabled":     "true",
 		"namespace":   "test1112",
 		"serviceName": "cdl",
 		"serviceIp":   "172.20.10.2",
 		"servicePort": "9090",
+		"groupName":   "zhh",
 	}
 	instance := GetInstance(nil)
 	resp := instance.Do(params)
