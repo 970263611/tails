@@ -15,6 +15,7 @@ type Context interface {
 	Unmarshal(a any) error
 	LoadConfig() error
 	FindComponent(key string, isSystem bool) ComponentMeta
+	FindSystemParams(key string) string
 }
 
 type ComponentMeta interface {

@@ -238,3 +238,14 @@ func JasyptDec(input, password string) (string, error) {
 	}
 	return line, nil
 }
+
+/*
+*
+成对去掉字符串两侧单引号或双引号
+*/
+func RemoveQuotes(s string) string {
+	if len(s) >= 2 && ((s[0] == '\'' && s[len(s)-1] == '\'') || (s[0] == '"' && s[len(s)-1] == '"')) {
+		return s[1 : len(s)-1]
+	}
+	return s
+}

@@ -16,7 +16,7 @@ import (
 组件分发
 */
 func (c *Context) Servlet(commands []string, isSystem bool) ([]byte, error) {
-	commands = setGID(commands)
+	setGID()
 	//参数中携带 --addr ip:port或域名 时进行请求转发
 	resp, err, b := forward(commands)
 	if b {
@@ -38,7 +38,7 @@ func execute(commands []string, isSystem bool) ([]byte, error) {
 		return nil, errors.New(msg)
 	}
 	//获取组件帮助信息
-	if value := globalContext.findSystemParams(cons.SYSPARAM_HELP); value != "" {
+	if value := globalContext.FindSystemParams(cons.SYSPARAM_HELP); value != "" {
 		return help(value), nil
 	}
 	//配置文件配置注入参数中
@@ -81,7 +81,7 @@ func forward(commands []string) ([]byte, error, bool) {
 	var addr, params string
 	var flag bool
 	//判断是否需要转发，并拼接转发参数
-	addr = globalContext.findSystemParams(cons.SYSPARAM_FORWORD)
+	addr = globalContext.FindSystemParams(cons.SYSPARAM_FORWORD)
 	if addr == "" {
 		return nil, nil, flag
 	}
@@ -91,14 +91,14 @@ func forward(commands []string) ([]byte, error, bool) {
 		log.Error(msg)
 		return nil, errors.New(msg), flag
 	}
+	flag = true
 	params = strings.Join(commands, " ")
 	log.Infof("请求转发，转发地址:[%s],转发参数:[%s]", addr, params)
 	//插入全局业务跟踪号
-	gid, ok := globalContext.GetCache(cons.GID)
-	if ok {
-		id := fmt.Sprintf("%v", gid)
+	gid := globalContext.FindSystemParams(cons.SYSPARAM_GID)
+	if gid != "" {
 		params += " " + cons.SYSPARAM_GID + " "
-		params += id
+		params += gid
 	}
 	//转发请求并返回结果
 	uri := fmt.Sprintf("http://%s/do", addr)
@@ -133,29 +133,12 @@ func forward(commands []string) ([]byte, error, bool) {
 *
 设置全局ID
 */
-func setGID(commands []string) []string {
-	_, ok := globalContext.GetCache(cons.GID)
-	if ok {
-		return commands
-	}
-	var gid string
-	var commands2 []string
-	//获取全局gid参数
-	for i := 0; i < len(commands); i++ {
-		if commands[i] == "--gid" {
-			i++
-			if i < len(commands) {
-				gid = commands[i]
-			}
-		} else {
-			commands2 = append(commands2, commands[i])
-		}
-	}
+func setGID() {
+	gid := globalContext.FindSystemParams(cons.SYSPARAM_GID)
 	if gid == "" {
 		gid, _ = utils.GenerateUUID()
+		globalContext.setSystemParams(cons.SYSPARAM_GID, gid)
 	}
-	globalContext.SetCache(cons.GID, gid)
-	return commands2
 }
 
 /*
@@ -201,7 +184,7 @@ func commandsToMap(commands []string) (map[string]string, error) {
 						err = errors.New(msg)
 						return nil, err
 					}
-					maps[str] = params[i]
+					maps[str] = utils.RemoveQuotes(params[i])
 				} else {
 					maps[str] = ""
 				}
@@ -213,7 +196,7 @@ func commandsToMap(commands []string) (map[string]string, error) {
 		}
 	}
 	//ENC(data)内容解密
-	salt := globalContext.findSystemParams(cons.SYSPARAM_SALT)
+	salt := globalContext.FindSystemParams(cons.SYSPARAM_SALT)
 	if salt == "" && globalContext.Config != nil {
 		salt = globalContext.Config.GetString(cons.CONFIG_SALT)
 	}
@@ -250,7 +233,7 @@ func addConfigToMap(maps map[string]string) {
 	}
 	for _, v := range cm.params {
 		if _, ok = maps[v.CommandName]; v.ParamType != cons.NO_VALUE && v.ConfigName != "" && !ok {
-			key := globalContext.findSystemParams(cons.SYSPARAM_KEY)
+			key := globalContext.FindSystemParams(cons.SYSPARAM_KEY)
 			if key != "" {
 				key = cm.GetName() + "." + key + "." + v.ConfigName
 			} else {
@@ -260,7 +243,7 @@ func addConfigToMap(maps map[string]string) {
 			if val != "" {
 				maps[v.CommandName] = val
 				if strings.HasPrefix(val, "ENC(") && strings.HasSuffix(val, ")") {
-					salt := globalContext.findSystemParams(cons.SYSPARAM_SALT)
+					salt := globalContext.FindSystemParams(cons.SYSPARAM_SALT)
 					if salt == "" && globalContext.Config != nil {
 						salt = globalContext.Config.GetString(cons.CONFIG_SALT)
 					}

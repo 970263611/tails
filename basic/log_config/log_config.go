@@ -39,7 +39,7 @@ type logConfig struct {
 创建默认日志配置对象
 */
 func NewLogConfig(c iface.Context) *logConfig {
-	return &logConfig{"./logs/all.log", 50, 10, 90, true, "debug", 1, c}
+	return &logConfig{"./logs/all.log", 50, 10, 90, true, "info", 1, c}
 }
 
 /*
@@ -57,8 +57,8 @@ type CustomFormatter struct {
 func (f *CustomFormatter) Format(entry *log.Entry) ([]byte, error) {
 	timestamp := entry.Time.Format("2006-01-02 15:04:05")
 	fName := filepath.Base(entry.Caller.File)
-	gid, _ := f.GetCache(cons.GID)
-	if gid != nil {
+	gid := f.FindSystemParams(cons.SYSPARAM_GID)
+	if gid != "" {
 		return []byte(fmt.Sprintf("[%s] [%s] [%s] [%s:%d %s] %s\n", timestamp, entry.Level, fmt.Sprintf("%v", gid), fName, entry.Caller.Line, entry.Caller.Function, entry.Message)), nil
 	} else {
 		return []byte(fmt.Sprintf("[%s] [%s] [%s:%d %s] %s\n", timestamp, entry.Level, fName, entry.Caller.Line, entry.Caller.Function, entry.Message)), nil

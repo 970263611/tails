@@ -2,7 +2,6 @@ package cons
 
 const (
 	COMPONENT_KEY string = "componentKey"
-	GID           string = "globalID"
 	CONFIG_SALT   string = "jasypt.salt"
 	WEB_SVC       string = "web_svc"
 	SYSTEM_PARAMS string = "systemparams"
@@ -21,7 +20,7 @@ const (
 	SYSPARAM_PATH    string = "--path"
 	SYSPARAM_KEY     string = "--key"
 	SYSPARAM_SALT    string = "--salt"
-	SYSPARAM_FORWORD string = "--f,--forword"
+	SYSPARAM_FORWORD string = "--f"
 	SYSPARAM_GID     string = "--gid"
 )
 
