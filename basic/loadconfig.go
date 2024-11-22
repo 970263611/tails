@@ -22,7 +22,7 @@ func (c *Context) LoadConfig() error {
 	for key, value := range defaultParams {
 		v.SetDefault(key, value)
 	}
-	path := c.findSystemParams("--path")
+	path := c.FindSystemParams("--path")
 	if path != "" {
 		v.SetConfigFile(path)
 		if err := v.ReadInConfig(); err != nil {
@@ -77,6 +77,13 @@ var systemParam = []*parameter{
 		Required:     false,
 		Describe:     "查看系统或组件帮助",
 	},
+	&parameter{
+		ParamType:    cons.STRING,
+		CommandName:  cons.SYSPARAM_GID,
+		StandardName: "diffuse",
+		Required:     false,
+		Describe:     "查看系统或组件帮助",
+	},
 }
 
 /*
@@ -86,7 +93,7 @@ var systemParam = []*parameter{
 func (c *Context) LoadSystemParams(commands []string) ([]string, error) {
 	var args []string
 	var err error
-	maps := make(map[string]any)
+	maps := make(map[string]string)
 	if len(commands) == 0 {
 		maps["--help"] = "base"
 		args = commands
@@ -140,18 +147,33 @@ func (c *Context) LoadSystemParams(commands []string) ([]string, error) {
 *
 查询入参当中的系统参数
 */
-func (c *Context) findSystemParams(key string) string {
+func (c *Context) FindSystemParams(key string) string {
 	cache, ok := c.GetCache(cons.SYSTEM_PARAMS)
 	if ok {
-		m := cache.(map[string]any)
+		m := cache.(map[string]string)
 		a, ok := m[key]
 		if ok {
-			s := a.(string)
-			return s
+			return a
 		} else {
 			return ""
 		}
 	} else {
 		return ""
+	}
+}
+
+/*
+*
+查询入参当中的系统参数
+*/
+func (c *Context) setSystemParams(key string, value string) {
+	cache, ok := c.GetCache(cons.SYSTEM_PARAMS)
+	if ok {
+		m := cache.(map[string]string)
+		m[key] = value
+	} else {
+		maps := make(map[string]string)
+		maps[key] = value
+		c.SetCache(cons.SYSTEM_PARAMS, maps)
 	}
 }
