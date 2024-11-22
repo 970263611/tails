@@ -20,7 +20,7 @@ type GetIdentifyCode struct {
 
 type Identify struct {
 	Code     string
-	codeUuid string
+	CodeUuid string
 }
 
 type A1Resp struct {

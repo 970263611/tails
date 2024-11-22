@@ -10,6 +10,7 @@ monitor_check:
     port: 9999
     username: TnwiYL3kXmW5Fg5WVj/GkTK8+QIeh7wtCORJsZl6b1JR1QCmG08+nZ9Z1qfG88KitWFGESPrFidbYfC1QxHa8zvXY5ivGsMi6qqcaaOeEY50z9ub5VYnI4uI4hLogq+/NgUnlKLy2ba0OJSMTFIl6xBPPLn714mTfQfzW8JMEtA=
     password: b5b/zFNDrIVklXG455w9PtHvdhI3/i2K3UDuu3I793oBfJgC/L5Ybv1Cxu84WwWNWZ0+QG7O/9tBVzZBhBnMjhbUGLgPgR5mLjFRQF3QdZ42E3+PGTPwO1LZ2Z1qY54oouRk66rXaBIOFJ3d+VvwbLHF75o9xbBBxjbAzOC+1iQ=
+    version: 1
 
 db_tool:
   gscf:

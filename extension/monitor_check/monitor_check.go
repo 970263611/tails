@@ -43,7 +43,7 @@ func (r *MonitorServer) Register(cm iface.ComponentMeta) {
 	}, "监控服务的端口")
 	cm.AddParameters(cons.STRING, cons.LOWER_U, "username", "username", true, nil, "监控服务的登录用户名")
 	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", true, nil, "监控服务的登录密码")
-	cm.AddParameters(cons.STRING, cons.UPPER_V, "version", "version", true, nil, "监控服务的登录版本1无需验证码(默认) 2需要验证码")
+	cm.AddParameters(cons.STRING, cons.UPPER_V, "version", "version", false, nil, "监控服务的登录版本1无需验证码(默认) 2需要验证码")
 }
 
 func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
@@ -56,13 +56,13 @@ func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
 		c:        make(chan int),
 	}
 	res.urlPrefix = fmt.Sprintf("%s://%s:%d", "http", res.host, res.port)
-	var token string
 	version, flag := params["version"].(string)
 	if !flag {
 		version = "1"
 	}
 	if version == "2" {
 		//验证码登录
+		res.version = "2"
 		// 获取登录页面验证码
 		identifyCode, err := res.getIdentifyCode()
 		if err != nil {
@@ -70,25 +70,19 @@ func (r *MonitorServer) Do(params map[string]any) (resp []byte) {
 		}
 		if identifyCode.Code == 0 {
 			res.identifyCode = identifyCode.Data.Code
-			res.identifyCodeUuid = identifyCode.Data.codeUuid
+			res.identifyCodeUuid = identifyCode.Data.CodeUuid
 		} else {
 			return []byte("获取验证码失败: " + err.Error())
 		}
 	} else {
 		//默认无需验证码登录
 		res.version = "1"
-		//tokentemp, err := res.login()
-		//if err != nil {
-		//	return []byte("登录失败: " + err.Error())
-		//}
-		//token = tokentemp
 	}
 	//登录
-	tokentemp, err := res.login()
+	token, err := res.login()
 	if err != nil {
 		return []byte("登录失败: " + err.Error())
 	}
-	token = tokentemp
 	res.token = token
 	go res.a1()
 	go res.a2()

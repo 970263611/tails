@@ -48,7 +48,6 @@ func (f findResult) login() (string, error) {
 			"identifyCode":     f.identifyCode,
 			"identifyCodeUuid": f.identifyCodeUuid,
 		}
-
 	} else {
 		mapparams = map[string]string{
 			"userId":   f.username,
