@@ -122,7 +122,7 @@ func (c *Context) LoadSystemParams(commands []string) ([]string, error) {
 							err = errors.New(msg)
 							break
 						}
-						maps[str] = params[i]
+						maps[str] = utils.RemoveQuotes(params[i])
 						if pt.StandardName == cons.DIFFUSE {
 							args = append(args, str, params[i])
 						}

@@ -184,7 +184,7 @@ func commandsToMap(commands []string) (map[string]string, error) {
 						err = errors.New(msg)
 						return nil, err
 					}
-					maps[str] = params[i]
+					maps[str] = utils.RemoveQuotes(params[i])
 				} else {
 					maps[str] = ""
 				}

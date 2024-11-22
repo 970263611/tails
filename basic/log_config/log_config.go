@@ -39,7 +39,7 @@ type logConfig struct {
 创建默认日志配置对象
 */
 func NewLogConfig(c iface.Context) *logConfig {
-	return &logConfig{"./logs/all.log", 50, 10, 90, true, "debug", 3, c}
+	return &logConfig{"./logs/all.log", 50, 10, 90, true, "info", 1, c}
 }
 
 /*
