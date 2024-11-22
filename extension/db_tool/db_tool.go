@@ -38,10 +38,10 @@ func (r *SqlServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", true, nil, "数据库登录密码")
 	cm.AddParameters(cons.STRING, cons.LOWER_D, "dbname", "dbname", true, nil, "数据库名称")
 	cm.AddParameters(cons.STRING, cons.LOWER_S, "searchPath", "searchPath", true, nil, "数据库结构")
-	cm.AddParameters(cons.STRING, cons.LOWER_C, "", "sql", false, nil, "执行sql语句")
-	cm.AddParameters(cons.STRING, cons.LOWER_O, "", "outPutFile", false, nil, "执行sql语句后,将查询结果导出到指定文件")
-	cm.AddParameters(cons.STRING, cons.LOWER_N, "", "sqlFile", false, nil, "执行sql文件")
-	cm.AddParameters(cons.NO_VALUE, cons.LOWER_F, "", "force", false, nil, "强制执行")
+	cm.AddParameters(cons.STRING, cons.LOWER_C, "sql", "sql", false, nil, "执行sql语句")
+	cm.AddParameters(cons.STRING, cons.LOWER_O, "outPutFile", "outPutFile", false, nil, "执行sql语句后,将查询结果导出到指定文件")
+	cm.AddParameters(cons.STRING, cons.LOWER_N, "sqlFile", "sqlFile", false, nil, "执行sql文件")
+	cm.AddParameters(cons.NO_VALUE, cons.LOWER_F, "force", "force", false, nil, "强制执行")
 }
 
 func (r *SqlServer) Do(params map[string]any) (resp []byte) {

@@ -23,7 +23,7 @@ func (w *NacosServer) GetName() string {
 }
 
 func (r *NacosServer) GetDescribe() string {
-	return "Nacos上下线,用于封停/解停相关服务 例:svc_switch -h 127.0.0.1 -p 8848 -u nacos -w nacos -n test111 -e false -s sysName -H 127.0.0.1 -P 9090"
+	return "Nacos上下线,用于封停/解停相关服务 例:server_on_off -h 127.0.0.1 -p 8848 -u nacos -w nacos -n test111 -e false -s sysName -H 127.0.0.1 -P 9090"
 }
 
 func (r *NacosServer) Register(cm iface.ComponentMeta) {

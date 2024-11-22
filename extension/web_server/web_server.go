@@ -23,7 +23,7 @@ func (w *WebServer) GetName() string {
 }
 
 func (r *WebServer) GetDescribe() string {
-	return "启动web服务,例:web_svc -p 17001"
+	return "启动web服务,例:web_server -p 17001"
 }
 
 func (r *WebServer) Register(cm iface.ComponentMeta) {
