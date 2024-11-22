@@ -20,11 +20,11 @@ func (c CommandExec) GetName() string {
 }
 
 func (c CommandExec) GetDescribe() string {
-	return "执行系统命令行,例:command_exec -c 'ps -ef|grep java'"
+	return "执行系统命令行\n例：command_exec -c 'ps -ef|grep java'"
 }
 
 func (c CommandExec) Register(cm iface.ComponentMeta) {
-	cm.AddParameters(cons.STRING, cons.LOWER_C, "", "command", true, nil, "命令行,用单引号或双引号包裹;例如:'ll -al' 或 'ps -ef|grep java'")
+	cm.AddParameters(cons.STRING, cons.LOWER_C, "", "command", true, nil, "命令行,用单引号或双引号包裹;\n例:command_exec -c 'll -al' 或 'ps -ef|grep java'")
 }
 
 func (c CommandExec) Do(params map[string]any) (resp []byte) {

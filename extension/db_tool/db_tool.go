@@ -28,7 +28,7 @@ func (c *SqlServer) GetName() string {
 }
 
 func (r *SqlServer) GetDescribe() string {
-	return "sql执行服务 例: db_tool -h 127.0.0.1 -p 5432 -u postgres -w postgre -d postgres -s public -c \"select * from test \" "
+	return "sql执行服务 \n例：db_tool -h 127.0.0.1 -p 5432 -u postgres -w postgre -d postgres -s public -c \"select * from test\" "
 }
 
 func (r *SqlServer) Register(cm iface.ComponentMeta) {

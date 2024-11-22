@@ -24,7 +24,7 @@ func (c *RedisServer) GetName() string {
 }
 
 func (c *RedisServer) GetDescribe() string {
-	return "redis连接服务，例：redis_tool -a 127.0.0.1:6379 -m single -k keyStr"
+	return "redis连接服务\n例：redis_tool -a 127.0.0.1:6379 -k keyStr"
 }
 
 func (r *RedisServer) Register(cm iface.ComponentMeta) {
@@ -38,12 +38,12 @@ func (r *RedisServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.LOWER_M, "mode", "mode", true, nil, "要查询的key值，例：redis_server -a 127.0.0.1:6379 -m cluster -k keyStr")
 	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", false, nil, "redis密码")
 	cm.AddParameters(cons.INT, cons.LOWER_N, "db", "db", false, nil, "redis库号")
-	cm.AddParameters(cons.STRING, cons.LOWER_K, "", "key", false, nil, "要查询的key值，例：redis_server -a 127.0.0.1:6379 -k keyStr")
-	cm.AddParameters(cons.STRING, cons.UPPER_Z, "", "zset_score", false, nil, "获取某元素的score，例：redis_server -a 127.0.0.1:6379 -k zset -Z zsetScore")
-	cm.AddParameters(cons.INT, cons.UPPER_L, "", "list_index", false, nil, "获取链表下标对应的元素，例：redis_server -a 127.0.0.1:6379 -k list -L list_index")
-	cm.AddParameters(cons.STRING, cons.UPPER_H, "", "hash_get", false, nil, "获取某个元素，例：redis_server -a 127.0.0.1:6379 -k hash -H name")
-	cm.AddParameters(cons.STRING, cons.UPPER_S, "", "set_is", false, nil, "判断元素是否在集合中，例：redis_server -a 127.0.0.1:6379 -k set -S abc")
-	cm.AddParameters(cons.NO_VALUE, cons.UPPER_D, "", "db_size", false, nil, "查看当前数据库key的数量，例：redis_server -a 127.0.0.1:6379 -D")
+	cm.AddParameters(cons.STRING, cons.LOWER_K, "", "key", false, nil, "要查询的key值，例：redis_server -addr 127.0.0.1:6379 -k keyStr")
+	cm.AddParameters(cons.STRING, cons.UPPER_Z, "", "zset_score", false, nil, "获取某元素的score，例：redis_server -addr 127.0.0.1:6379 -k zset -Z zsetScore")
+	cm.AddParameters(cons.INT, cons.UPPER_L, "", "list_index", false, nil, "获取链表下标对应的元素，例：redis_server -addr 127.0.0.1:6379 -k list -L list_index")
+	cm.AddParameters(cons.STRING, cons.UPPER_H, "", "hash_get", false, nil, "获取某个元素，例：redis_server -addr 127.0.0.1:6379 -k hash -H name")
+	cm.AddParameters(cons.STRING, cons.UPPER_S, "", "set_is", false, nil, "判断元素是否在集合中，例：redis_server -addr 127.0.0.1:6379 -k set -S abc")
+	cm.AddParameters(cons.NO_VALUE, cons.UPPER_D, "", "db_size", false, nil, "查看当前数据库key的数量，例：redis_server -addr 127.0.0.1:6379 -D")
 }
 
 func (r *RedisServer) Do(params map[string]any) (resp []byte) {

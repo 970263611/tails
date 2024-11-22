@@ -21,7 +21,7 @@ func (c *CheckServer) GetName() string {
 }
 
 func (c *CheckServer) GetDescribe() string {
-	return "通过IP地址和端口号，判断应用服务是否正常或网络是否连通，例:server_check -h 192.168.20.11 -p 15431"
+	return "通过IP地址和端口号，判断应用服务是否正常或网络是否连通\n例：server_check -h 192.168.20.11 -p 15431"
 }
 
 func (c *CheckServer) Register(cm iface.ComponentMeta) {

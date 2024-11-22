@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/viper"
+	"sort"
 	"strings"
 )
 
@@ -143,43 +144,42 @@ func (c *Context) findParameter(componentKey string, commandName string) (*param
 Help组件，传入组件名称，生成组件的help信息并返回；如果是查询tails支持的所有组件，则传入base
 */
 func (c *Context) findHelp(key string) string {
-	linewordnum := 100
 	var sb strings.Builder
-	var lineBreak string = "\r\n"
+	var lineBreak, blank = "\n", ""
 	if key == "base" {
 		c.assembleAll()
-		//./root 组件名 组件参数列表
 		sb.WriteString("命令格式:")
 		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "获取全部组件列表: 'base --help'")
-		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "获取组件帮助信息: '组件名称 --help'")
-		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "调用组件命令格式: '组件名称 组件参数列表'")
-		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "指定配置文件路径: '组件名称 --path 配置文件全路径 组件参数列表'")
-		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "组件转发请求: '组件名称 --f或--forword ip:port或域名'")
-		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "传输参数需要解密: '组件名称 --salt 密钥 -p ENC(加密内容)' , 密钥也可配置在yml配置文件中,key为jasypt.salt")
-		sb.WriteString(lineBreak)
-		sb.WriteString(utils.GetBlankByNum(2, " ") + "多配置项目选择: '组件名称 --key aabb',如果组件配置是web_svc.port,则此时取web_svc.aabb.port，仅组件参数支持此配置方式")
-		sb.WriteString(lineBreak)
+		blank = utils.GetBlankByNum(2, " ")
+		arr := []string{
+			"获取全部组件列表：'base --help'",
+			"获取组件帮助信息：'组件名称 --help'",
+			"调用组件命令格式：'组件名称 组件参数列表'",
+			"指定配置文件路径：'组件名称 --path 配置文件全路径 组件参数列表'",
+			"组件转发请求：   '组件名称 --f或--forword ip:port或域名'",
+			"传输参数需要解密：'组件名称 --salt 密钥 -p ENC(加密内容)' , 密钥也可配置在yml配置文件中,key为jasypt.salt",
+			"多配置项目选择：  '组件名称 --key aabb',如果组件配置是web_svc.port,则此时取web_svc.aabb.port，仅组件参数支持此配置方式",
+		}
+		for _, v := range arr {
+			sb.WriteString(blank + v)
+			sb.WriteString(lineBreak)
+		}
 		sb.WriteString("组件列表:")
 		components := c.components
-		for _, component := range components {
+		cnames := []string{}
+		for k, _ := range components {
+			cnames = append(cnames, k)
+		}
+		sort.Strings(cnames)
+		for _, name := range cnames {
+			component := components[name]
 			sb.WriteString(lineBreak)
 			sb.WriteString(utils.GetBlankByNum(2, " ") + component.GetName())
 			sb.WriteString(lineBreak)
-			chinese := utils.SplitByChinese(component.GetDescribe(), linewordnum)
-			for i := 0; i < len(chinese); i++ {
-				if i == 0 {
-					sb.WriteString(utils.GetBlankByNum(6, " ") + chinese[i])
-					sb.WriteString(lineBreak)
-				} else {
-					sb.WriteString(utils.GetBlankByNum(4, " ") + chinese[i])
-					sb.WriteString(lineBreak)
-				}
+			describe := strings.Split(component.GetDescribe(), "\n")
+			for _, v := range describe {
+				sb.WriteString(utils.GetBlankByNum(4, " ") + v)
+				sb.WriteString(lineBreak)
 			}
 		}
 	} else {
@@ -187,31 +187,32 @@ func (c *Context) findHelp(key string) string {
 		if cm == nil {
 			sb.WriteString(fmt.Sprintf("组件 %v 不存在，'./root --help' 查看组件列表", key))
 		} else {
-			sb.WriteString("参数列表查看规则:")
-			sb.WriteString(lineBreak)
-			sb.WriteString(utils.GetBlankByNum(2, " ") + "'参数名 是否必须 配置文件中配置名(仅支持配置文件时才有)'，下方为参数描述")
 			sb.WriteString(lineBreak)
 			sb.WriteString(fmt.Sprintf("组件 %v 参数列表:", key))
+			sb.WriteString(lineBreak)
 			params := cm.params
 			if params != nil {
 				for _, value := range cm.params {
 					sb.WriteString(lineBreak)
+					blank = utils.GetBlankByNum(2, " ")
+					var requiredStr, upOrlowStr, configName string
 					if value.Required {
-						if strings.ToUpper(value.CommandName) == value.CommandName {
-							sb.WriteString(utils.GetBlankByNum(2, " ") + value.CommandName + "(大写)  必要 " + cm.GetName() + "." + value.ConfigName)
-						} else {
-							sb.WriteString(utils.GetBlankByNum(2, " ") + value.CommandName + "(小写)  必要 " + cm.GetName() + "." + value.ConfigName)
-						}
-						sb.WriteString(lineBreak)
+						requiredStr = "(必要)"
 					} else {
-						if strings.ToUpper(value.CommandName) == value.CommandName {
-							sb.WriteString(utils.GetBlankByNum(2, " ") + value.CommandName + "(大写)  可选 " + cm.GetName() + "." + value.ConfigName)
-						} else {
-							sb.WriteString(utils.GetBlankByNum(2, " ") + value.CommandName + "(小写)  可选 " + cm.GetName() + "." + value.ConfigName)
-						}
+						requiredStr = "(可选)"
+					}
+					if strings.ToUpper(value.CommandName) == value.CommandName {
+						upOrlowStr = " (大写)"
+					}
+					if value.ConfigName != "" {
+						configName = cm.GetName() + "." + value.ConfigName + " "
+					}
+					sb.WriteString(blank + value.CommandName + "" + upOrlowStr + " " + requiredStr + " " + value.Describe + " ")
+					sb.WriteString(lineBreak)
+					if configName != "" {
+						sb.WriteString(utils.GetBlankByNum(6, " ") + "配置文件对应key：" + configName)
 						sb.WriteString(lineBreak)
 					}
-					sb.WriteString(utils.GetBlankByNum(6, " ") + value.Describe)
 				}
 			}
 		}
