@@ -31,7 +31,7 @@ type A1Resp struct {
 
 type A1RespEntry struct {
 	//总成功率
-	TotalSucRate int
+	TotalSucRate float64
 	//系统吞吐量
 	TradeTps string
 }

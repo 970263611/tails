@@ -67,7 +67,7 @@ func (f findResult) login() (string, error) {
 func (f findResult) getIdentifyCode() (*GetIdentifyCode, error) {
 	var GetIdentifyCode GetIdentifyCode
 	header := http.Header{}
-	header.Set("Content-Type", "application/josn;charset=UTF-8")
+	header.Set("Content-Type", "application/json;charset=UTF-8")
 	err := net.GetRespStruct(f.urlPrefix+"/api/cert/actions/identifyCode", nil, header, &GetIdentifyCode)
 	if err != nil {
 		return nil, err
@@ -99,7 +99,7 @@ func (f findResult) a1() {
 		if A1Resp.Data == nil {
 			f.result.A1.Value = "查询结果为空"
 		} else {
-			f.result.A1.Value = fmt.Sprint(A1Resp.Data[0].TotalSucRate)
+			f.result.A1.Value = fmt.Sprintf("%.2f%%", A1Resp.Data[0].TotalSucRate)
 		}
 	} else {
 		f.result.A1.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
@@ -333,15 +333,18 @@ func findSuccessRate(f findResult, queryParams url.Values) (*A1Resp, error) {
 }
 
 func currentDay() string {
-	currentDay := time.Now()
-	return currentDay.Format("2006-01-02") + "+00:00:00"
+	currentTime := time.Now()
+	year, month, day := currentTime.Date()
+	currentZeroTime := time.Date(year, month, day, 0, 0, 0, 0, currentTime.Location())
+	return currentZeroTime.Format(time.DateTime)
 }
 
 func previousDay() string {
 	currentTime := time.Now()
 	previousDay := currentTime.Add(-24 * time.Hour)
-	previousDayFm := previousDay.Format("2006-01-02")
-	return previousDayFm + "+00:00:00"
+	year, month, day := previousDay.Date()
+	previousDayZeroTime := time.Date(year, month, day, 0, 0, 0, 0, previousDay.Location())
+	return previousDayZeroTime.Format(time.DateTime)
 }
 
 func formatTime(t string) string {
