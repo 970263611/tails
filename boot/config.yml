@@ -39,5 +39,6 @@ log:
 jasypt:
   salt: 123456
 redis_tool:
-    addr: 192.168.56.128:17001
+    mode: single
+    addr: 192.168.56.128:7011,192.168.56.128:17011
     password: ENC(K6FNl1c/9aOW1RNhnxGNRI+usHFynK/m)
