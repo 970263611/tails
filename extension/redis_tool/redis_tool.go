@@ -24,7 +24,7 @@ func (c *RedisServer) GetName() string {
 }
 
 func (c *RedisServer) GetDescribe() string {
-	return "redis连接服务，例：redis_tool -addr 127.0.0.1:6379 -k keyStr"
+	return "redis连接服务，例：redis_tool -a 127.0.0.1:6379 -k keyStr"
 }
 
 func (r *RedisServer) Register(cm iface.ComponentMeta) {

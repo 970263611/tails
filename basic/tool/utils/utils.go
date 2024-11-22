@@ -71,18 +71,21 @@ func CheckPort(port int) bool {
 
 /*
 *
-校验地址是否合法，必须是合法域名或者ip:port
+校验地址是否合法，必须是合法域名或者ip:port,可以有多组ip:port,必须是,分割。
 */
-func CheckAddr(addr string) bool {
-	if RegularValidate(addr, REGEX_DOMAIN_NAME) {
-		return true
-	}
-	arr := strings.Split(addr, ":")
-	if len(arr) != 2 {
-		return false
-	}
-	if !CheckIp(arr[0]) || !CheckPortByString(arr[1]) {
-		return false
+func CheckAddr(multipleAddr string) bool {
+	addrs := strings.Split(multipleAddr, ",")
+	for _, addr := range addrs {
+		if RegularValidate(addr, REGEX_DOMAIN_NAME) {
+			return true
+		}
+		arr := strings.Split(addr, ":")
+		if len(arr) != 2 {
+			return false
+		}
+		if !CheckIp(arr[0]) || !CheckPortByString(arr[1]) {
+			return false
+		}
 	}
 	return true
 }

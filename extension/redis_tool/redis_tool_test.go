@@ -8,8 +8,7 @@ import (
 func TestDo(t *testing.T) {
 	//args := []string{"-h", "127.0.0.1", "-p", "6379", "-w", "", "-d", "0", "-k", "test"}
 	params := make(map[string]any)
-	params["host"] = "127.0.0.1"
-	params["port"] = 6379
+	params["addr"] = "127.0.0.1:6379,192.168.227.30:6379"
 	params["password"] = ""
 	params["db"] = 0
 
@@ -35,7 +34,7 @@ func TestDo(t *testing.T) {
 	//params["key"] = "set"
 	//params["set_is"] = " "
 
-	ins := GetInstance()
+	ins := GetInstance(nil)
 	bytes := ins.Do(params)
 	fmt.Println(bytes)
 	fmt.Println(string(bytes))
