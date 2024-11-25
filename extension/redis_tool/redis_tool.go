@@ -35,7 +35,7 @@ func (r *RedisServer) Register(cm iface.ComponentMeta) {
 			}
 			return nil
 		}, "redis主机地址")
-	cm.AddParameters(cons.STRING, cons.LOWER_M, "mode", "mode", true, nil, "要查询的key值，例：redis_server -a 127.0.0.1:6379 -m cluster -k keyStr")
+	cm.AddParameters(cons.STRING, cons.LOWER_M, "mode", "mode", true, nil, "redis模式：单例模式 single；哨兵模式 sentinel；集群模式 cluster，例：redis_server -a 127.0.0.1:6379 -m cluster -k keyStr")
 	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", false, nil, "redis密码")
 	cm.AddParameters(cons.INT, cons.LOWER_N, "db", "db", false, nil, "redis库号")
 	cm.AddParameters(cons.STRING, cons.LOWER_K, "", "key", false, nil, "要查询的key值，例：redis_server -addr 127.0.0.1:6379 -k keyStr")
@@ -44,6 +44,8 @@ func (r *RedisServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.UPPER_H, "", "hash_get", false, nil, "获取某个元素，例：redis_server -addr 127.0.0.1:6379 -k hash -H name")
 	cm.AddParameters(cons.STRING, cons.UPPER_S, "", "set_is", false, nil, "判断元素是否在集合中，例：redis_server -addr 127.0.0.1:6379 -k set -S abc")
 	cm.AddParameters(cons.NO_VALUE, cons.UPPER_D, "", "db_size", false, nil, "查看当前数据库key的数量，例：redis_server -addr 127.0.0.1:6379 -D")
+	cm.AddParameters(cons.STRING, cons.UPPER_M, "masterName", "masterName", false, nil, "redis哨兵模式主节点名称，例：redis_server -addr 127.0.0.1:6379 -m sentinel -M mymaster")
+	cm.AddParameters(cons.STRING, cons.UPPER_W, "sentinelPassword", "sentinelPassword", false, nil, "redis哨兵模式哨兵密码，例：redis_server -addr 127.0.0.1:6379 -m sentinel -M mymaster -W Psbc@2023")
 }
 
 func (r *RedisServer) Do(params map[string]any) (resp []byte) {
@@ -204,10 +206,7 @@ func (r *RedisServer) Do(params map[string]any) (resp []byte) {
 }
 
 func selectMode(params map[string]any, mode string, addrstr string, passwordStr string) (error, *redistool.RedisClient) {
-
 	var client *redistool.RedisClient
-	//var clusterClient *redistool.RedisClusterClient
-
 	switch mode {
 	case cons.SINGLE:
 		dbStr, true := params["db"].(int)
@@ -232,8 +231,24 @@ func selectMode(params map[string]any, mode string, addrstr string, passwordStr 
 		}
 		return nil, client
 	case cons.SENTINEL:
-		//todo
-		break
+		dbStr, true := params["db"].(int)
+		if !true {
+			dbStr = 0
+		}
+		sentinelPassword, true := params["sentinelPassword"].(string)
+		if !true {
+			sentinelPassword = ""
+		}
+		masterName, true := params["masterName"].(string)
+		if !true {
+			return errors.New("redis哨兵模式主节点名称不能为空"), nil
+		}
+		c, err := redistool.CreateRedisClientSentinel(addrstr, passwordStr, dbStr, sentinelPassword, masterName)
+		if err != nil {
+			return errors.New("连接redis客户端失败" + err.Error()), nil
+		}
+		client = c
+		return nil, client
 	case cons.CLUSTER:
 		c, err := redistool.CreateRedisClientCluster(addrstr, passwordStr)
 		if err != nil {

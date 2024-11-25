@@ -90,6 +90,7 @@ const (
 	LOWER_N CommandName = "-n" //名称，发送方名称
 	UPPER_N CommandName = "-N" //名称，接收方名称
 	LOWER_M CommandName = "-m" //redis模式
+	UPPER_M CommandName = "-M" //redis哨兵模式主节点名称
 	LOWER_R CommandName = "-r" //重试，重复执行，启动高可用模块
 	LOWER_S CommandName = "-s" //状态展示status
 	UPPER_S CommandName = "-S" //redis set
