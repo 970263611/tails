@@ -20,7 +20,7 @@ const (
 	SYSPARAM_PATH    string = "--path"
 	SYSPARAM_KEY     string = "--key"
 	SYSPARAM_SALT    string = "--salt"
-	SYSPARAM_FORWORD string = "--f"
+	SYSPARAM_FORWORD string = "--f,--forward"
 	SYSPARAM_GID     string = "--gid"
 )
 
@@ -39,6 +39,7 @@ const (
 	NO_VALUE ParamType = iota
 	INT
 	STRING
+	KEY_NAME
 )
 
 // ParamType ================end=============

@@ -152,13 +152,14 @@ func (c *Context) findHelp(key string) string {
 		sb.WriteString(lineBreak)
 		blank = utils.GetBlankByNum(2, " ")
 		arr := []string{
-			"获取全部组件列表：'base --help'",
-			"获取组件帮助信息：'组件名称 --help'",
-			"调用组件命令格式：'组件名称 组件参数列表'",
-			"指定配置文件路径：'组件名称 --path 配置文件全路径 组件参数列表'",
-			"组件转发请求：   '组件名称 --f或--forword ip:port或域名'",
-			"传输参数需要解密：'组件名称 --salt 密钥 -p ENC(加密内容)' , 密钥也可配置在yml配置文件中,key为jasypt.salt",
-			"多配置项目选择：  '组件名称 --key aabb',如果组件配置是web_svc.port,则此时取web_svc.aabb.port，仅组件参数支持此配置方式",
+			"tails组件使用方法为'启动命令 参数列表'，在windows下启动命令为tails.exe,在linux下启动命令为./tails,以下以linux内容均已linux命令为例。",
+			"获取全组件列表信息：./tails --help 或 ./tails，其中--help可省略",
+			"获取指定组件帮助信息: ./tails 组件名称 --help 或 ./tails compnentkey，其中--help可省略",
+			"调用指定组件: ./tails 组件名称 参数列表",
+			"指定配置文件: ./tails 组件名称 参数列表 --path 配置文件全路径，配置文件仅支持yml格式，--path与参数列表无前后顺序要求",
+			"指令转发: ./tails 组件名称 参数列表 --f或--forward ip:port，--f或--forward与参数列表无前后顺序要求",
+			"ENC解密传参：./tails 组件名称 --salt 密钥 参数列表(需加密内容用ENC()包裹)'，密钥也可配置在yml配置文件中,key为jasypt.salt",
+			"动态多配置项方式配置：./tails 组件名称 --key 分组字符，如果组件配置是web_svc.port,分组字符是aabb,则此时取yml中web_svc.aabb.port",
 		}
 		for _, v := range arr {
 			sb.WriteString(blank + v)

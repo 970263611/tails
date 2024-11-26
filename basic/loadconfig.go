@@ -94,13 +94,16 @@ func (c *Context) LoadSystemParams(commands []string) ([]string, error) {
 	var args []string
 	var err error
 	maps := make(map[string]string)
-	if len(commands) == 0 {
-		maps["--help"] = "base"
+	if len(commands) == 0 { //无入参时，直接返回组件列表信息
+		maps[cons.SYSPARAM_HELP] = "base"
 		args = commands
-	} else if len(commands) == 1 {
-		maps["--help"] = commands[0]
+	} else if commands[0] == cons.SYSPARAM_HELP { //唯一入参为--help，直接返回组件列表信息
+		maps[cons.SYSPARAM_HELP] = "base"
 		args = commands
-	} else {
+	} else if len(commands) == 1 { //唯一入参不是--help，返回组件参数信息
+		maps[cons.SYSPARAM_HELP] = commands[0]
+		args = commands
+	} else { //解析参数
 		componemtKey := commands[0]
 		if cm := c.findComponent(componemtKey, false); cm == nil {
 			err = errors.New("组件 " + componemtKey + " 不存在")
@@ -115,19 +118,19 @@ func (c *Context) LoadSystemParams(commands []string) ([]string, error) {
 						err = err2
 						args = commands
 						break
-					} else if pt.ParamType != cons.NO_VALUE {
+					} else if pt.ParamType == cons.NO_VALUE {
+						maps[str] = componemtKey
+					} else {
 						i++
 						if i >= len(params) {
 							msg := fmt.Sprintf("参数 %s 解析失败,该参数必须有值", str)
 							err = errors.New(msg)
 							break
 						}
-						maps[str] = utils.RemoveQuotes(params[i])
+						maps[pt.CommandName] = utils.RemoveQuotes(params[i])
 						if pt.StandardName == cons.DIFFUSE {
 							args = append(args, str, params[i])
 						}
-					} else {
-						maps[str] = componemtKey
 					}
 				} else {
 					args = append(args, str)
