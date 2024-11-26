@@ -152,7 +152,7 @@ func (c *Context) findHelp(key string) string {
 		sb.WriteString(lineBreak)
 		blank = utils.GetBlankByNum(2, " ")
 		arr := []string{
-			"tails组件使用方法为'启动命令 参数列表'，在windows下启动命令为tails.exe,在linux下启动命令为./tails,以下以linux内容均已linux命令为例。",
+			"tails组件使用方法为'启动命令 组件名称 参数列表'，在windows下启动命令为tails.exe,在linux下启动命令为./tails,以下以linux内容均已linux命令为例。",
 			"获取全组件列表信息：./tails --help 或 ./tails，其中--help可省略",
 			"获取指定组件帮助信息: ./tails 组件名称 --help 或 ./tails compnentkey，其中--help可省略",
 			"调用指定组件: ./tails 组件名称 参数列表",
