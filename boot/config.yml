@@ -39,6 +39,9 @@ log:
 jasypt:
   salt: 123456
 redis_tool:
-    mode: single
-    addr: 192.168.56.128:7011,192.168.56.128:17011
+    mode: sentinel
+    addr: 192.168.56.128:27001,192.168.56.128:27002,192.168.56.128:27003
     password: ENC(K6FNl1c/9aOW1RNhnxGNRI+usHFynK/m)
+    sentinelPassword: ENC(K6FNl1c/9aOW1RNhnxGNRI+usHFynK/m)
+    masterName: mymaster
+    db: 1
