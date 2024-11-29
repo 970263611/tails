@@ -156,6 +156,7 @@ func (c *Context) findHelp(key string) string {
 			"获取全组件列表信息：./tails --help 或 ./tails，其中--help可省略",
 			"获取指定组件帮助信息: ./tails 组件名称 --help 或 ./tails compnentkey，其中--help可省略",
 			"调用指定组件: ./tails 组件名称 参数列表",
+			"通过web调用: http://ip:port/do?params=组件名称 参数列表",
 			"指定配置文件: ./tails 组件名称 参数列表 --path 配置文件全路径，配置文件仅支持yml格式，--path与参数列表无前后顺序要求",
 			"指令转发: ./tails 组件名称 参数列表 --f或--forward ip:port，--f或--forward与参数列表无前后顺序要求",
 			"ENC解密传参：./tails 组件名称 --salt 密钥 参数列表(需加密内容用ENC()包裹)'，密钥也可配置在yml配置文件中,key为jasypt.salt",

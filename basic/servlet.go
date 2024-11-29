@@ -18,8 +18,8 @@ import (
 func (c *Context) Servlet(commands []string, isSystem bool) ([]byte, error) {
 	setGID()
 	//参数中携带 --addr ip:port或域名 时进行请求转发
-	resp, err, b := forward(commands)
-	if b {
+	resp, err := forward(commands)
+	if resp != nil || err != nil {
 		return resp, err
 	}
 	return execute(commands, isSystem)
@@ -77,21 +77,19 @@ func execute(commands []string, isSystem bool) ([]byte, error) {
 *
 web请求转发
 */
-func forward(commands []string) ([]byte, error, bool) {
+func forward(commands []string) ([]byte, error) {
 	var addr, params string
-	var flag bool
 	//判断是否需要转发，并拼接转发参数
 	addr = globalContext.FindSystemParams(cons.SYSPARAM_FORWORD)
 	if addr == "" {
-		return nil, nil, flag
+		return nil, nil
 	}
 	//校验转发地址是否合法
 	if !utils.CheckAddr(addr) {
 		msg := fmt.Sprintf("地址不合法")
 		log.Error(msg)
-		return nil, errors.New(msg), flag
+		return nil, errors.New(msg)
 	}
-	flag = true
 	params = strings.Join(commands, " ")
 	log.Infof("请求转发，转发地址:[%s],转发参数:[%s]", addr, params)
 	//插入全局业务跟踪号
@@ -108,23 +106,23 @@ func forward(commands []string) ([]byte, error, bool) {
 	}, nil)
 	if err != nil {
 		log.Errorf("转发请求 %v 错误，错误原因 : &v", uri, err)
-		return nil, err, flag
+		return nil, err
 	} else {
 		resultMap := map[string]string{}
 		err := json.Unmarshal([]byte(resp), &resultMap)
 		if err != nil {
 			log.Errorf("JSON decoding failed:%v", err)
-			return nil, errors.New(resp), flag
+			return nil, errors.New(resp)
 		}
 		code, ok := resultMap[cons.RESULT_CODE]
 		if ok {
 			if code == cons.RESULT_SUCCESS {
-				return []byte(resultMap[cons.RESULT_DATA]), nil, flag
+				return []byte(resultMap[cons.RESULT_DATA]), nil
 			} else {
-				return nil, errors.New(resultMap[cons.RESULT_DATA]), flag
+				return nil, errors.New(resultMap[cons.RESULT_DATA])
 			}
 		} else {
-			return nil, errors.New(resp), flag
+			return nil, errors.New(resp)
 		}
 	}
 }

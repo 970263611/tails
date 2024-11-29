@@ -12,7 +12,7 @@ var hs map[string]func(req map[string]any) (resp []byte)
 
 func Web(port int, handlers map[string]func(req map[string]any) (resp []byte)) error {
 	hs = handlers
-	for k, _ := range hs {
+	for k, _ := range handlers {
 		http.HandleFunc(k, handler)
 	}
 	portStr := strconv.Itoa(port)

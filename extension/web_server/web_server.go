@@ -51,14 +51,14 @@ web请求处理逻辑
 */
 func (r *WebServer) handler1(req map[string]any) []byte {
 	defer r.DelCache()
-	param, ok := req["params"].(string)
+	params, ok := req["params"].(string)
 	_, isSystem := req["isSystem"]
 	if !ok {
-		return msgFormat("", "参数param不能为空", isSystem)
+		params = cons.SYSPARAM_HELP
 	}
-	commands := utils.SplitString(param)
+	commands := utils.SplitString(params)
 	if len(commands) <= 0 {
-		return msgFormat("", "参数param不能为空", isSystem)
+		return msgFormat("", "参数params不能为空", isSystem)
 	}
 	//解析入参中的系统参数
 	args, err := r.LoadSystemParams(commands)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"basic"
+	cons "basic/constants"
 	iface "basic/interfaces"
 	"basic/log_config"
 	"fmt"
@@ -19,6 +20,9 @@ import (
 */
 func main() {
 	args := os.Args[1:]
+	if len(args) == 0 {
+		args = []string{cons.SYSPARAM_HELP}
+	}
 	//创建全局context
 	var context iface.Context = &basic.Context{}
 	basic.InitGlobalContext(context)
