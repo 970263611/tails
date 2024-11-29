@@ -6,6 +6,7 @@ const (
 	WEB_SVC       string = "web_svc"
 	SYSTEM_PARAMS string = "systemparams"
 	DIFFUSE       string = "diffuse"
+	ENC_JAR              = "jasypt-1.9.3.jar"
 )
 
 const (

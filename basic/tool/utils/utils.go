@@ -1,6 +1,8 @@
 package utils
 
 import (
+	cons "basic/constants"
+	"basic/resources"
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
@@ -210,13 +212,40 @@ func GetGoroutineID() string {
 	return ""
 }
 
+func writeAssetsData() error {
+	asset, err := resources.Asset("resources/" + cons.ENC_JAR)
+	if err != nil {
+		return err
+	}
+	// 创建文件，如果文件已存在则截断（覆盖原有内容）
+	file, err := os.Create(cons.ENC_JAR)
+	if err != nil {
+		return errors.New("创建文件时出错：" + err.Error())
+	}
+	// 记得关闭文件，释放资源
+	defer file.Close()
+
+	// 将字符串内容写入文件
+	_, err = file.Write(asset)
+	if err != nil {
+		return errors.New("写入文件时出错：" + err.Error())
+	}
+	return nil
+}
+
 /*
 *
 ENC解密
 */
 func JasyptDec(input, password string) (string, error) {
+	if !FileExists(cons.ENC_JAR) {
+		err := writeAssetsData()
+		if err != nil {
+			return input, err
+		}
+	}
 	javaCmd := "java"
-	jarFile := "./resources/jasypt-1.9.3.jar"
+	jarFile := cons.ENC_JAR
 	input = "input=" + input
 	password = "password=" + password
 	method := "org.jasypt.intf.cli.JasyptPBEStringDecryptionCLI"
