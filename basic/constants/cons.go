@@ -16,12 +16,14 @@ const (
 )
 
 const (
-	SYSPARAM_HELP    string = "--help"
-	SYSPARAM_PATH    string = "--path"
-	SYSPARAM_KEY     string = "--key"
-	SYSPARAM_SALT    string = "--salt"
-	SYSPARAM_FORWORD string = "--f,--forward"
-	SYSPARAM_GID     string = "--gid"
+	SYSPARAM_HELP        string = "--help"
+	SYSPARAM_PATH        string = "--path"
+	SYSPARAM_KEY         string = "--key"
+	SYSPARAM_SALT        string = "--salt"
+	SYSPARAM_FORWORD     string = "--f,--forward"
+	SYSPARAM_GID         string = "--gid"
+	SYSPARAM_LOG_LEVEL   string = "--loglevel"
+	SYSPARAM_LOG_OUTTYPE string = "--logouttype"
 )
 
 // ParamType ================start=============

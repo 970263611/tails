@@ -29,7 +29,7 @@ type logConfig struct {
 	Compress bool
 	//日志级别
 	Level string
-	//1仅日志文件输出 2控制台和日志文件输出 3仅控制台输出
+	//1仅日志文件输出 2仅控制台输出 3控制台和日志文件输出
 	OutType int
 	iface.Context
 }
@@ -81,12 +81,12 @@ func Init(cfg *logConfig) {
 		Compress:   cfg.Compress,
 	}
 	switch cfg.OutType {
-	case 0:
-		log.SetOutput(os.Stdout)
-	case 1:
-		log.SetOutput(logger)
-	default:
+	case 3:
 		log.SetOutput(io.MultiWriter(logger, os.Stdout))
+	case 2:
+		log.SetOutput(os.Stdout)
+	default:
+		log.SetOutput(logger)
 	}
 }
 

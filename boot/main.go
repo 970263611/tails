@@ -7,6 +7,7 @@ import (
 	"basic/log_config"
 	"fmt"
 	"os"
+	"strconv"
 )
 
 /*
@@ -17,6 +18,8 @@ import (
 			--path 指定配置文件路径
 		    --addr ip:port或域名 时进行请求转发
 			--salt 解密密钥，解密方式jasypt-1.9.3.jar
+			--loglevel 日志级别
+			--logouttype 日志输出类型
 */
 func main() {
 	args := os.Args[1:]
@@ -89,8 +92,22 @@ func initLogConfig(c iface.Context) {
 	if logconfig.Log.Compress != false {
 		config.Compress = logconfig.Log.Compress
 	}
+	if logconfig.Log.Level != "" {
+		config.Level = logconfig.Log.Level
+	}
 	if logconfig.Log.OutType != 0 {
 		config.OutType = logconfig.Log.OutType
+	}
+	loglevel := c.FindSystemParams(cons.SYSPARAM_LOG_LEVEL)
+	if loglevel != "" {
+		config.Level = loglevel
+	}
+	logouttype := c.FindSystemParams(cons.SYSPARAM_LOG_OUTTYPE)
+	if logouttype != "" {
+		num, err := strconv.Atoi(logouttype)
+		if err == nil {
+			config.OutType = num
+		}
 	}
 	log_config.Init(config)
 }
