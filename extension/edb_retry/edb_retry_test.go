@@ -13,7 +13,7 @@ func TestDoHandler(t *testing.T) {
 		"password":        "Grcf#jk9527",
 		"receiveFileName": "receiveFile",
 	}
-	instance := GetInstance()
+	instance := GetInstance(nil)
 	resp := instance.Do(params)
 	if resp != nil {
 		fmt.Println(string(resp))
