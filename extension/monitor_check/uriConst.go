@@ -126,7 +126,7 @@ func (f findResult) a2() {
 		if A1Resp.Data == nil {
 			f.result.A2.Value = "查询结果为空"
 		} else {
-			f.result.A2.Value = fmt.Sprintf("%v 和 %v", A1Resp.Data[0].TotalSucRate, A1Resp.Data[0].TradeTps)
+			f.result.A2.Value = fmt.Sprintf("%.2f%% 和 %v", A1Resp.Data[0].TotalSucRate, A1Resp.Data[0].TradeTps)
 		}
 	} else {
 		f.result.A2.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
@@ -153,7 +153,7 @@ func (f findResult) a3() {
 		if A1Resp.Data == nil {
 			f.result.A3.Value = "查询结果为空"
 		} else {
-			f.result.A3.Value = fmt.Sprint(A1Resp.Data[0].TotalSucRate)
+			f.result.A3.Value = fmt.Sprintf("%.2f%%", A1Resp.Data[0].TotalSucRate)
 		}
 	} else {
 		f.result.A3.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
@@ -170,7 +170,7 @@ func (f findResult) a4() {
 	queryParams.Add("orderMethodId", "0")
 	queryParams.Add("selectTimeDimension", "2")
 	//当日时间
-	queryParams.Add("selectTime", currentDay())
+	//queryParams.Add("selectTime", currentDay())
 	f.result.A4.Desc = "子系统交易成功率"
 	A1Resp, err := findSuccessRate(f, queryParams)
 	if err != nil {
@@ -180,7 +180,7 @@ func (f findResult) a4() {
 		if A1Resp.Data == nil {
 			f.result.A4.Value = "查询结果为空"
 		} else {
-			f.result.A4.Value = fmt.Sprint(A1Resp.Data[0].TotalSucRate)
+			f.result.A4.Value = fmt.Sprintf("%.2f%%", A1Resp.Data[0].TotalSucRate)
 		}
 	} else {
 		f.result.A4.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)

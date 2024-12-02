@@ -1,10 +1,12 @@
 package net
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -136,6 +138,10 @@ func Get(urlStr string, params url.Values, headersMap http.Header) (*http.Respon
 	if err != nil {
 		return nil, fmt.Errorf("发送请求失败: %v", err)
 	}
+	req, resp, err = GetLog(req, resp)
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
 }
 
@@ -168,6 +174,10 @@ func Post(urlStr string, postData interface{}, headersMap http.Header) (*http.Re
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("发送请求失败: %v", err)
+	}
+	req, resp, err = PostLog(req, resp)
+	if err != nil {
+		return nil, err
 	}
 	return resp, nil
 }
@@ -216,5 +226,65 @@ func Put(urlStr string, params url.Values, postData interface{}, headersMap http
 	if err != nil {
 		return nil, fmt.Errorf("发送请求失败: %v", err)
 	}
+	req, resp, err = PutLog(req, resp)
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
+}
+
+// post 打印请求报文和响应报文
+func PostLog(req *http.Request, resp *http.Response) (*http.Request, *http.Response, error) {
+	reqbodyBytes, err1 := ioutil.ReadAll(req.Body)
+	if err1 != nil {
+		log.Error("读取请求体出错:", err1)
+		return req, resp, fmt.Errorf("读取请求体出错: %v", err1)
+	}
+	req.Body = ioutil.NopCloser(bytes.NewBuffer(reqbodyBytes))
+
+	bodyBytes, err2 := ioutil.ReadAll(resp.Body)
+	if err2 != nil {
+		log.Error("读取响应体出错:", err2)
+		return req, resp, fmt.Errorf("读取响应体出错: %v", err2)
+	}
+	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	log.Info("请求方法: ", req.Method, "\n请求URL:", req.URL, "\n请求头:", req.Header, "\n请求体:", string(reqbodyBytes),
+		"\n响应状态码:", resp.StatusCode, "\n响应头:", resp.Header, "\n响应体:", string(bodyBytes))
+	return req, resp, nil
+}
+
+// get 打印请求报文和响应报文
+func GetLog(req *http.Request, resp *http.Response) (*http.Request, *http.Response, error) {
+	bodyBytes, err2 := ioutil.ReadAll(resp.Body)
+	if err2 != nil {
+		log.Error("读取响应体出错:", err2)
+		return req, resp, fmt.Errorf("读取响应体出错: %v", err2)
+	}
+	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	log.Info("请求方法: ", req.Method, "\n请求URL:", req.URL, "\n请求头:", req.Header,
+		"\n响应状态码:", resp.StatusCode, "\n响应头:", resp.Header, "\n响应体:", string(bodyBytes))
+	return req, resp, nil
+}
+
+// put 打印请求报文和响应报文
+func PutLog(req *http.Request, resp *http.Response) (*http.Request, *http.Response, error) {
+	reqbodyBytes := []byte("")
+	if req.Body != nil {
+		reqbodyBytesTemp, err1 := ioutil.ReadAll(req.Body)
+		if err1 != nil {
+			log.Error("读取请求体出错:", err1)
+			return req, resp, fmt.Errorf("读取请求体出错: %v", err1)
+		}
+		req.Body = ioutil.NopCloser(bytes.NewBuffer(reqbodyBytesTemp))
+		reqbodyBytes = reqbodyBytesTemp
+	}
+	bodyBytes, err2 := ioutil.ReadAll(resp.Body)
+	if err2 != nil {
+		log.Error("读取响应体出错:", err2)
+		return req, resp, fmt.Errorf("读取响应体出错: %v", err2)
+	}
+	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	log.Info("请求方法: ", req.Method, "\n请求URL:", req.URL, "\n请求头:", req.Header, "\n请求体:", string(reqbodyBytes),
+		"\n响应状态码:", resp.StatusCode, "\n响应头:", resp.Header, "\n响应体:", string(bodyBytes))
+	return req, resp, nil
 }
