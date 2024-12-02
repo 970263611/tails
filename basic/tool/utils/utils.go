@@ -9,7 +9,6 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os"
-	"os/exec"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -238,6 +237,15 @@ func writeAssetsData() error {
 ENC解密
 */
 func JasyptDec(input, password string) (string, error) {
+	dMsg, err := Decrypt(input, password)
+	if err != nil {
+		msg := fmt.Sprintf("jasypt解密失败: %v", err)
+		log.Error(msg)
+		return input, errors.New(msg)
+	}
+	return dMsg, nil
+
+	/*//保留原调用jar包方法,以防止后续切换
 	if !FileExists(cons.ENC_JAR) {
 		err := writeAssetsData()
 		if err != nil {
@@ -265,7 +273,8 @@ func JasyptDec(input, password string) (string, error) {
 	if len(lines) != 0 {
 		line = lines[len(lines)-1]
 	}
-	return line, nil
+	return line, nil*/
+
 }
 
 /*
