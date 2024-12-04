@@ -17,7 +17,7 @@ import (
 */
 func (c *Context) Servlet(commands []string, isSystem bool) ([]byte, error) {
 	setGID()
-	//参数中携带 --addr ip:port或域名 时进行请求转发
+	//参数中携带 --f或--forward ip:port或域名 时进行请求转发
 	resp, err := forward(commands)
 	if resp != nil || err != nil {
 		return resp, err
@@ -84,6 +84,8 @@ func forward(commands []string) ([]byte, error) {
 	if addr == "" {
 		return nil, nil
 	}
+	//转发功能仅单次有效
+	globalContext.DelSystemParams(cons.SYSPARAM_FORWORD)
 	//校验转发地址是否合法
 	if !utils.CheckAddr(addr) {
 		msg := fmt.Sprintf("地址不合法")

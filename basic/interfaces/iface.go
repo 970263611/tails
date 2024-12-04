@@ -16,6 +16,8 @@ type Context interface {
 	LoadConfig() error
 	FindComponent(key string, isSystem bool) ComponentMeta
 	FindSystemParams(key string) string
+	DelSystemParams(key string)
+	SetForwordAddr(addr string)
 }
 
 type ComponentMeta interface {

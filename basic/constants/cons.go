@@ -17,8 +17,8 @@ const (
 )
 
 const (
-	SYSPARAM_HELP        string = "--help"
-	SYSPARAM_PATH        string = "--path"
+	SYSPARAM_HELP        string = "--help,--h"
+	SYSPARAM_CONFIG      string = "--config,--c"
 	SYSPARAM_KEY         string = "--key"
 	SYSPARAM_SALT        string = "--salt"
 	SYSPARAM_FORWORD     string = "--f,--forward"

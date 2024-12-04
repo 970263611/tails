@@ -11,34 +11,6 @@ import (
 
 /*
 *
-配置文件解析
-*/
-func (c *Context) LoadConfig() error {
-	if c.Config != nil {
-		return nil
-	}
-	v := viper.New()
-	v.SetConfigType("yaml")
-	for key, value := range defaultParams {
-		v.SetDefault(key, value)
-	}
-	path := c.FindSystemParams("--path")
-	if path != "" {
-		v.SetConfigFile(path)
-		if err := v.ReadInConfig(); err != nil {
-			msg := fmt.Sprintf("配置文件 %v 读取失败，请检查路径和格式是否正确，仅支持yml或yaml格式文件,错误信息 : %v", path, err)
-			log.Error(msg)
-			return errors.New(msg)
-		}
-		msg := fmt.Sprintf("配置文件 %v 读取成功", path)
-		log.Info(msg)
-	}
-	c.Config = v
-	return nil
-}
-
-/*
-*
 系统参数列表
 */
 var systemParam = []*parameter{
@@ -58,7 +30,7 @@ var systemParam = []*parameter{
 	},
 	&parameter{
 		ParamType:    cons.STRING,
-		CommandName:  cons.SYSPARAM_PATH,
+		CommandName:  cons.SYSPARAM_CONFIG,
 		StandardName: "",
 		Required:     false,
 		Describe:     "配置文件全路径",
@@ -98,6 +70,34 @@ var systemParam = []*parameter{
 		Required:     false,
 		Describe:     "日志输出类型",
 	},
+}
+
+/*
+*
+配置文件解析
+*/
+func (c *Context) LoadConfig() error {
+	if c.Config != nil {
+		return nil
+	}
+	v := viper.New()
+	v.SetConfigType("yaml")
+	for key, value := range defaultParams {
+		v.SetDefault(key, value)
+	}
+	path := c.FindSystemParams(cons.SYSPARAM_CONFIG)
+	if path != "" {
+		v.SetConfigFile(path)
+		if err := v.ReadInConfig(); err != nil {
+			msg := fmt.Sprintf("配置文件 %v 读取失败，请检查路径和格式是否正确，仅支持yml或yaml格式文件,错误信息 : %v", path, err)
+			log.Error(msg)
+			return errors.New(msg)
+		}
+		msg := fmt.Sprintf("配置文件 %v 读取成功", path)
+		log.Info(msg)
+	}
+	c.Config = v
+	return nil
 }
 
 /*
@@ -193,4 +193,24 @@ func (c *Context) setSystemParams(key string, value string) {
 		maps[key] = value
 		c.SetCache(cons.SYSTEM_PARAMS, maps)
 	}
+}
+
+/*
+*
+删除系统参数
+*/
+func (c *Context) DelSystemParams(key string) {
+	cache, ok := c.GetCache(cons.SYSTEM_PARAMS)
+	if ok {
+		m := cache.(map[string]string)
+		delete(m, key)
+	}
+}
+
+/*
+*
+调用远程组件
+*/
+func (c *Context) SetForwordAddr(addr string) {
+	c.setSystemParams(cons.SYSPARAM_FORWORD, addr)
 }

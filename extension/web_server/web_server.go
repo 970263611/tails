@@ -40,7 +40,7 @@ func (r *WebServer) Do(params map[string]any) (resp []byte) {
 	port := params["port"].(int)
 	handlers := make(map[string]func(req map[string]any) (resp []byte))
 	r.Context.GetConfig().SetDefault("web_svc.port", port)
-	handlers["/do"] = r.handler1
+	handlers["/do"] = r.distribute
 	err := net.Web(port, handlers)
 	return []byte("服务启动失败:" + err.Error())
 }
@@ -49,7 +49,7 @@ func (r *WebServer) Do(params map[string]any) (resp []byte) {
 *
 web请求处理逻辑
 */
-func (r *WebServer) handler1(req map[string]any) []byte {
+func (r *WebServer) distribute(req map[string]any) []byte {
 	defer r.DelCache()
 	params, ok := req["params"].(string)
 	_, isSystem := req["isSystem"]
@@ -73,6 +73,10 @@ func (r *WebServer) handler1(req map[string]any) []byte {
 	}
 }
 
+/*
+*
+返回报文格式化
+*/
 func msgFormat(data string, errmsg string, isSystem bool) []byte {
 	if isSystem {
 		rmap := map[string]string{}
