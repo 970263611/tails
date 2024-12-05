@@ -3,19 +3,22 @@ package web_server
 import (
 	cons "basic/constants"
 	iface "basic/interfaces"
-	"basic/tool/net"
 	"basic/tool/utils"
-	"encoding/json"
 	"errors"
 	log "github.com/sirupsen/logrus"
+	"net/http"
+	"strconv"
 )
 
 type WebServer struct {
 	iface.Context
 }
 
+var webServer *WebServer
+
 func GetInstance(globalContext iface.Context) iface.Component {
-	return &WebServer{globalContext}
+	webServer = &WebServer{globalContext}
+	return webServer
 }
 
 func (w *WebServer) GetName() string {
@@ -38,67 +41,9 @@ func (r *WebServer) Register(cm iface.ComponentMeta) {
 
 func (r *WebServer) Do(params map[string]any) (resp []byte) {
 	port := params["port"].(int)
-	handlers := make(map[string]func(req map[string]any) (resp []byte))
-	r.Context.GetConfig().SetDefault("web_svc.port", port)
-	handlers["/do"] = r.distribute
-	err := net.Web(port, handlers)
+	r.Context.GetConfig().SetDefault("web_server.port", port)
+	portStr := strconv.Itoa(port)
+	log.Info("Web will start at " + portStr)
+	err := http.ListenAndServe(":"+portStr, nil)
 	return []byte("服务启动失败:" + err.Error())
-}
-
-/*
-*
-web请求处理逻辑
-*/
-func (r *WebServer) distribute(req map[string]any) []byte {
-	defer r.DelCache()
-	params, ok := req["params"].(string)
-	_, isSystem := req["isSystem"]
-	if !ok {
-		params = cons.SYSPARAM_HELP
-	}
-	commands := utils.SplitString(params)
-	if len(commands) <= 0 {
-		return msgFormat("", "参数params不能为空", isSystem)
-	}
-	//解析入参中的系统参数
-	args, err := r.LoadSystemParams(commands)
-	if err != nil {
-		return msgFormat("", err.Error(), isSystem)
-	}
-	data, err := r.Servlet(args, false)
-	if err != nil {
-		return msgFormat("", err.Error(), isSystem)
-	} else {
-		return msgFormat(string(data), "", isSystem)
-	}
-}
-
-/*
-*
-返回报文格式化
-*/
-func msgFormat(data string, errmsg string, isSystem bool) []byte {
-	if isSystem {
-		rmap := map[string]string{}
-		if errmsg != "" {
-			rmap[cons.RESULT_CODE] = cons.RESULT_ERROR
-			rmap[cons.RESULT_DATA] = errmsg
-		} else {
-			rmap[cons.RESULT_CODE] = cons.RESULT_SUCCESS
-			rmap[cons.RESULT_DATA] = data
-		}
-		jsonData, err := json.Marshal(rmap)
-		if err != nil {
-			log.Errorf("转换报文的map:%v", rmap)
-			log.Errorf("格式化报文错误:%v", err)
-			return []byte(err.Error())
-		}
-		return jsonData
-	} else {
-		if errmsg != "" {
-			return []byte(errmsg)
-		} else {
-			return []byte(data)
-		}
-	}
 }

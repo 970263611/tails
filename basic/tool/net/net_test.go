@@ -1,6 +1,7 @@
 package net
 
 import (
+	"extension/web_server"
 	"fmt"
 	"testing"
 )
@@ -13,5 +14,5 @@ func TestWeb(t *testing.T) {
 	}
 	handlers["/test1"] = f
 	handlers["/test2"] = f
-	Web(8080, handlers)
+	web_server.Web(8080, handlers)
 }

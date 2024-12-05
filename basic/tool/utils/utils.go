@@ -1,14 +1,11 @@
 package utils
 
 import (
-	cons "basic/constants"
-	"basic/resources"
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"os"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -93,51 +90,6 @@ func CheckAddr(multipleAddr string) bool {
 
 /*
 *
-文件是否存在
-*/
-func FileExists(filename string) bool {
-	_, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return true
-}
-
-/*
-*
-文件是否可读
-*/
-func IsFileReadable(filename string) bool {
-	file, err := os.Open(filename)
-	if err != nil {
-		return false
-	}
-	defer file.Close()
-	return true
-}
-
-/*
-*
-按照中文拆分字符串，入参：字符串本身，拆分后每个字符串的长度
-*/
-func SplitByChinese(s string, length int) []string {
-	var result []string
-	var current string
-	for _, r := range s {
-		if len(current)+len(string(r)) > length {
-			result = append(result, current)
-			current = ""
-		}
-		current += string(r)
-	}
-	if current != "" {
-		result = append(result, current)
-	}
-	return result
-}
-
-/*
-*
 字符串按照空格拆分为字符串数组，但是被单引号或者双引号包裹的部分不做拆分
 */
 func SplitString(s string) []string {
@@ -211,27 +163,6 @@ func GetGoroutineID() string {
 	return ""
 }
 
-func writeAssetsData() error {
-	asset, err := resources.Asset("resources/" + cons.ENC_JAR)
-	if err != nil {
-		return err
-	}
-	// 创建文件，如果文件已存在则截断（覆盖原有内容）
-	file, err := os.Create(cons.ENC_JAR)
-	if err != nil {
-		return errors.New("创建文件时出错：" + err.Error())
-	}
-	// 记得关闭文件，释放资源
-	defer file.Close()
-
-	// 将字符串内容写入文件
-	_, err = file.Write(asset)
-	if err != nil {
-		return errors.New("写入文件时出错：" + err.Error())
-	}
-	return nil
-}
-
 /*
 *
 ENC解密
@@ -244,37 +175,6 @@ func JasyptDec(input, password string) (string, error) {
 		return input, errors.New(msg)
 	}
 	return dMsg, nil
-
-	/*//保留原调用jar包方法,以防止后续切换
-	if !FileExists(cons.ENC_JAR) {
-		err := writeAssetsData()
-		if err != nil {
-			return input, err
-		}
-	}
-	javaCmd := "java"
-	jarFile := cons.ENC_JAR
-	input = "input=" + input
-	password = "password=" + password
-	method := "org.jasypt.intf.cli.JasyptPBEStringDecryptionCLI"
-	algorithm := "algorithm=PBEWithMD5AndDES"
-	args := []string{"-cp", jarFile, method, input, password, algorithm}
-	// 构建命令对象
-	cmd := exec.Command(javaCmd, args...)
-	// 执行命令并获取输出和错误信息
-	output, err := cmd.Output()
-	if err != nil {
-		msg := fmt.Sprintf("jasypt解密失败: %v", err)
-		log.Error(msg)
-		return input, errors.New(msg)
-	}
-	var line string
-	lines := strings.Fields(strings.ReplaceAll(string(output), "\r\n", "\n"))
-	if len(lines) != 0 {
-		line = lines[len(lines)-1]
-	}
-	return line, nil*/
-
 }
 
 /*
