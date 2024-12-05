@@ -6,8 +6,6 @@ const (
 	WEB_SVC       string = "web_server"
 	SYSTEM_PARAMS string = "systemparams"
 	DIFFUSE       string = "diffuse"
-	ENC_JAR              = "jasypt-1.9.3.jar"
-	WEB_REQ              = "request"
 	WEB_RESP             = "response"
 )
 
