@@ -7,6 +7,7 @@ import (
 	"basic/tool/utils"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 )
 
@@ -49,6 +50,7 @@ func (r *NacosServer) Register(cm iface.ComponentMeta) {
 		return nil
 	}, "是否要封停/解停, true是解停服务,false是封停服务")
 	cm.AddParameters(cons.STRING, cons.UPPER_N, "serviceName", "serviceName", true, nil, "要封停/解停系统服务名")
+	cm.AddParameters(cons.STRING, cons.LOWER_C, "clusterName", "clusterName", false, nil, "集群名称,不传默认DEFAULT")
 	cm.AddParameters(cons.STRING, cons.LOWER_G, "groupName", "groupName", false, nil, "系统服务所在组名,不传默认DEFAULT_GROUP")
 	cm.AddParameters(cons.STRING, cons.UPPER_H, "serviceIp", "serviceIp", true, nil, "要封停/解停系统ip")
 	cm.AddParameters(cons.STRING, cons.UPPER_P, "servicePort", "servicePort", true, nil, "要封停/解停系统port")
@@ -69,7 +71,12 @@ func (r *NacosServer) Do(params map[string]any) (resp []byte) {
 	if params["groupName"] != nil {
 		queryParams.Add("groupName", params["groupName"].(string))
 	}
-	respString, err := net.PutRespString(urlPrefix+"/nacos/v1/ns/instance", queryParams, nil, nil)
+	if params["clusterName"] != nil {
+		queryParams.Add("clusterName", params["clusterName"].(string))
+	}
+	header := http.Header{}
+	header.Add("Content-Type", "application/x-www-form-urlencoded")
+	respString, err := net.PutRespString(urlPrefix+"/nacos/v1/ns/instance", queryParams, nil, header)
 	if err != nil {
 		return []byte("发送Nacos上下线接口失败:, " + err.Error())
 	}
