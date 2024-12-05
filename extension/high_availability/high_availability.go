@@ -176,7 +176,7 @@ func (h *HighAvailability) acceptTransport(n string) ([]byte, error) {
 }
 
 func (h *HighAvailability) heartbeat() {
-	serverPort := h.context.GetConfig().GetInt("web_svc.port")
+	serverPort := h.context.GetConfig().GetInt("web_server.port")
 	myAddr := getLocalIp() + ":" + strconv.Itoa(serverPort)
 	h.onlineAddrTable[myAddr] = time.Now().Unix()
 	addr := getSendAddr(myAddr, h.onlineAddrTable)
