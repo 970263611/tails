@@ -7,6 +7,8 @@ import (
 	"extension/db_conn_num"
 	"extension/db_tool"
 	"extension/edb_retry"
+	"extension/file_download"
+	"extension/file_upload"
 	"extension/high_availability"
 	"extension/monitor_check"
 	"extension/redis_tool"
@@ -37,6 +39,8 @@ func InitComponent() {
 	addInitComponent(batch_retry.GetInstance(globalContext))
 	addInitComponent(edb_retry.GetInstance(globalContext))
 	addInitComponent(high_availability.GetInstance(globalContext))
+	addInitComponent(file_upload.GetInstance(globalContext))
+	addInitComponent(file_download.GetInstance(globalContext))
 }
 
 func InitGlobalContext(ctx iface.Context) {

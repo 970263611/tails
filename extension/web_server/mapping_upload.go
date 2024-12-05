@@ -31,7 +31,7 @@ func upload(resp http.ResponseWriter, req *http.Request) {
 	defer file.Close()
 
 	//获取文件路径并创建
-	filePath := req.FormValue("filePath")
+	filePath := req.FormValue("filepath")
 	_, err2 := os.Stat(path.Dir(filePath))
 	if err2 != nil {
 		os.MkdirAll(path.Dir(filePath), os.ModePerm)
@@ -52,6 +52,5 @@ func upload(resp http.ResponseWriter, req *http.Request) {
 		http.Error(resp, "写出文件失败", http.StatusInternalServerError)
 		return
 	}
-
 	resp.Write([]byte("文件上传成功"))
 }

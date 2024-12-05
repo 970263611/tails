@@ -83,7 +83,9 @@ func distribute(resp http.ResponseWriter, req map[string]any) {
 		http.Error(resp, err.Error(), http.StatusAccepted)
 		return
 	} else {
-		resp.Write(data)
+		if data != nil {
+			resp.Write(data)
+		}
 		return
 	}
 }

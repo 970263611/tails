@@ -29,5 +29,5 @@ type Component interface {
 	GetName() string
 	GetDescribe() string
 	Register(ComponentMeta)
-	Do(param map[string]any) (resp []byte)
+	Do(param map[string]any) []byte
 }

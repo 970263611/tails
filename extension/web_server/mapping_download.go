@@ -14,7 +14,7 @@ func init() {
 
 func download(resp http.ResponseWriter, req *http.Request) {
 	// 获取请求的文件名参数，这里假设通过URL路径中的最后一段作为文件名，例如 /download/file.txt 中的 file.txt
-	filePath := req.URL.Query().Get("filePath")
+	filePath := req.URL.Query().Get("filepath")
 	if filePath == "" {
 		http.Error(resp, "请指定要下载的文件名", http.StatusBadRequest)
 		return
