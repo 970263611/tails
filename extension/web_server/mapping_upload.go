@@ -48,8 +48,8 @@ func upload(resp http.ResponseWriter, req *http.Request) {
 	// 将上传文件的内容复制到新创建的文件中
 	_, err = io.Copy(newFile, file)
 	if err != nil {
-		log.Printf("复制文件内容失败: %v", err)
-		http.Error(resp, "复制文件内容失败", http.StatusInternalServerError)
+		log.Printf("写出文件失败: %v", err)
+		http.Error(resp, "写出文件失败", http.StatusInternalServerError)
 		return
 	}
 

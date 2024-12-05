@@ -29,10 +29,7 @@ func do(resp http.ResponseWriter, req *http.Request) {
 		}
 	}
 	result := mergeMaps(maps, p3)
-	msgbyte := distribute(result)
-	if msgbyte != nil {
-		resp.Write(msgbyte)
-	}
+	distribute(resp, result)
 }
 
 func mapChange(m1 map[string][]string, query bool) map[string]any {
@@ -64,56 +61,29 @@ func mergeMaps(m1 map[string]any, m2 map[string]any) map[string]any {
 *
 web请求处理逻辑
 */
-func distribute(req map[string]any) []byte {
+func distribute(resp http.ResponseWriter, req map[string]any) {
 	defer webServer.DelCache()
 	params, ok := req["params"].(string)
-	_, isSystem := req["isSystem"]
 	if !ok {
 		params = cons.SYSPARAM_HELP
 	}
 	commands := utils.SplitString(params)
 	if len(commands) <= 0 {
-		return msgFormat("", "参数params不能为空", isSystem)
+		http.Error(resp, "参数params不能为空", http.StatusBadRequest)
+		return
 	}
 	//解析入参中的系统参数
 	args, err := webServer.LoadSystemParams(commands)
 	if err != nil {
-		return msgFormat("", err.Error(), isSystem)
+		http.Error(resp, err.Error(), http.StatusBadRequest)
+		return
 	}
 	data, err := webServer.Servlet(args, false)
 	if err != nil {
-		return msgFormat("", err.Error(), isSystem)
+		http.Error(resp, err.Error(), http.StatusAccepted)
+		return
 	} else {
-		return msgFormat(string(data), "", isSystem)
-	}
-}
-
-/*
-*
-返回报文格式化
-*/
-func msgFormat(data string, errmsg string, isSystem bool) []byte {
-	if isSystem {
-		rmap := map[string]string{}
-		if errmsg != "" {
-			rmap[cons.RESULT_CODE] = cons.RESULT_ERROR
-			rmap[cons.RESULT_DATA] = errmsg
-		} else {
-			rmap[cons.RESULT_CODE] = cons.RESULT_SUCCESS
-			rmap[cons.RESULT_DATA] = data
-		}
-		jsonData, err := json.Marshal(rmap)
-		if err != nil {
-			log.Errorf("转换报文的map:%v", rmap)
-			log.Errorf("格式化报文错误:%v", err)
-			return []byte(err.Error())
-		}
-		return jsonData
-	} else {
-		if errmsg != "" {
-			return []byte(errmsg)
-		} else {
-			return []byte(data)
-		}
+		resp.Write(data)
+		return
 	}
 }
