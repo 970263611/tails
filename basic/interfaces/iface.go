@@ -3,6 +3,7 @@ package iface
 import (
 	cons "basic/constants"
 	"github.com/spf13/viper"
+	"net/http"
 )
 
 type Context interface {
@@ -12,6 +13,7 @@ type Context interface {
 	SetCache(key string, value interface{}) bool
 	GetCache(key string) (interface{}, bool)
 	DelCache()
+	GetResponseWriter() http.ResponseWriter
 	Unmarshal(a any) error
 	LoadConfig() error
 	FindComponent(key string, isSystem bool) ComponentMeta

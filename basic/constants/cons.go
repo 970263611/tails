@@ -3,17 +3,12 @@ package cons
 const (
 	COMPONENT_KEY string = "componentKey"
 	CONFIG_SALT   string = "jasypt.salt"
-	WEB_SVC       string = "web_svc"
+	WEB_SVC       string = "web_server"
 	SYSTEM_PARAMS string = "systemparams"
 	DIFFUSE       string = "diffuse"
 	ENC_JAR              = "jasypt-1.9.3.jar"
-)
-
-const (
-	RESULT_CODE    = "code"
-	RESULT_DATA    = "data"
-	RESULT_SUCCESS = "00"
-	RESULT_ERROR   = "99"
+	WEB_REQ              = "request"
+	WEB_RESP             = "response"
 )
 
 const (

@@ -78,6 +78,7 @@ func distribute(resp http.ResponseWriter, req map[string]any) {
 		http.Error(resp, err.Error(), http.StatusBadRequest)
 		return
 	}
+	webServer.SetCache(cons.WEB_RESP, resp)
 	data, err := webServer.Servlet(args, false)
 	if err != nil {
 		http.Error(resp, err.Error(), http.StatusAccepted)

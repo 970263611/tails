@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/viper"
+	"net/http"
 	"strings"
 )
 
@@ -67,6 +68,15 @@ func (c *Context) DelCache() {
 		return
 	}
 	delete(c.cache, tid)
+}
+
+func (c *Context) GetResponseWriter() http.ResponseWriter {
+	cache, ok := c.GetCache(cons.WEB_RESP)
+	if ok {
+		writer := cache.(http.ResponseWriter)
+		return writer
+	}
+	return nil
 }
 
 /*
