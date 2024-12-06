@@ -24,5 +24,15 @@ if %b% == 1  (
 )
 go env -w GOARCH=%a%
 go env -w GOOS=%b%
-go build ./boot/main.go
+if exist tails (
+  del tails
+)
+if exist tails.exe (
+  del tails.exe
+)
+if %b% == "windows" (
+  go build  -o tails.exe ./boot/main.go
+) else (
+  go build  -o tails ./boot/main.go
+)
 echo 打包完成，cpu架构'%a%' 操作系统'%b%'
