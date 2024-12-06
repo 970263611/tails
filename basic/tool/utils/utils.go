@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"os"
+	"path"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -186,4 +188,65 @@ func RemoveQuotes(s string) string {
 		return s[1 : len(s)-1]
 	}
 	return s
+}
+
+/*
+*
+将\或\\替换为/
+*/
+func ReplaceSlash(str string) string {
+	if runtime.GOOS == "windows" {
+		// 先替换双反斜杠
+		str = strings.Replace(str, "\\\\", "/", -1)
+		// 再替换单反斜杠
+		str = strings.Replace(str, "\\", "/", -1)
+	}
+	return str
+}
+
+/*
+*
+获取tails服务所在路径,例如:/home/dimple/
+*/
+func GetRootPath() string {
+	rootpath, _ := os.Executable()
+	return ReplaceSlash(PathDir(rootpath)) + "/"
+}
+
+/*
+*
+获取path中的路径部分
+*/
+func PathDir(filepath string) string {
+	return path.Dir(ReplaceSlash(filepath))
+}
+
+/*
+*
+判断路径是否是绝对路径
+*/
+func IsAbsolutePath(pathStr string) bool {
+	if len(pathStr) == 0 {
+		return false
+	}
+	if strings.HasPrefix(pathStr, "/") {
+		return true
+	}
+	if len(pathStr) >= 2 && strings.Contains("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", pathStr[0:1]) && strings.Contains(":/", pathStr[1:2]) {
+		return true
+	}
+	return false
+}
+
+/*
+*
+获取给定路径的绝对路径
+*/
+func GetAbsolutePath(path string) string {
+	path = ReplaceSlash(path)
+	if IsAbsolutePath(path) {
+		return path
+	} else {
+		return GetRootPath() + path
+	}
 }

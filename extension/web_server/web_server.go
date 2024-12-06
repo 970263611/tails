@@ -22,7 +22,7 @@ func GetInstance(globalContext iface.Context) iface.Component {
 }
 
 func (w *WebServer) GetName() string {
-	return "web_server"
+	return cons.WEB_SVC
 }
 
 func (r *WebServer) GetDescribe() string {
@@ -41,7 +41,7 @@ func (r *WebServer) Register(cm iface.ComponentMeta) {
 
 func (r *WebServer) Do(params map[string]any) (resp []byte) {
 	port := params["port"].(int)
-	r.Context.GetConfig().SetDefault("web_server.port", port)
+	r.Context.GetConfig().SetDefault(cons.SYSTEM_WEB_PORT, port)
 	portStr := strconv.Itoa(port)
 	log.Info("Web will start at " + portStr)
 	err := http.ListenAndServe(":"+portStr, nil)

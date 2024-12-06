@@ -3,6 +3,7 @@ package log_config
 import (
 	cons "basic/constants"
 	iface "basic/interfaces"
+	"basic/tool/utils"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -39,7 +40,7 @@ type logConfig struct {
 创建默认日志配置对象
 */
 func NewLogConfig(c iface.Context) *logConfig {
-	return &logConfig{"./logs/all.log", 50, 10, 90, true, "info", 1, c}
+	return &logConfig{utils.GetRootPath() + "logs/all.log", 50, 10, 90, true, "info", 1, c}
 }
 
 /*
