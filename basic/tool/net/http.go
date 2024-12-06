@@ -6,7 +6,6 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -133,12 +132,7 @@ func Get(urlStr string, params url.Values, headersMap http.Header) (*http.Respon
 		return nil, fmt.Errorf("创建请求失败: %v", err)
 	}
 	// 发送请求
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("发送请求失败: %v", err)
-	}
-	req, resp, err = GetLog(req, resp)
+	resp, err := SendReq(req)
 	if err != nil {
 		return nil, err
 	}
@@ -170,12 +164,7 @@ func Post(urlStr string, postData interface{}, headersMap http.Header) (*http.Re
 		req.Header.Set(key, joinedValues)
 	}
 	// 发送请求
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("发送请求失败: %v", err)
-	}
-	req, resp, err = PostLog(req, resp)
+	resp, err := SendReq(req)
 	if err != nil {
 		return nil, err
 	}
@@ -221,69 +210,48 @@ func Put(urlStr string, params url.Values, postData interface{}, headersMap http
 		return nil, fmt.Errorf("创建请求失败: %v", err)
 	}
 	// 发送请求
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("发送请求失败: %v", err)
-	}
-	req, resp, err = PutLog(req, resp)
+	resp, err := SendReq(req)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
 
-// post 打印请求报文和响应报文
-func PostLog(req *http.Request, resp *http.Response) (*http.Request, *http.Response, error) {
-	reqbodyBytes, err1 := ioutil.ReadAll(req.Body)
-	if err1 != nil {
-		log.Error("读取请求体出错:", err1)
-		return req, resp, fmt.Errorf("读取请求体出错: %v", err1)
+// 发送请求
+func SendReq(req *http.Request) (*http.Response, error) {
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("发送请求失败: %v", err)
 	}
-	req.Body = ioutil.NopCloser(bytes.NewBuffer(reqbodyBytes))
-
-	bodyBytes, err2 := ioutil.ReadAll(resp.Body)
-	if err2 != nil {
-		log.Error("读取响应体出错:", err2)
-		return req, resp, fmt.Errorf("读取响应体出错: %v", err2)
+	req, resp, err = ReqRespLog(req, resp)
+	if err != nil {
+		return nil, err
 	}
-	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-	log.Info("请求方法: ", req.Method, "\n请求URL:", req.URL, "\n请求头:", req.Header, "\n请求体:", string(reqbodyBytes),
-		"\n响应状态码:", resp.StatusCode, "\n响应头:", resp.Header, "\n响应体:", string(bodyBytes))
-	return req, resp, nil
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("请求返回异常状态码 %v", resp.StatusCode)
+	}
+	return resp, nil
 }
 
-// get 打印请求报文和响应报文
-func GetLog(req *http.Request, resp *http.Response) (*http.Request, *http.Response, error) {
-	bodyBytes, err2 := ioutil.ReadAll(resp.Body)
-	if err2 != nil {
-		log.Error("读取响应体出错:", err2)
-		return req, resp, fmt.Errorf("读取响应体出错: %v", err2)
-	}
-	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-	log.Info("请求方法: ", req.Method, "\n请求URL:", req.URL, "\n请求头:", req.Header,
-		"\n响应状态码:", resp.StatusCode, "\n响应头:", resp.Header, "\n响应体:", string(bodyBytes))
-	return req, resp, nil
-}
-
-// put 打印请求报文和响应报文
-func PutLog(req *http.Request, resp *http.Response) (*http.Request, *http.Response, error) {
+// post get put 打印请求报文和响应报文
+func ReqRespLog(req *http.Request, resp *http.Response) (*http.Request, *http.Response, error) {
 	reqbodyBytes := []byte("")
 	if req.Body != nil {
-		reqbodyBytesTemp, err1 := ioutil.ReadAll(req.Body)
+		reqbodyBytesTemp, err1 := io.ReadAll(req.Body)
 		if err1 != nil {
 			log.Error("读取请求体出错:", err1)
 			return req, resp, fmt.Errorf("读取请求体出错: %v", err1)
 		}
-		req.Body = ioutil.NopCloser(bytes.NewBuffer(reqbodyBytesTemp))
+		req.Body = io.NopCloser(bytes.NewBuffer(reqbodyBytesTemp))
 		reqbodyBytes = reqbodyBytesTemp
 	}
-	bodyBytes, err2 := ioutil.ReadAll(resp.Body)
+	bodyBytes, err2 := io.ReadAll(resp.Body)
 	if err2 != nil {
 		log.Error("读取响应体出错:", err2)
 		return req, resp, fmt.Errorf("读取响应体出错: %v", err2)
 	}
-	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	resp.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 	log.Info("请求方法: ", req.Method, "\n请求URL:", req.URL, "\n请求头:", req.Header, "\n请求体:", string(reqbodyBytes),
 		"\n响应状态码:", resp.StatusCode, "\n响应头:", resp.Header, "\n响应体:", string(bodyBytes))
 	return req, resp, nil
