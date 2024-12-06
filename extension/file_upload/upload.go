@@ -23,7 +23,7 @@ func (c *FileUpload) GetName() string {
 }
 
 func (c *FileUpload) GetDescribe() string {
-	return "文件上传，支持相对和绝对路径，相对路径的根路径为tails服务所在路径，绝对路径为文件全路径  \n例：file_upload -a 127.0.0.1:17001  -i /home/test/abc.zip -o /home/file/abc.zip"
+	return "文件上传，支持相对和绝对路径，相对路径的根路径为发起启动命令时所在路径，绝对路径为文件全路径  \n例：file_upload -a 127.0.0.1:17001  -i /home/test/abc.zip -o /home/file/abc.zip"
 }
 
 func (d *FileUpload) Register(cm iface.ComponentMeta) {
