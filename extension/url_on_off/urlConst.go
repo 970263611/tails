@@ -34,7 +34,7 @@ func (f findResult) login() (string, error) {
 	header.Set("Content-Type", "application/json;charset=UTF-8")
 	loginResp, err := net.PostRespString(f.urlPrefix+"/api/users/login",
 		map[string]string{
-			"userId":   f.username,
+			"username": f.username,
 			"password": f.password,
 		}, header)
 	if err != nil {
@@ -118,11 +118,13 @@ func (f findResult) selectApiGroup() (*ApiQueryRespEntry, error) {
 
 // 创建API组
 func (f findResult) createApiGroup() (*RespEntry, error) {
+	array := make([]any, 0)
 	predicateItems := map[string]any{
 		"pattern":       f.uri,
 		"matchStrategy": 0,
 	}
-	jsonData, err := json.Marshal(predicateItems)
+	array = append(array, predicateItems)
+	jsonData, err := json.Marshal(array)
 	if err != nil {
 		log.Error("Error marshaling JSON:", err)
 		return nil, err
@@ -171,14 +173,13 @@ func (f findResult) updateApiGroup(apiQuery *ApiQueryRespEntry) (*RespEntry, err
 		}
 		data = append(data[:indexToDelete], data[indexToDelete+1:]...)
 	} else {
-		if indexToDelete != -1 {
-			return &RespEntry{Message: fmt.Sprintf("%v 已被封停,无需重新封停", f.uri)}, nil
+		if indexToDelete == -1 {
+			predicateItems := map[string]any{
+				"pattern":       f.uri,
+				"matchStrategy": 0,
+			}
+			data = append(data, predicateItems)
 		}
-		predicateItems := map[string]any{
-			"pattern":       f.uri,
-			"matchStrategy": 0,
-		}
-		data = append(data, predicateItems)
 	}
 	// 4.将data转换回JSON字符串
 	newJsonData, err := json.Marshal(data)
@@ -196,8 +197,8 @@ func (f findResult) updateApiGroup(apiQuery *ApiQueryRespEntry) (*RespEntry, err
 	}
 
 	header := http.Header{}
+	header.Set("Content-Type", "application/json")
 	header.Set("Authorization", f.token)
-
 	var apiUpdateRespEntry RespEntry
 	err = net.PutRespStruct(f.urlPrefix+"/api/gateway-apidefinitions", nil, postData, header, &apiUpdateRespEntry)
 	if err != nil {
@@ -229,25 +230,24 @@ func (f findResult) queryLiuKong() (*LiuKongQueryRespEntry, error) {
 
 // 创建流控
 func (f findResult) createLiuKong() (*RespEntry, error) {
-	liuKong := LiuKongQueryRespEntry{
-		ResourceMode:         0,
-		Resource:             f.apiName,
-		ControlBehavior:      0,
-		ParseStrategy:        0,
-		FieldName:            "",
-		Prop:                 false,
-		Grade:                0,
-		Count:                0.0,
-		IntervalSec:          1,
-		Region:               "秒",
-		Burst:                0,
-		MatchStrategy:        0,
-		RouteName:            f.apiName,
-		Type:                 "normal",
-		MatchType:            "normal",
-		Index:                0,
-		MaxQueueingTimeoutMs: 1,
-		GatewayId:            f.gatewayId,
+	liuKong := map[string]any{
+		"resourceMode":         1,
+		"resource":             f.apiName,
+		"controlBehavior":      0,
+		"parseStrategy":        0,
+		"fieldName":            "",
+		"prop":                 false,
+		"grade":                0,
+		"count":                0.0,
+		"intervalSec":          1,
+		"region":               "秒",
+		"burst":                0,
+		"matchStrategy":        0,
+		"routeName":            f.apiName,
+		"matchType":            "normal",
+		"index":                0,
+		"maxQueueingTimeoutMs": 1,
+		"gatewayId":            f.gatewayId,
 	}
 	header := http.Header{}
 	header.Set("Authorization", f.token)

@@ -70,6 +70,9 @@ func (s *SuspendServer) Do(params map[string]any) (resp []byte) {
 	if err != nil {
 		return []byte("登录失败: " + err.Error())
 	}
+	if token == "" {
+		return []byte("获取token: " + token)
+	}
 	res.token = token
 	gatewayId, err := res.selectGetWayID()
 	if err != nil {

@@ -84,7 +84,7 @@ func (f findResult) a1() {
 	queryParams := url.Values{}
 	queryParams.Add("gradingConfigId", "IN")
 	queryParams.Add("pageIndex", "1")
-	queryParams.Add("pageSize", "50")
+	queryParams.Add("pageSize", "500")
 	queryParams.Add("centerFlag", "")
 	queryParams.Add("orderMethodId", "0")
 	queryParams.Add("selectTimeDimension", "2")
@@ -93,16 +93,17 @@ func (f findResult) a1() {
 	f.result.A1.Desc = "昨日交易成功率"
 	A1Resp, err := findSuccessRate(f, queryParams)
 	if err != nil {
-		f.result.A1.Value = fmt.Sprintf("查询失败 ： %v", err)
-	}
-	if A1Resp.Code == 0 {
-		if A1Resp.Data == nil {
-			f.result.A1.Value = "查询结果为空"
-		} else {
-			f.result.A1.Value = fmt.Sprintf("%.2f%%", A1Resp.Data[0].TotalSucRate)
-		}
+		f.result.A1.Value = err.Error()
 	} else {
-		f.result.A1.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
+		if A1Resp.Code == 0 {
+			if A1Resp.Data == nil {
+				f.result.A1.Value = "查询结果为空"
+			} else {
+				f.result.A1.Value = fmt.Sprintf("%.2f%%", A1Resp.Data[0].TotalSucRate)
+			}
+		} else {
+			f.result.A1.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
+		}
 	}
 }
 
@@ -111,7 +112,7 @@ func (f findResult) a2() {
 	queryParams := url.Values{}
 	queryParams.Add("gradingConfigId", "IN")
 	queryParams.Add("pageIndex", "1")
-	queryParams.Add("pageSize", "50")
+	queryParams.Add("pageSize", "500")
 	queryParams.Add("centerFlag", "")
 	queryParams.Add("orderMethodId", "0")
 	queryParams.Add("selectTimeDimension", "2")
@@ -120,16 +121,17 @@ func (f findResult) a2() {
 	f.result.A2.Desc = "当日实时成功率和TPS"
 	A1Resp, err := findSuccessRate(f, queryParams)
 	if err != nil {
-		f.result.A2.Value = fmt.Sprintf("查询失败 ： %v", err)
-	}
-	if A1Resp.Code == 0 {
-		if A1Resp.Data == nil {
-			f.result.A2.Value = "查询结果为空"
-		} else {
-			f.result.A2.Value = fmt.Sprintf("%.2f%% 和 %v", A1Resp.Data[0].TotalSucRate, A1Resp.Data[0].TradeTps)
-		}
+		f.result.A2.Value = err.Error()
 	} else {
-		f.result.A2.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
+		if A1Resp.Code == 0 {
+			if A1Resp.Data == nil {
+				f.result.A2.Value = "查询结果为空"
+			} else {
+				f.result.A2.Value = fmt.Sprintf("%.2f%% 和 %v", A1Resp.Data[0].TotalSucRate, A1Resp.Data[0].TradeTps)
+			}
+		} else {
+			f.result.A2.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
+		}
 	}
 }
 
@@ -138,7 +140,7 @@ func (f findResult) a3() {
 	queryParams := url.Values{}
 	queryParams.Add("gradingConfigId", "OUT")
 	queryParams.Add("pageIndex", "1")
-	queryParams.Add("pageSize", "50")
+	queryParams.Add("pageSize", "500")
 	queryParams.Add("centerFlag", "")
 	queryParams.Add("orderMethodId", "0")
 	queryParams.Add("selectTimeDimension", "2")
@@ -147,16 +149,17 @@ func (f findResult) a3() {
 	f.result.A3.Desc = "外部系统交易成功率"
 	A1Resp, err := findSuccessRate(f, queryParams)
 	if err != nil {
-		f.result.A3.Value = fmt.Sprintf("查询失败 ： %v", err)
-	}
-	if A1Resp.Code == 0 {
-		if A1Resp.Data == nil {
-			f.result.A3.Value = "查询结果为空"
-		} else {
-			f.result.A3.Value = fmt.Sprintf("%.2f%%", A1Resp.Data[0].TotalSucRate)
-		}
+		f.result.A3.Value = err.Error()
 	} else {
-		f.result.A3.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
+		if A1Resp.Code == 0 {
+			if A1Resp.Data == nil {
+				f.result.A3.Value = "查询结果为空"
+			} else {
+				f.result.A3.Value = fmt.Sprintf("%.2f%%", A1Resp.Data[0].TotalSucRate)
+			}
+		} else {
+			f.result.A3.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
+		}
 	}
 }
 
@@ -165,7 +168,7 @@ func (f findResult) a4() {
 	queryParams := url.Values{}
 	queryParams.Add("gradingConfigId", "INNER")
 	queryParams.Add("pageIndex", "1")
-	queryParams.Add("pageSize", "50")
+	queryParams.Add("pageSize", "500")
 	queryParams.Add("centerFlag", "")
 	queryParams.Add("orderMethodId", "0")
 	queryParams.Add("selectTimeDimension", "2")
@@ -174,16 +177,17 @@ func (f findResult) a4() {
 	f.result.A4.Desc = "子系统交易成功率"
 	A1Resp, err := findSuccessRate(f, queryParams)
 	if err != nil {
-		f.result.A4.Value = fmt.Sprintf("查询失败 ： %v", err)
-	}
-	if A1Resp.Code == 0 {
-		if A1Resp.Data == nil {
-			f.result.A4.Value = "查询结果为空"
-		} else {
-			f.result.A4.Value = fmt.Sprintf("%.2f%%", A1Resp.Data[0].TotalSucRate)
-		}
+		f.result.A4.Value = err.Error()
 	} else {
-		f.result.A4.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
+		if A1Resp.Code == 0 {
+			if A1Resp.Data == nil {
+				f.result.A4.Value = "查询结果为空"
+			} else {
+				f.result.A4.Value = fmt.Sprintf("%.2f%%", A1Resp.Data[0].TotalSucRate)
+			}
+		} else {
+			f.result.A4.Value = fmt.Sprintf("查询失败 ： %v", A1Resp.Message)
+		}
 	}
 }
 
@@ -191,7 +195,7 @@ func (f findResult) a5() {
 	defer f.deferMethod()
 	queryParams := url.Values{}
 	queryParams.Add("pageIndex", "1")
-	queryParams.Add("pageSize", "50")
+	queryParams.Add("pageSize", "500")
 	queryParams.Add("centerFlag", "")
 	header := http.Header{}
 	header.Set("X-ER-UAT", f.token)
@@ -201,32 +205,33 @@ func (f findResult) a5() {
 	// 发送 GET 请求
 	err := net.GetRespStruct(f.urlPrefix+"/monitor/registration/get-node-status-list", queryParams, header, &A5Resp)
 	if err != nil {
-		f.result.A5.Value = fmt.Sprintf("查询失败 ： %v", err)
-	}
-	if A5Resp.Code == 0 {
-		if A5Resp.Data == nil {
-			f.result.A5.Value = "查询结果为空"
-		} else {
-			for i := 0; i < len(A5Resp.Data); i++ {
-				status := A5Resp.Data[i].AlarmStatus
-				statusStr := ""
-				if status {
-					statusStr = "正常"
-				} else {
-					statusStr = "异常"
-				}
-				f.result.A5.Value += fmt.Sprintf("%v服务，%v，最小节点数%v，当前节点数%v，当前异常节点数%v，当前异常ip %v； ",
-					A5Resp.Data[i].SubsystemName,
-					statusStr,
-					A5Resp.Data[i].TotalNum,
-					A5Resp.Data[i].CurrentNum,
-					A5Resp.Data[i].ErrorNum,
-					A5Resp.Data[i].ErrorIp,
-				)
-			}
-		}
+		f.result.A5.Value = err.Error()
 	} else {
-		f.result.A5.Value = fmt.Sprintf("查询失败 ： %v", A5Resp.Message)
+		if A5Resp.Code == 0 {
+			if A5Resp.Data == nil {
+				f.result.A5.Value = "查询结果为空"
+			} else {
+				for i := 0; i < len(A5Resp.Data); i++ {
+					status := A5Resp.Data[i].AlarmStatus
+					statusStr := ""
+					if status {
+						statusStr = "正常"
+					} else {
+						statusStr = "异常"
+					}
+					f.result.A5.Value += fmt.Sprintf("%v服务，%v，最小节点数%v，当前节点数%v，当前异常节点数%v，当前异常ip %v； ",
+						A5Resp.Data[i].SubsystemName,
+						statusStr,
+						A5Resp.Data[i].TotalNum,
+						A5Resp.Data[i].CurrentNum,
+						A5Resp.Data[i].ErrorNum,
+						A5Resp.Data[i].ErrorIp,
+					)
+				}
+			}
+		} else {
+			f.result.A5.Value = fmt.Sprintf("查询失败 ： %v", A5Resp.Message)
+		}
 	}
 }
 
@@ -234,7 +239,7 @@ func (f findResult) a6() {
 	defer f.deferMethod()
 	queryParams := url.Values{}
 	queryParams.Add("pageIndex", "1")
-	queryParams.Add("pageSize", "50")
+	queryParams.Add("pageSize", "500")
 	queryParams.Add("centerFlag", "")
 	header := http.Header{}
 	header.Set("X-ER-UAT", f.token)
@@ -244,30 +249,31 @@ func (f findResult) a6() {
 	// 发送 GET 请求
 	err := net.GetRespStruct(f.urlPrefix+"/monitor/tbMonctlPortConf/listPortAssist", queryParams, header, &A6Resp)
 	if err != nil {
-		f.result.A6.Value = fmt.Sprintf("查询失败 ： %v", err)
-	}
-	if A6Resp.Code == 0 {
-		if A6Resp.Data == nil {
-			f.result.A6.Value = "查询结果为空"
-		} else {
-
-			for i := 0; i < len(A6Resp.Data); i++ {
-				status := A6Resp.Data[i].PortState
-				statusStr := ""
-				if status {
-					statusStr = "正常"
-				} else {
-					statusStr = "异常"
-				}
-				f.result.A6.Value += fmt.Sprintf("%v中心，%v端口，%v； ",
-					A6Resp.Data[i].CenterFlag,
-					A6Resp.Data[i].HostPort,
-					statusStr,
-				)
-			}
-		}
+		f.result.A6.Value = err.Error()
 	} else {
-		f.result.A6.Value = fmt.Sprintf("查询失败 ： %v", A6Resp.Message)
+		if A6Resp.Code == 0 {
+			if A6Resp.Data == nil {
+				f.result.A6.Value = "查询结果为空"
+			} else {
+
+				for i := 0; i < len(A6Resp.Data); i++ {
+					status := A6Resp.Data[i].PortState
+					statusStr := ""
+					if status {
+						statusStr = "正常"
+					} else {
+						statusStr = "异常"
+					}
+					f.result.A6.Value += fmt.Sprintf("%v中心，%v端口，%v； ",
+						A6Resp.Data[i].CenterFlag,
+						A6Resp.Data[i].HostPort,
+						statusStr,
+					)
+				}
+			}
+		} else {
+			f.result.A6.Value = fmt.Sprintf("查询失败 ： %v", A6Resp.Message)
+		}
 	}
 }
 
@@ -275,7 +281,7 @@ func (f findResult) a10() {
 	defer f.deferMethod()
 	queryParams := url.Values{}
 	queryParams.Add("pageIndex", "1")
-	queryParams.Add("pageSize", "50")
+	queryParams.Add("pageSize", "500")
 	queryParams.Add("alarmStatus", "0")
 	header := http.Header{}
 	header.Set("X-ER-UAT", f.token)
@@ -285,40 +291,41 @@ func (f findResult) a10() {
 	// 发送 GET 请求
 	err := net.GetRespStruct(f.urlPrefix+"/monitor/monitorAlarmJnl/list", queryParams, header, &A10Resp)
 	if err != nil {
-		f.result.A10.Value = fmt.Sprintf("查询失败 ： %v", err)
-	}
-	if A10Resp.Code == 0 {
-		if A10Resp.Data == nil {
-			f.result.A10.Value = "查询结果为空"
-		} else {
-			for i := 0; i < len(A10Resp.Data); i++ {
-				level := A10Resp.Data[i].Level
-				levelStr := ""
-				switch level {
-				case 0:
-					levelStr = "正常"
-					break
-				case 1:
-					levelStr = "预警"
-					break
-				case 2:
-					levelStr = "告警"
-					break
-				case 3:
-					levelStr = "严重告警"
-					break
-				default:
-					break
-				}
-				f.result.A10.Value += fmt.Sprintf("%v指标，%v开始，%v； ",
-					A10Resp.Data[i].JobName,
-					formatTime(A10Resp.Data[i].BeginTime),
-					levelStr,
-				)
-			}
-		}
+		f.result.A10.Value = err.Error()
 	} else {
-		f.result.A10.Value = fmt.Sprintf("查询失败 ： %v", A10Resp.Message)
+		if A10Resp.Code == 0 {
+			if A10Resp.Data == nil {
+				f.result.A10.Value = "查询结果为空"
+			} else {
+				for i := 0; i < len(A10Resp.Data); i++ {
+					level := A10Resp.Data[i].Level
+					levelStr := ""
+					switch level {
+					case 0:
+						levelStr = "正常"
+						break
+					case 1:
+						levelStr = "预警"
+						break
+					case 2:
+						levelStr = "告警"
+						break
+					case 3:
+						levelStr = "严重告警"
+						break
+					default:
+						break
+					}
+					f.result.A10.Value += fmt.Sprintf("%v指标，%v开始，%v； ",
+						A10Resp.Data[i].JobName,
+						formatTime(A10Resp.Data[i].BeginTime),
+						levelStr,
+					)
+				}
+			}
+		} else {
+			f.result.A10.Value = fmt.Sprintf("查询失败 ： %v", A10Resp.Message)
+		}
 	}
 }
 
