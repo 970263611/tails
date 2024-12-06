@@ -25,7 +25,7 @@ func (c *Context) findHelp(key string) string {
 			"获取指定组件帮助信息: ./tails 组件名称 --help 或 ./tails 组件名称，其中--help可省略",
 			"调用指定组件: ./tails 组件名称 参数列表",
 			"通过web调用: http://ip:port/do?params=组件名称 参数列表",
-			"指定配置文件: ./tails 组件名称 参数列表 --config或--c 配置文件全路径，配置文件仅支持yml格式，--path与参数列表无前后顺序要求",
+			"指定配置文件: ./tails 组件名称 参数列表 --config或--c 配置文件全路径或相对路径，相对路径以tails文件所在目录为根路径，配置文件仅支持yml格式，--path与参数列表无前后顺序要求",
 			"指令转发: ./tails 组件名称 参数列表 --f或--forward ip:port，--f或--forward与参数列表无前后顺序要求",
 			"ENC解密传参：./tails 组件名称 --salt 密钥 参数列表(需加密内容用ENC()包裹)'，密钥也可配置在yml配置文件中,key为jasypt.salt",
 			"动态多配置项方式配置：./tails 组件名称 --key 分组字符，如果组件配置是web_svc.port,分组字符是aabb,则此时取yml中web_svc.aabb.port",

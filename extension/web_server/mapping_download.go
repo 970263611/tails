@@ -1,6 +1,7 @@
 package web_server
 
 import (
+	"basic/tool/utils"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io"
@@ -19,7 +20,7 @@ func download(resp http.ResponseWriter, req *http.Request) {
 		http.Error(resp, "请指定要下载的文件名", http.StatusBadRequest)
 		return
 	}
-
+	filePath = utils.GetAbsolutePath(filePath)
 	// 检查文件是否存在
 	_, err := os.Stat(filePath)
 	if os.IsNotExist(err) {

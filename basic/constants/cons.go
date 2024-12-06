@@ -3,10 +3,14 @@ package cons
 const (
 	COMPONENT_KEY string = "componentKey"
 	CONFIG_SALT   string = "jasypt.salt"
-	WEB_SVC       string = "web_server"
 	SYSTEM_PARAMS string = "systemparams"
 	DIFFUSE       string = "diffuse"
-	WEB_RESP             = "response"
+	WEB_RESP      string = "response"
+	WEB_SVC       string = "web_server"
+)
+
+const (
+	SYSTEM_WEB_PORT string = "system.webport"
 )
 
 const (

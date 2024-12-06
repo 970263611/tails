@@ -1,4 +1,10 @@
 @echo off
+if exist tails (
+  del tails
+)
+if exist tails.exe (
+  del tails.exe
+)
 echo cpu¼Ü¹¹ÁÐ±í:
 echo  1¡¢arm64
 echo  2¡¢amd64
@@ -24,12 +30,6 @@ if %b% == 1  (
 )
 go env -w GOARCH=%a%
 go env -w GOOS=%b%
-if exist tails (
-  del tails
-)
-if exist tails.exe (
-  del tails.exe
-)
 if %b% == "windows" (
   go build  -o tails.exe ./boot/main.go
 ) else (

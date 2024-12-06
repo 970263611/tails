@@ -3,6 +3,7 @@ package file_download
 import (
 	cons "basic/constants"
 	iface "basic/interfaces"
+	"basic/tool/utils"
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
@@ -25,7 +26,7 @@ func (d *FileDownload) GetName() string {
 }
 
 func (d *FileDownload) GetDescribe() string {
-	return "文件下载，支持相对和绝对路径，相对路径的根路径为发起启动命令时服务所在路径，绝对路径为文件全路径 \n例1：浏览器下载 file_download -addr 127.0.0.1:17001 -i /home/test/abc.zip " +
+	return "文件下载，支持相对和绝对路径，相对路径的根路径tails文件服务所在目录，绝对路径为文件全路径 \n例1：浏览器下载 file_download -addr 127.0.0.1:17001 -i /home/test/abc.zip " +
 		"\n例2：直接写入本地 file_download -addr 127.0.0.1:17001 -i /home/test/abc.zip -o /home/file/abc.zip" +
 		"\n例3：本地文件操作 file_download -i /home/test/abc.zip -o /home/file/abc.zip，相当于cp命令"
 }
@@ -82,9 +83,10 @@ func (d *FileDownload) Do(params map[string]any) []byte {
 */
 func writeFile(outputPath string, file []byte) error {
 	//获取文件路径并创建
-	_, err2 := os.Stat(path.Dir(outputPath))
+	outputPath = utils.GetAbsolutePath(outputPath)
+	_, err2 := os.Stat(utils.PathDir(outputPath))
 	if err2 != nil {
-		os.MkdirAll(path.Dir(outputPath), os.ModePerm)
+		os.MkdirAll(utils.PathDir(outputPath), os.ModePerm)
 	}
 	newFile, err := os.Create(outputPath)
 	if err != nil {
@@ -137,7 +139,7 @@ func downloadFile(addr string, inputpath string) ([]byte, error) {
 */
 func readLocal(inputpath string) ([]byte, error) {
 	// 检查文件是否存在
-	filebyte, err := os.ReadFile(inputpath)
+	filebyte, err := os.ReadFile(utils.GetAbsolutePath(inputpath))
 	if err != nil {
 		msg := "读取本地文件失败：" + err.Error()
 		log.Error(msg)

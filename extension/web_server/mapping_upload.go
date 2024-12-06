@@ -1,11 +1,11 @@
 package web_server
 
 import (
+	"basic/tool/utils"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"os"
-	"path"
 )
 
 func init() {
@@ -32,9 +32,10 @@ func upload(resp http.ResponseWriter, req *http.Request) {
 
 	//获取文件路径并创建
 	filePath := req.FormValue("filepath")
-	_, err2 := os.Stat(path.Dir(filePath))
+	filePath = utils.GetAbsolutePath(filePath)
+	_, err2 := os.Stat(utils.PathDir(filePath))
 	if err2 != nil {
-		os.MkdirAll(path.Dir(filePath), os.ModePerm)
+		os.MkdirAll(utils.PathDir(filePath), os.ModePerm)
 	}
 
 	newFile, err := os.Create(filePath)

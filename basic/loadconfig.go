@@ -87,6 +87,7 @@ func (c *Context) LoadConfig() error {
 	}
 	path := c.FindSystemParams(cons.SYSPARAM_CONFIG)
 	if path != "" {
+		path = utils.GetAbsolutePath(path)
 		v.SetConfigFile(path)
 		if err := v.ReadInConfig(); err != nil {
 			msg := fmt.Sprintf("配置文件 %v 读取失败，请检查路径和格式是否正确，仅支持yml或yaml格式文件,错误信息 : %v", path, err)
