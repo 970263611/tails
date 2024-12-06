@@ -133,7 +133,7 @@ func (c *Context) LoadSystemParams(commands []string) ([]string, error) {
 						args = commands
 						break
 					} else if pt.ParamType == cons.NO_VALUE {
-						maps[str] = componemtKey
+						maps[pt.CommandName] = componemtKey
 					} else {
 						i++
 						if i >= len(params) {
