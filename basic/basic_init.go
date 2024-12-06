@@ -4,6 +4,7 @@ import (
 	iface "basic/interfaces"
 	"extension/batch_retry"
 	"extension/command_exec"
+	"extension/config_update"
 	"extension/db_conn_num"
 	"extension/db_tool"
 	"extension/edb_retry"
@@ -41,6 +42,7 @@ func InitComponent() {
 	addInitComponent(high_availability.GetInstance(globalContext))
 	addInitComponent(file_upload.GetInstance(globalContext))
 	addInitComponent(file_download.GetInstance(globalContext))
+	addInitComponent(config_update.GetInstance(globalContext))
 }
 
 func InitGlobalContext(ctx iface.Context) {
