@@ -23,13 +23,13 @@ func (c *FileUpload) GetName() string {
 }
 
 func (c *FileUpload) GetDescribe() string {
-	return "文件上传 \n例：file_upload -a 127.0.0.1:17001  -i /home/test/abc.zip -o /home/file/abc.zip"
+	return "文件上传，支持相对和绝对路径，相对路径的根路径为tails服务所在路径，绝对路径为文件全路径  \n例：file_upload -a 127.0.0.1:17001  -i /home/test/abc.zip -o /home/file/abc.zip"
 }
 
 func (d *FileUpload) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.LOWER_A, "", "addr", true, nil, "上传地址，ip:port")
-	cm.AddParameters(cons.STRING, cons.LOWER_I, "", "inputpath", true, nil, "本地文件全路径(含文件名)")
-	cm.AddParameters(cons.STRING, cons.LOWER_O, "", "outputpath", true, nil, "输出文件全路径(含文件名)")
+	cm.AddParameters(cons.STRING, cons.LOWER_I, "", "inputpath", true, nil, "本地文件路径(含文件名)")
+	cm.AddParameters(cons.STRING, cons.LOWER_O, "", "outputpath", true, nil, "远程输出路径(含文件名)")
 }
 
 func (d *FileUpload) Do(params map[string]any) []byte {
