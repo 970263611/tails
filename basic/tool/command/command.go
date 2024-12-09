@@ -48,6 +48,19 @@ func ExecCmdByStr(commandArr ...string) (string, error) {
 
 /*
 *
+部分命令在执行过滤后如果没有匹配到内容，会返回一个非0的状态码，
+该状态码不应被认为是命令执行错误，例如grep，如果没有匹配到内容会返回1
+此时1代表未找到匹配内容，而并非命令执行失败
+因而需特殊处理此类命令
+*/
+var specialCommandsMap = map[string]string{
+	"grep": "1",
+}
+
+const SPECIAL_COMMANDS_RESULT string = "未找到匹配内容"
+
+/*
+*
 管道流模式执行系统指令
 */
 func ExecCmdByPipe(command ...[]string) (string, error) {
@@ -65,6 +78,13 @@ func ExecCmdByPipe(command ...[]string) (string, error) {
 			return "", err
 		}
 		if err := cmd.Wait(); err != nil {
+			if _, ok1 := specialCommandsMap[cmdStr[0]]; ok1 {
+				if exitError, ok2 := err.(*exec.ExitError); ok2 {
+					if exitError.ExitCode() == 1 {
+						return SPECIAL_COMMANDS_RESULT, nil
+					}
+				}
+			}
 			return "", err
 		}
 		first = false
