@@ -1,6 +1,7 @@
 package net
 
 import (
+	cons "basic/constants"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -123,11 +124,7 @@ func Get(urlStr string, params url.Values, headersMap http.Header) (*http.Respon
 	}
 	// 创建请求
 	req, err := http.NewRequest(http.MethodGet, fullURL, nil)
-	// 遍历headersMap并添加到请求的Header中
-	for key, values := range headersMap {
-		joinedValues := strings.Join(values, ",")
-		req.Header.Set(key, joinedValues)
-	}
+	req.Header = headersMap
 	if err != nil {
 		return nil, fmt.Errorf("创建请求失败: %v", err)
 	}
@@ -157,12 +154,7 @@ func Post(urlStr string, postData interface{}, headersMap http.Header) (*http.Re
 	if err != nil {
 		return nil, fmt.Errorf("创建请求失败: %v", err)
 	}
-	req.Header.Set("Content-Type", "application/json")
-	// 遍历headersMap并添加到请求的Header中
-	for key, values := range headersMap {
-		joinedValues := strings.Join(values, ",")
-		req.Header.Set(key, joinedValues)
-	}
+	req.Header = headersMap
 	// 发送请求
 	resp, err := SendReq(req)
 	if err != nil {
@@ -201,14 +193,10 @@ func Put(urlStr string, params url.Values, postData interface{}, headersMap http
 	} else {
 		req, err = http.NewRequest(http.MethodPut, fullURL, reqBody)
 	}
-	// 遍历headersMap并添加到请求的Header中
-	for key, values := range headersMap {
-		joinedValues := strings.Join(values, ",")
-		req.Header.Set(key, joinedValues)
-	}
 	if err != nil {
 		return nil, fmt.Errorf("创建请求失败: %v", err)
 	}
+	req.Header = headersMap
 	// 发送请求
 	resp, err := SendReq(req)
 	if err != nil {
@@ -217,7 +205,7 @@ func Put(urlStr string, params url.Values, postData interface{}, headersMap http
 	return resp, nil
 }
 
-// 发送请求
+// SendReq 发送请求
 func SendReq(req *http.Request) (*http.Response, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -228,13 +216,13 @@ func SendReq(req *http.Request) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("请求返回异常状态码 %v", resp.StatusCode)
+	if resp.StatusCode != cons.SUCCESS {
+		return nil, fmt.Errorf("请求返回异常状态码为: %v ", resp.StatusCode)
 	}
 	return resp, nil
 }
 
-// post get put 打印请求报文和响应报文
+// ReqRespLog post get put 打印请求报文和响应报文
 func ReqRespLog(req *http.Request, resp *http.Response) (*http.Request, *http.Response, error) {
 	reqbodyBytes := []byte("")
 	if req.Body != nil {
