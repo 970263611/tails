@@ -19,7 +19,6 @@ type findResult struct {
 	password  string
 	systemId  string
 	code      string
-	name      string
 	gatewayId string
 	enabled   string
 	apiName   string
@@ -72,29 +71,6 @@ func (f findResult) selectGetWayID() (string, error) {
 		}
 	}
 	return "", nil
-}
-
-// 获取路由配置信息
-func (f findResult) selectRule(gatewayId string) (*SelectRuleRespEntry, error) {
-	queryParams := url.Values{}
-	queryParams.Add("gatewayId", gatewayId)
-	queryParams.Add("name", f.name)
-	header := http.Header{}
-	header.Set("Authorization", f.token)
-	// 用于接收响应的结构体实例
-	var SelectRuleResp []SelectRuleRespEntry
-	var SelectRuleRespEntry SelectRuleRespEntry
-	// 发送 GET 请求
-	err := net.GetRespStruct(f.urlPrefix+"/api/routes/query", queryParams, header, &SelectRuleResp)
-	if err != nil {
-		return &SelectRuleRespEntry, err
-	}
-	for i := 0; i < len(SelectRuleResp); i++ {
-		if f.name == SelectRuleResp[i].Name {
-			return &SelectRuleResp[i], nil
-		}
-	}
-	return &SelectRuleRespEntry, nil
 }
 
 // 获取API组配置信息

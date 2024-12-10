@@ -46,9 +46,8 @@ func (s *SuspendServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", true, nil, "微服务管理平台的登录密码")
 	cm.AddParameters(cons.STRING, cons.LOWER_X, "systemId", "systemId", true, nil, "系统ID")
 	cm.AddParameters(cons.STRING, cons.LOWER_Y, "code", "code", true, nil, "网关编码")
-	cm.AddParameters(cons.STRING, cons.LOWER_N, "name", "name", true, nil, "组件名称")
 
-	cm.AddParameters(cons.STRING, cons.LOWER_Q, "query", "query", false, nil, "查询,传入api组查询API管理信息和流控信息")
+	cm.AddParameters(cons.STRING, cons.LOWER_Q, "query", "query", false, nil, "查询,传入api组名 查询API管理信息和流控信息")
 	cm.AddParameters(cons.STRING, cons.LOWER_E, "enabled", "enabled", false, func(s string) error {
 		if !utils.CheckIsBooleanByString(s) {
 			return errors.New("enabled不合法,必须是boolean类型")
@@ -68,7 +67,6 @@ func (s *SuspendServer) Do(params map[string]any) (resp []byte) {
 		password: params["password"].(string),
 		systemId: params["systemId"].(string),
 		code:     params["code"].(string),
-		name:     params["name"].(string),
 	}
 	sel, err := check(params, res)
 	if err != nil {
