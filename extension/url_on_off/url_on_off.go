@@ -148,7 +148,7 @@ func query(res findResult) []byte {
 	}
 	liuKong, err := res.queryLiuKong()
 	if err != nil {
-		return []byte("创建流控失败: " + err.Error())
+		return []byte("查询流控失败: " + err.Error())
 	}
 	resourceMode := map[int]any{
 		0: "路由",
@@ -168,7 +168,17 @@ func query(res findResult) []byte {
 	if err2 != nil {
 		return []byte("解码失败: " + err.Error())
 	}
-	sprintf := fmt.Sprintf("API组信息为:\n%s\n 流控信息为:\n%s", string(apiByte), string(liuKongByte))
+
+	//格式化
+	formatApiByte, err := utils.FormatJson(apiByte)
+	if err != nil {
+		return []byte("格式化失败: " + err.Error())
+	}
+	formatLiuKongByte, err := utils.FormatJson(liuKongByte)
+	if err != nil {
+		return []byte("格式化失败: " + err.Error())
+	}
+	sprintf := fmt.Sprintf("API组信息为:\n%s\n 流控信息为:\n%s", string(formatApiByte), string(formatLiuKongByte))
 	return []byte(sprintf)
 }
 
