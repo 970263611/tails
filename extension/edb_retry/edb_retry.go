@@ -62,15 +62,18 @@ func sendfile(fileName, url string) (r []byte) {
 	m := map[string]string{
 		"dataName": fileName,
 	}
+	body := map[string]any{
+		"body": m,
+	}
 	var resp Resp
-	err := net.PostRespStruct(url, m, nil, &resp)
+	err := net.PostRespStruct(url, body, nil, &resp)
 	if err != nil {
 		log.Error("发错任务接口失败：", err)
 		return []byte("发错任务接口失败：" + err.Error())
 	}
 	if resp.Code == "0000000000000000" {
-		return []byte(fmt.Sprintf("%v文件重发成功: %v ", fileName, resp.Message))
+		return []byte(fmt.Sprintf("%v文件重发成功: %v ", fileName, resp.Msg))
 	} else {
-		return []byte(fmt.Sprintf("%v文件重发失败: %v ", fileName, resp.Message))
+		return []byte(fmt.Sprintf("%v文件重发失败: %v ", fileName, resp.Msg))
 	}
 }

@@ -52,8 +52,11 @@ func (b *BatchServer) Do(params map[string]any) (resp []byte) {
 		m := map[string]string{
 			"name": jobName,
 		}
+		body := map[string]any{
+			"body": m,
+		}
 		var resp Resp
-		err := net.PostRespStruct(urlPrefix+"/queryByName", m, nil, &resp)
+		err := net.PostRespStruct(urlPrefix+"/queryByName", body, nil, &resp)
 		if err != nil {
 			log.Error("发错查询任务接口失败：", err)
 			return []byte("发错查询任务接口失败：" + err.Error())
