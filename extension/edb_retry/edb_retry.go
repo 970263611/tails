@@ -30,18 +30,18 @@ func (b *EdbServer) GetDescribe() string {
 func (b *EdbServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.LOWER_H, "ip", "host", true, func(s string) error {
 		if !utils.CheckIp(s) {
-			return errors.New("edb服务的主机ip不合法")
+			return errors.New("发送方是cfzt-edb-upload,接收方是cfzt-edb 服务ip")
 		}
 		return nil
 	}, "edb服务的主机ip地址")
 	cm.AddParameters(cons.INT, cons.LOWER_P, "port", "port", true, func(s string) error {
 		if !utils.CheckPortByString(s) {
-			return errors.New("edb服务的端口port不合法")
+			return errors.New("发送方是cfzt-edb-upload,接收方是cfzt-edb 服务port")
 		}
 		return nil
 	}, "edb服务的端口")
-	cm.AddParameters(cons.STRING, cons.LOWER_U, "username", "username", false, nil, "edb登录用户名")
-	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", false, nil, "edb登录密码")
+	cm.AddParameters(cons.STRING, cons.LOWER_U, "username", "username", false, nil, "财富中台登录用户名")
+	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", false, nil, "财富中台登录密码")
 	cm.AddParameters(cons.STRING, cons.LOWER_N, "sendName", "sendName", false, nil, "财富中台-edb文件报送-接口名称")
 	cm.AddParameters(cons.STRING, cons.UPPER_N, "receiveName", "receiveName", false, nil, "财富中台-edb文件接收-接口名称")
 }
@@ -77,8 +77,8 @@ func sendfile(fileName, url string) (r []byte) {
 		return []byte("发错任务接口失败：" + err.Error())
 	}
 	if resp.Code == "0000000000000000" {
-		return []byte(fmt.Sprintf("%v文件重发成功: %v ", fileName, resp.Msg))
+		return []byte(fmt.Sprintf("%v任务重发成功: %v ", fileName, resp.Msg))
 	} else {
-		return []byte(fmt.Sprintf("%v文件重发失败: %v ", fileName, resp.Msg))
+		return []byte(fmt.Sprintf("%v任务重发失败: %v ", fileName, resp.Msg))
 	}
 }
