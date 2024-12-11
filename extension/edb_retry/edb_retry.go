@@ -22,7 +22,9 @@ func (b *EdbServer) GetName() string {
 }
 
 func (b *EdbServer) GetDescribe() string {
-	return "edb重发组件,用于文件处理异常恢复,针对于发送方与接收方. 发送方发送失败重发,接收方接收失败重发 \n例：edb_retry -h 127.0.0.1 -p 9999 -u edb -w edb -n \"/home/edbFileName\""
+	return "edb重发组件,用于文件处理异常恢复,针对于发送方与接收方. 发送方发送失败重发,接收方接收失败重发 " +
+		"\n例: 发送方失败重发 	edb_retry -h 127.0.0.1 -p 9999 -u edb -w edb -n LCYXYS" +
+		"\n例: 接收方失败重发	edb_retry -h 127.0.0.1 -p 9999 -u edb -w edb -N COMBINATION_ZONE"
 }
 
 func (b *EdbServer) Register(cm iface.ComponentMeta) {
@@ -40,21 +42,21 @@ func (b *EdbServer) Register(cm iface.ComponentMeta) {
 	}, "edb服务的端口")
 	cm.AddParameters(cons.STRING, cons.LOWER_U, "username", "username", false, nil, "edb登录用户名")
 	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", false, nil, "edb登录密码")
-	cm.AddParameters(cons.STRING, cons.LOWER_N, "sendFileName", "sendFileName", false, nil, "发送方需要恢复的文件名称")
-	cm.AddParameters(cons.STRING, cons.UPPER_N, "receiveFileName", "receiveFileName", false, nil, "接收方需要恢复的文件名称")
+	cm.AddParameters(cons.STRING, cons.LOWER_N, "sendName", "sendName", false, nil, "财富中台-edb文件报送-接口名称")
+	cm.AddParameters(cons.STRING, cons.UPPER_N, "receiveName", "receiveName", false, nil, "财富中台-edb文件接收-接口名称")
 }
 
 func (b *EdbServer) Do(params map[string]any) (resp []byte) {
 	host := params["host"].(string)
 	port := params["port"].(int)
 	urlPrefix := fmt.Sprintf("%s://%s:%d", "http", host, port)
-	sendFileName, sok := params["sendFileName"].(string)
+	sendFileName, sok := params["sendName"].(string)
 	if sok {
-		return sendfile(sendFileName, urlPrefix+"/api/mainTask/reconsumeByName")
+		return sendfile(sendFileName, urlPrefix+"/edb/upload/retryByName")
 	}
-	receiveFileName, rok := params["receiveFileName"].(string)
+	receiveFileName, rok := params["receiveName"].(string)
 	if rok {
-		return sendfile(receiveFileName, urlPrefix+"/edb/upload/retryByName")
+		return sendfile(receiveFileName, urlPrefix+"/api/mainTask/reconsumeByName")
 	}
 	return
 }
