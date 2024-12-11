@@ -139,7 +139,47 @@ func TestUpdateApi05(t *testing.T) {
 		"name":     "cfzt-edb",
 		"enabled":  "true",
 		"uri":      "/cfzt-edb/query",
-		"apiName":  "cfzt-edb",
+		"apiName":  "cfzt-edb2",
+	}
+	instance := GetInstance(nil)
+	resp := instance.Do(params)
+	if resp != nil {
+		fmt.Println(string(resp))
+	}
+}
+
+// 测试liukong 存在
+func TestLiuKong(t *testing.T) {
+	params := map[string]any{
+		"host":     "20.200.184.109",
+		"port":     18080,
+		"username": "jinqinghu",
+		"password": "CED285B79A3E3F95E0D5FDC570DD50F235FE057E589FB3B9",
+		"systemId": "63147146-9af9-4f23-908e-c50427ab7278",
+		"code":     "GATEWAY-CPFX-CPYY",
+		"name":     "cfzt-edb",
+		"enabled":  "false",
+		"uri":      "/cfzt-edb/query/22",
+		"apiName":  "test",
+		"count":    2,
+	}
+	instance := GetInstance(nil)
+	resp := instance.Do(params)
+	if resp != nil {
+		fmt.Println(string(resp))
+	}
+}
+
+func TestQuery(t *testing.T) {
+	params := map[string]any{
+		"host":     "20.200.184.109",
+		"port":     18080,
+		"username": "jinqinghu",
+		"password": "CED285B79A3E3F95E0D5FDC570DD50F235FE057E589FB3B9",
+		"systemId": "63147146-9af9-4f23-908e-c50427ab7278",
+		"code":     "GATEWAY-CPFX-CPYY",
+		"name":     "cfzt-edb",
+		"query":    "test",
 	}
 	instance := GetInstance(nil)
 	resp := instance.Do(params)

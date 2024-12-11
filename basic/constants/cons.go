@@ -93,6 +93,7 @@ const (
 	LOWER_O CommandName = "-o" //输出路径，输出
 	LOWER_P CommandName = "-p" //第一端口
 	UPPER_P CommandName = "-P" //第二端口
+	LOWER_Q CommandName = "-q" //查询
 	LOWER_R CommandName = "-r" //重试，重复执行，启动高可用模块
 	LOWER_S CommandName = "-s" //状态展示status
 	UPPER_S CommandName = "-S" //redis set

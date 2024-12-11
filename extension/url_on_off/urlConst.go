@@ -19,13 +19,14 @@ type findResult struct {
 	password  string
 	systemId  string
 	code      string
-	name      string
 	gatewayId string
 	enabled   string
 	apiName   string
 	token     string
 	urlPrefix string
 	uri       string
+	count     int
+	liuKong   LiuKongQueryRespEntry
 }
 
 func (f findResult) login() (string, error) {
@@ -72,29 +73,6 @@ func (f findResult) selectGetWayID() (string, error) {
 	return "", nil
 }
 
-// 获取路由配置信息
-func (f findResult) selectRule(gatewayId string) (*SelectRuleRespEntry, error) {
-	queryParams := url.Values{}
-	queryParams.Add("gatewayId", gatewayId)
-	queryParams.Add("name", f.name)
-	header := http.Header{}
-	header.Set("Authorization", f.token)
-	// 用于接收响应的结构体实例
-	var SelectRuleResp []SelectRuleRespEntry
-	var SelectRuleRespEntry SelectRuleRespEntry
-	// 发送 GET 请求
-	err := net.GetRespStruct(f.urlPrefix+"/api/routes/query", queryParams, header, &SelectRuleResp)
-	if err != nil {
-		return &SelectRuleRespEntry, err
-	}
-	for i := 0; i < len(SelectRuleResp); i++ {
-		if f.name == SelectRuleResp[i].Name {
-			return &SelectRuleResp[i], nil
-		}
-	}
-	return &SelectRuleRespEntry, nil
-}
-
 // 获取API组配置信息
 func (f findResult) selectApiGroup() (*ApiQueryRespEntry, error) {
 	queryParams := url.Values{}
@@ -137,6 +115,7 @@ func (f findResult) createApiGroup() (*RespEntry, error) {
 
 	header := http.Header{}
 	header.Set("Authorization", f.token)
+	header.Set("Content-Type", "application/json")
 	var apiCreateRespEntry RespEntry
 	// 发送 POST 请求
 	err = net.PostRespStruct(f.urlPrefix+"/api/gateway-apidefinitions", postData, header, &apiCreateRespEntry)
@@ -197,8 +176,8 @@ func (f findResult) updateApiGroup(apiQuery *ApiQueryRespEntry) (*RespEntry, err
 	}
 
 	header := http.Header{}
-	header.Set("Content-Type", "application/json")
 	header.Set("Authorization", f.token)
+	header.Set("Content-Type", "application/json")
 	var apiUpdateRespEntry RespEntry
 	err = net.PutRespStruct(f.urlPrefix+"/api/gateway-apidefinitions", nil, postData, header, &apiUpdateRespEntry)
 	if err != nil {
@@ -230,30 +209,46 @@ func (f findResult) queryLiuKong() (*LiuKongQueryRespEntry, error) {
 
 // 创建流控
 func (f findResult) createLiuKong() (*RespEntry, error) {
-	liuKong := map[string]any{
-		"resourceMode":         1,
-		"resource":             f.apiName,
-		"controlBehavior":      0,
-		"parseStrategy":        0,
-		"fieldName":            "",
-		"prop":                 false,
-		"grade":                0,
-		"count":                0.0,
-		"intervalSec":          1,
-		"region":               "秒",
-		"burst":                0,
-		"matchStrategy":        0,
-		"routeName":            f.apiName,
-		"matchType":            "normal",
-		"index":                0,
-		"maxQueueingTimeoutMs": 1,
-		"gatewayId":            f.gatewayId,
+	liuKong := LiuKongQueryRespEntry{
+		ResourceMode:         1,
+		Resource:             f.apiName,
+		ControlBehavior:      0,
+		ParseStrategy:        0,
+		FieldName:            "",
+		Prop:                 false,
+		Grade:                0,
+		Count:                float32(f.count),
+		IntervalSec:          1,
+		Region:               "秒",
+		Burst:                0,
+		MatchStrategy:        0,
+		RouteName:            f.apiName,
+		MatchType:            "normal",
+		Index:                0,
+		MaxQueueingTimeoutMs: 1,
+		GatewayId:            f.gatewayId,
 	}
 	header := http.Header{}
 	header.Set("Authorization", f.token)
+	header.Set("Content-Type", "application/json")
 	var liuKongCreateRespEntry RespEntry
 	// 发送 POST 请求
 	err := net.PostRespStruct(f.urlPrefix+"/api/gateway-flow-rules", liuKong, header, &liuKongCreateRespEntry)
+	if err != nil {
+		return nil, err
+	}
+	return &liuKongCreateRespEntry, nil
+}
+
+func (f findResult) updateLiuKong() (*RespEntry, error) {
+	liuKong := f.liuKong
+	liuKong.Count = float32(f.count)
+	header := http.Header{}
+	header.Set("Authorization", f.token)
+	header.Set("Content-Type", "application/json")
+	var liuKongCreateRespEntry RespEntry
+	// 发送 POST 请求
+	err := net.PutRespStruct(f.urlPrefix+"/api/gateway-flow-rules", nil, liuKong, header, &liuKongCreateRespEntry)
 	if err != nil {
 		return nil, err
 	}
