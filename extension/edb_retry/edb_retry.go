@@ -23,23 +23,23 @@ func (b *EdbServer) GetName() string {
 
 func (b *EdbServer) GetDescribe() string {
 	return "edb重发组件,用于文件处理异常恢复,针对于发送方与接收方. 发送方发送失败重发,接收方接收失败重发 " +
-		"\n例: 发送方失败重发 	edb_retry -h 127.0.0.1 -p 9999 -u edb -w edb -n LCYXYS" +
-		"\n例: 接收方失败重发	edb_retry -h 127.0.0.1 -p 9999 -u edb -w edb -N COMBINATION_ZONE"
+		"\n例: 发送方失败重发 	edb_retry -h 127.0.0.1 -p 9999 -u edb -w edb -n COMBINATION_ZONE" +
+		"\n例: 接收方失败重发	edb_retry -h 127.0.0.1 -p 9999 -u edb -w edb -N LCYXYS"
 }
 
 func (b *EdbServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.LOWER_H, "ip", "host", true, func(s string) error {
 		if !utils.CheckIp(s) {
-			return errors.New("发送方是cfzt-edb-upload,接收方是cfzt-edb 服务ip")
+			return errors.New("ip不合法")
 		}
 		return nil
-	}, "edb服务的主机ip地址")
+	}, "发送方是cfzt-edb-upload,接收方是cfzt-edb 服务ip")
 	cm.AddParameters(cons.INT, cons.LOWER_P, "port", "port", true, func(s string) error {
 		if !utils.CheckPortByString(s) {
-			return errors.New("发送方是cfzt-edb-upload,接收方是cfzt-edb 服务port")
+			return errors.New("port不合法")
 		}
 		return nil
-	}, "edb服务的端口")
+	}, "发送方是cfzt-edb-upload,接收方是cfzt-edb 服务port")
 	cm.AddParameters(cons.STRING, cons.LOWER_U, "username", "username", false, nil, "财富中台登录用户名")
 	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", false, nil, "财富中台登录密码")
 	cm.AddParameters(cons.STRING, cons.LOWER_N, "sendName", "sendName", false, nil, "财富中台-edb文件报送-接口名称")
