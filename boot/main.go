@@ -7,7 +7,6 @@ import (
 	"basic/log_config"
 	"fmt"
 	"os"
-	"strconv"
 )
 
 /*
@@ -95,19 +94,9 @@ func initLogConfig(c iface.Context) {
 	if logconfig.Log.Level != "" {
 		config.Level = logconfig.Log.Level
 	}
-	if logconfig.Log.OutType != 0 {
-		config.OutType = logconfig.Log.OutType
-	}
-	loglevel := c.FindSystemParams(cons.SYSPARAM_LOG_LEVEL)
+	loglevel, _ := c.FindSystemParams(cons.SYSPARAM_LOG_LEVEL)
 	if loglevel != "" {
 		config.Level = loglevel
-	}
-	logouttype := c.FindSystemParams(cons.SYSPARAM_LOG_OUTTYPE)
-	if logouttype != "" {
-		num, err := strconv.Atoi(logouttype)
-		if err == nil {
-			config.OutType = num
-		}
 	}
 	log_config.Init(config)
 }

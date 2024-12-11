@@ -21,7 +21,7 @@ const (
 	SYSPARAM_FORWORD     string = "--f,--forward"
 	SYSPARAM_GID         string = "--gid"
 	SYSPARAM_LOG_LEVEL   string = "--loglevel"
-	SYSPARAM_LOG_OUTTYPE string = "--logouttype"
+	SYSPARAM_LOG_CONSOLE string = "--logconsole"
 )
 
 // ParamType ================start=============

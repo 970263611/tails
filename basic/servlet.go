@@ -39,7 +39,7 @@ func execute(commands []string, isSystem bool) ([]byte, error) {
 		return nil, errors.New(msg)
 	}
 	//获取组件帮助信息
-	if value := globalContext.FindSystemParams(cons.SYSPARAM_HELP); value != "" {
+	if value, _ := globalContext.FindSystemParams(cons.SYSPARAM_HELP); value != "" {
 		return help(value), nil
 	}
 	//配置文件配置注入参数中
@@ -81,7 +81,7 @@ web请求转发
 func forward(commands []string) ([]byte, error) {
 	var addr, params string
 	//判断是否需要转发，并拼接转发参数
-	addr = globalContext.FindSystemParams(cons.SYSPARAM_FORWORD)
+	addr, _ = globalContext.FindSystemParams(cons.SYSPARAM_FORWORD)
 	if addr == "" {
 		return nil, nil
 	}
@@ -96,7 +96,7 @@ func forward(commands []string) ([]byte, error) {
 	params = strings.Join(commands, " ")
 	log.Infof("请求转发，转发地址:[%s],转发参数:[%s]", addr, params)
 	//插入全局业务跟踪号
-	gid := globalContext.FindSystemParams(cons.SYSPARAM_GID)
+	gid, _ := globalContext.FindSystemParams(cons.SYSPARAM_GID)
 	if gid != "" {
 		params += " " + cons.SYSPARAM_GID + " "
 		params += gid
@@ -128,7 +128,7 @@ func forward(commands []string) ([]byte, error) {
 设置全局ID
 */
 func setGID() {
-	gid := globalContext.FindSystemParams(cons.SYSPARAM_GID)
+	gid, _ := globalContext.FindSystemParams(cons.SYSPARAM_GID)
 	if gid == "" {
 		gid, _ = utils.GenerateUUID()
 		globalContext.setSystemParams(cons.SYSPARAM_GID, gid)
@@ -190,7 +190,7 @@ func commandsToMap(commands []string) (map[string]string, error) {
 		}
 	}
 	//ENC(data)内容解密
-	salt := globalContext.FindSystemParams(cons.SYSPARAM_SALT)
+	salt, _ := globalContext.FindSystemParams(cons.SYSPARAM_SALT)
 	if salt == "" && globalContext.Config != nil {
 		salt = globalContext.Config.GetString(cons.CONFIG_SALT)
 	}
@@ -227,7 +227,7 @@ func addConfigToMap(maps map[string]string) {
 	}
 	for _, v := range cm.params {
 		if _, ok = maps[v.CommandName]; v.ParamType != cons.NO_VALUE && v.ConfigName != "" && !ok {
-			key := globalContext.FindSystemParams(cons.SYSPARAM_KEY)
+			key, _ := globalContext.FindSystemParams(cons.SYSPARAM_KEY)
 			if key != "" {
 				key = cm.GetName() + "." + key + "." + v.ConfigName
 			} else {
@@ -237,7 +237,7 @@ func addConfigToMap(maps map[string]string) {
 			if val != "" {
 				maps[v.CommandName] = val
 				if strings.HasPrefix(val, "ENC(") && strings.HasSuffix(val, ")") {
-					salt := globalContext.FindSystemParams(cons.SYSPARAM_SALT)
+					salt, _ := globalContext.FindSystemParams(cons.SYSPARAM_SALT)
 					if salt == "" && globalContext.Config != nil {
 						salt = globalContext.Config.GetString(cons.CONFIG_SALT)
 					}

@@ -17,7 +17,7 @@ type Context interface {
 	Unmarshal(a any) error
 	LoadConfig() error
 	FindComponent(key string, isSystem bool) ComponentMeta
-	FindSystemParams(key string) string
+	FindSystemParams(key string) (string, bool)
 	DelSystemParams(key string)
 	SetForwordAddr(addr string)
 }

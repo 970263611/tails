@@ -6,6 +6,7 @@ import (
 	"basic/tool/utils"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/writer"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"os"
@@ -30,8 +31,7 @@ type logConfig struct {
 	Compress bool
 	//日志级别
 	Level string
-	//1仅日志文件输出 2仅控制台输出 3控制台和日志文件输出
-	OutType int
+	//全局对象
 	iface.Context
 }
 
@@ -40,7 +40,7 @@ type logConfig struct {
 创建默认日志配置对象
 */
 func NewLogConfig(c iface.Context) *logConfig {
-	return &logConfig{utils.GetRootPath() + "logs/all.log", 50, 10, 90, true, "info", 1, c}
+	return &logConfig{utils.GetRootPath() + "logs", 50, 10, 90, true, "info", c}
 }
 
 /*
@@ -58,7 +58,7 @@ type CustomFormatter struct {
 func (f *CustomFormatter) Format(entry *log.Entry) ([]byte, error) {
 	timestamp := entry.Time.Format("2006-01-02 15:04:05")
 	fName := filepath.Base(entry.Caller.File)
-	gid := f.FindSystemParams(cons.SYSPARAM_GID)
+	gid, _ := f.FindSystemParams(cons.SYSPARAM_GID)
 	if gid != "" {
 		return []byte(fmt.Sprintf("[%s] [%s] [%s] [%s:%d %s] %s\n", timestamp, entry.Level, fmt.Sprintf("%v", gid), fName, entry.Caller.Line, entry.Caller.Function, entry.Message)), nil
 	} else {
@@ -74,20 +74,31 @@ func Init(cfg *logConfig) {
 	log.SetReportCaller(true)
 	log.SetFormatter(&CustomFormatter{cfg.Context})
 	log.SetLevel(logLevel(cfg.Level))
-	logger := &lumberjack.Logger{
-		Filename:   cfg.Filename,
+	log.SetLevel(log.DebugLevel)
+	allWriter := createLogWriter(cfg, "all")
+	debugWriter := createLogWriter(cfg, "debug")
+	infoWriter := createLogWriter(cfg, "info")
+	warnWriter := createLogWriter(cfg, "warn")
+	errorWriter := createLogWriter(cfg, "error")
+	log.AddHook(&writer.Hook{allWriter, log.AllLevels})
+	log.AddHook(&writer.Hook{debugWriter, []log.Level{log.TraceLevel, log.DebugLevel}})
+	log.AddHook(&writer.Hook{infoWriter, []log.Level{log.InfoLevel}})
+	log.AddHook(&writer.Hook{warnWriter, []log.Level{log.WarnLevel}})
+	log.AddHook(&writer.Hook{errorWriter, []log.Level{log.ErrorLevel, log.FatalLevel, log.PanicLevel}})
+	if _, ok := cfg.FindSystemParams(cons.SYSPARAM_LOG_CONSOLE); ok {
+		log.SetOutput(os.Stdout)
+	} else {
+		log.SetOutput(io.Discard)
+	}
+}
+
+func createLogWriter(cfg *logConfig, level string) *lumberjack.Logger {
+	return &lumberjack.Logger{
+		Filename:   cfg.Filename + "/" + strings.ToLower(level) + ".log",
 		MaxSize:    cfg.MaxSize,
 		MaxBackups: cfg.MaxBackups,
 		MaxAge:     cfg.MaxAge,
 		Compress:   cfg.Compress,
-	}
-	switch cfg.OutType {
-	case 3:
-		log.SetOutput(io.MultiWriter(logger, os.Stdout))
-	case 2:
-		log.SetOutput(os.Stdout)
-	default:
-		log.SetOutput(logger)
 	}
 }
 

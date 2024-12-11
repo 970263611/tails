@@ -57,18 +57,18 @@ var systemParam = []*parameter{
 		Describe:     "全局id",
 	},
 	&parameter{
+		ParamType:    cons.NO_VALUE,
+		CommandName:  cons.SYSPARAM_LOG_CONSOLE,
+		StandardName: "",
+		Required:     false,
+		Describe:     "控制台打印日志",
+	},
+	&parameter{
 		ParamType:    cons.STRING,
 		CommandName:  cons.SYSPARAM_LOG_LEVEL,
 		StandardName: "",
 		Required:     false,
 		Describe:     "日志级别",
-	},
-	&parameter{
-		ParamType:    cons.STRING,
-		CommandName:  cons.SYSPARAM_LOG_OUTTYPE,
-		StandardName: "",
-		Required:     false,
-		Describe:     "日志输出类型",
 	},
 }
 
@@ -85,7 +85,7 @@ func (c *Context) LoadConfig() error {
 	for key, value := range defaultParams {
 		v.SetDefault(key, value)
 	}
-	path := c.FindSystemParams(cons.SYSPARAM_CONFIG)
+	path, _ := c.FindSystemParams(cons.SYSPARAM_CONFIG)
 	if path != "" {
 		path = utils.GetAbsolutePath(path)
 		v.SetConfigFile(path)
@@ -134,7 +134,7 @@ func (c *Context) LoadSystemParams(commands []string) ([]string, error) {
 						args = commands
 						break
 					} else if pt.ParamType == cons.NO_VALUE {
-						maps[pt.CommandName] = componemtKey
+						maps[pt.CommandName] = ""
 					} else {
 						i++
 						if i >= len(params) {
@@ -165,18 +165,14 @@ func (c *Context) LoadSystemParams(commands []string) ([]string, error) {
 *
 查询入参当中的系统参数
 */
-func (c *Context) FindSystemParams(key string) string {
+func (c *Context) FindSystemParams(key string) (string, bool) {
 	cache, ok := c.GetCache(cons.SYSTEM_PARAMS)
 	if ok {
 		m := cache.(map[string]string)
-		a, ok := m[key]
-		if ok {
-			return a
-		} else {
-			return ""
-		}
+		a, ok1 := m[key]
+		return a, ok1
 	} else {
-		return ""
+		return "", false
 	}
 }
 
