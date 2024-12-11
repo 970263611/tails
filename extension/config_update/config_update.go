@@ -50,9 +50,9 @@ func (c *ConfigServer) GetName() string {
 }
 
 func (c *ConfigServer) GetDescribe() string {
-	return "nacos更新配置文件 \n" +
-		"例: config_update -h 127.0.0.1 -p 8848 -u nacos -w nacos -n test1112 -g group -d sit.yml -o /appcpyy/ " +
-		"\n    config_update -h 127.0.0.1 -p 8848 -u nacos -w nacos -n test1112 -g group -d sit.yml -U /appcpyy/sit.yml"
+	return "Nacos更新配置文件 " +
+		"\n例: 获取配置 config_update -h 127.0.0.1 -p 8848 -u nacos -w nacos -n test1112 -g group -d sit.yml -o /appcpyy/ " +
+		"\n例: 上传配置 config_update -h 127.0.0.1 -p 8848 -u nacos -w nacos -n test1112 -g group -d sit.yml -U /appcpyy/sit.yml"
 }
 
 func (c *ConfigServer) Register(cm iface.ComponentMeta) {

@@ -54,8 +54,10 @@ func (f findResult) login() (string, error) {
 			"passWord": f.password,
 		}
 	}
+	header := http.Header{}
+	header.Set("Content-Type", "application/json")
 	err := net.PostRespStruct(f.urlPrefix+"/api/cert/actions/login",
-		mapparams, nil, &loginResp)
+		mapparams, header, &loginResp)
 	if err != nil {
 		return "登录失败", err
 	}

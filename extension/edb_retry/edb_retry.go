@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"net/http"
 )
 
 type EdbServer struct{}
@@ -39,8 +40,8 @@ func (b *EdbServer) Register(cm iface.ComponentMeta) {
 	}, "edb服务的端口")
 	cm.AddParameters(cons.STRING, cons.LOWER_U, "username", "username", false, nil, "edb登录用户名")
 	cm.AddParameters(cons.STRING, cons.LOWER_W, "password", "password", false, nil, "edb登录密码")
-	cm.AddParameters(cons.STRING, cons.LOWER_N, "", "sendFileName", false, nil, "发送方需要恢复的文件名称")
-	cm.AddParameters(cons.STRING, cons.UPPER_N, "", "receiveFileName", false, nil, "接收方需要恢复的文件名称")
+	cm.AddParameters(cons.STRING, cons.LOWER_N, "sendFileName", "sendFileName", false, nil, "发送方需要恢复的文件名称")
+	cm.AddParameters(cons.STRING, cons.UPPER_N, "receiveFileName", "receiveFileName", false, nil, "接收方需要恢复的文件名称")
 }
 
 func (b *EdbServer) Do(params map[string]any) (resp []byte) {
@@ -65,8 +66,10 @@ func sendfile(fileName, url string) (r []byte) {
 	body := map[string]any{
 		"body": m,
 	}
+	header := http.Header{}
+	header.Set("Content-Type", "application/json")
 	var resp Resp
-	err := net.PostRespStruct(url, body, nil, &resp)
+	err := net.PostRespStruct(url, body, header, &resp)
 	if err != nil {
 		log.Error("发错任务接口失败：", err)
 		return []byte("发错任务接口失败：" + err.Error())

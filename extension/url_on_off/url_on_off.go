@@ -26,7 +26,9 @@ func (s *SuspendServer) GetName() string {
 }
 
 func (s *SuspendServer) GetDescribe() string {
-	return "gateway流控交易接口服务 \n例：url_on_off  -h 127.0.0.1 -p 9999 -u gateway -w gateway -x 885e492d-bec8-4268-a2fc-ce0162c066fc -y GATEWAY-GSCT-TEST -n cfzt-edb -e false -U \"/cfzt-edb/query\" -g cfzt-edb -G cfzt-edb -c 0"
+	return "gateway流控交易接口服务 " +
+		"\n例: 流控URI  url_on_off  -h 127.0.0.1 -p 9999 -u gateway -w gateway -x 885e492 -y GATEWAY-GSCT-TEST  -e false -U \"/test\" -g test  -c 0" +
+		"\n例: 查询API组 url_on_off  -h 127.0.0.1 -p 9999 -u gateway -w gateway -x 885e492 -y GATEWAY-GSCT-TEST  -q test "
 }
 
 func (s *SuspendServer) Register(cm iface.ComponentMeta) {
