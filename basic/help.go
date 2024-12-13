@@ -29,6 +29,8 @@ func (c *Context) findHelp(key string) string {
 			"指令转发: ./tails 组件名称 参数列表 --f或--forward ip:port，--f或--forward与参数列表无前后顺序要求",
 			"ENC解密传参：./tails 组件名称 --salt 密钥 参数列表(需加密内容用ENC()包裹)'，密钥也可配置在yml配置文件中,key为jasypt.salt",
 			"动态多配置项方式配置：./tails 组件名称 --key 分组字符，如果组件配置是web_svc.port,分组字符是aabb,则此时取yml中web_svc.aabb.port",
+			"日志级别配置: ./tails 组件名称 参数列表 --loglevel info   级别是info",
+			"日志打印控制台配置: ./tails 组件名称 参数列表  --logconsole 打印到控制台",
 		}
 		for _, v := range arr {
 			sb.WriteString(blank + v)

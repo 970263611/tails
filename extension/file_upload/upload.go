@@ -24,7 +24,7 @@ func (c *FileUpload) GetName() string {
 }
 
 func (c *FileUpload) GetDescribe() string {
-	return "文件上传，支持相对和绝对路径，相对路径的根路径为tails文件所在目录，绝对路径为文件全路径  \n例：file_upload -a 127.0.0.1:17001  -i /home/test/abc.zip -o /home/file/abc.zip"
+	return "文件上传(目标上传地址是 tails web_server启动的ip:port)，支持相对和绝对路径，相对路径的根路径为tails文件所在目录,绝对路径为文件全路径  \n例：file_upload -a 127.0.0.1:17001  -i /home/test/abc.zip -o /home/file/abc.zip"
 }
 
 func (d *FileUpload) Register(cm iface.ComponentMeta) {

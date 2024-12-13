@@ -3,12 +3,13 @@ package file_download
 import (
 	cons "basic/constants"
 	iface "basic/interfaces"
+	"basic/tool/net"
 	"basic/tool/utils"
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 )
@@ -26,8 +27,8 @@ func (d *FileDownload) GetName() string {
 }
 
 func (d *FileDownload) GetDescribe() string {
-	return "文件下载，支持相对和绝对路径，相对路径的根路径tails文件服务所在目录，绝对路径为文件全路径 \n例1：浏览器下载 file_download -addr 127.0.0.1:17001 -i /home/test/abc.zip " +
-		"\n例2：直接写入本地 file_download -addr 127.0.0.1:17001 -i /home/test/abc.zip -o /home/file/abc.zip" +
+	return "文件下载(目标下载地址是 tails web_server启动的ip:port)，支持相对和绝对路径，相对路径的根路径tails文件服务所在目录,绝对路径为文件全路径 \n例1：浏览器下载 file_download -a 127.0.0.1:17001 -i /home/test/abc.zip " +
+		"\n例2：直接写入本地 file_download -a 127.0.0.1:17001 -i /home/test/abc.zip -o /home/file/abc.zip" +
 		"\n例3：本地文件操作 file_download -i /home/test/abc.zip -o /home/file/abc.zip，相当于cp命令"
 }
 
@@ -109,28 +110,13 @@ func writeFile(outputPath string, file []byte) error {
 远程下载文件
 */
 func downloadFile(addr string, inputpath string) ([]byte, error) {
-	req, err := http.NewRequest(http.MethodGet, "http://"+addr+"/download?filepath="+inputpath, nil)
+	queryParams := url.Values{}
+	queryParams.Add("filepath", inputpath)
+	resp, err := net.GetRespString("http://"+addr+"/download", queryParams, nil)
 	if err != nil {
-		msg := fmt.Sprintf("创建请求失败：%v", err)
-		log.Error(msg)
-		return nil, errors.New(msg)
+		return nil, err
 	}
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		msg := fmt.Sprintf("下载远程文件失败：%v", err)
-		log.Error(msg)
-		return nil, errors.New(msg)
-	}
-	body := resp.Body
-	defer body.Close()
-	result, _ := io.ReadAll(body)
-	if resp.StatusCode != http.StatusOK {
-		msg := "下载远程文件失败：" + string(result)
-		log.Error(msg)
-		return nil, errors.New(msg)
-	}
-	return result, nil
+	return []byte(resp), nil
 }
 
 /*

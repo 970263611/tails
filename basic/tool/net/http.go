@@ -1,7 +1,6 @@
 package net
 
 import (
-	cons "basic/constants"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -216,7 +215,7 @@ func SendReq(req *http.Request) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode != cons.SUCCESS {
+	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("请求返回异常状态码为: %v ", resp.StatusCode)
 	}
 	return resp, nil
