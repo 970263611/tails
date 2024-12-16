@@ -10,7 +10,6 @@ import (
 	"extension/edb_retry"
 	"extension/file_download"
 	"extension/file_upload"
-	"extension/high_availability"
 	"extension/monitor_check"
 	"extension/redis_tool"
 	"extension/server_check"
@@ -39,7 +38,7 @@ func InitComponent() {
 	addInitComponent(server_on_off.GetInstance(globalContext))
 	addInitComponent(batch_retry.GetInstance(globalContext))
 	addInitComponent(edb_retry.GetInstance(globalContext))
-	addInitComponent(high_availability.GetInstance(globalContext))
+	//addInitComponent(high_availability.GetInstance(globalContext))
 	addInitComponent(file_upload.GetInstance(globalContext))
 	addInitComponent(file_download.GetInstance(globalContext))
 	addInitComponent(config_update.GetInstance(globalContext))

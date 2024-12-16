@@ -34,7 +34,10 @@ func (h *HighAvailability) GetName() string {
 }
 
 func (h *HighAvailability) GetDescribe() string {
-	return "高可用模块"
+	return "高可用模块 " +
+		"\n例: 前置条件启动web_server服务 web_server -p 17001" +
+		"\n例: 开启高可用 high_availability -r 127.0.0.1:17001 --f ip:port (web_server服务的ip:port)" +
+		"\n例: 节点查询  high_availability -v --f ip:port (web_server服务的ip:port)"
 }
 
 func (h *HighAvailability) Register(cm iface.ComponentMeta) {
@@ -43,7 +46,7 @@ func (h *HighAvailability) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.LOWER_R, "highAvailability.addresses", "run", false,
 		nil, "启动高可用模块，多个地址间英文逗号分割")
 	cm.AddParameters(cons.STRING, cons.LOWER_T, "", "transport", false,
-		nil, "交互节点信息")
+		nil, "交互节点信息,与用户无关,仅内部使用")
 }
 
 func (h *HighAvailability) Do(params map[string]any) (resp []byte) {
