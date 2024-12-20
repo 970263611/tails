@@ -1,7 +1,9 @@
 package basic_check
 
+import "sync"
+
 type request struct {
-	c           chan string
+	basicServer *BasicServer
 	addr        string
 	tailsAddr   string
 	groupName   string
@@ -9,6 +11,7 @@ type request struct {
 	logFilePath string
 	resultMap   map[string]*RespEntry
 	resp        Resp
+	wg          sync.WaitGroup
 }
 
 type Resp struct {
@@ -21,5 +24,5 @@ type RespEntry struct {
 	ProjectName string
 	Addr        string
 	LogInfo     string
-	PortInfo    string
+	PortInfo    []string
 }

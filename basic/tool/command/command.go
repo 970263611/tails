@@ -3,6 +3,7 @@ package commandtool
 import (
 	"basic/tool/charset"
 	"bytes"
+	"fmt"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -64,7 +65,7 @@ const SPECIAL_COMMANDS_RESULT string = "未找到匹配内容"
 管道流模式执行系统指令
 */
 func ExecCmdByPipe(command ...[]string) (string, error) {
-	var input, output *bytes.Buffer
+	var input, output, errorOutPut *bytes.Buffer
 	first := true
 	for _, cmdStr := range command {
 		cmd := exec.Command(cmdStr[0], cmdStr[1:]...)
@@ -72,10 +73,14 @@ func ExecCmdByPipe(command ...[]string) (string, error) {
 			input = output
 			cmd.Stdin = input
 		}
+		// 创建一个缓冲区来捕获原生错误
+		errorOutPut = &bytes.Buffer{}
+		cmd.Stderr = errorOutPut
+
 		output = &bytes.Buffer{}
 		cmd.Stdout = output
 		if err := cmd.Start(); err != nil {
-			return "", err
+			return "", fmt.Errorf(" 错误信息为: %s", errorOutPut.String())
 		}
 		if err := cmd.Wait(); err != nil {
 			if _, ok1 := specialCommandsMap[cmdStr[0]]; ok1 {
@@ -85,7 +90,7 @@ func ExecCmdByPipe(command ...[]string) (string, error) {
 					}
 				}
 			}
-			return "", err
+			return "", fmt.Errorf(" 错误信息为: %s", errorOutPut.String())
 		}
 		first = false
 	}

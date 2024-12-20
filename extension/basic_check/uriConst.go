@@ -47,11 +47,11 @@ func (req *request) getLogPath() error {
 	return nil
 }
 
-func (req *request) getLog(basicServer *BasicServer) {
+func (req *request) getLogInfo() {
+	defer req.deferMethod()
 	tailsAdders := strings.Split(req.tailsAddr, ",")
 	command := fmt.Sprintf("'tail -n 1000 %s | grep %s'", req.logFilePath, SUCCESS)
 	for _, addr := range tailsAdders {
-		//检查日志
 		commands := []string{
 			"command_exec",
 			cons.LOWER_C.GetCommandName(),
@@ -59,24 +59,66 @@ func (req *request) getLog(basicServer *BasicServer) {
 			"--f",
 			addr,
 		}
-		logInfo := getLogInfo(commands, basicServer)
+		logInfo := forward(commands, req.basicServer)
 		parts := strings.Split(addr, ":")
-		port := parts[0]
-		respEntry, ok := req.resultMap[port]
+		ip := parts[0]
+		respEntry, ok := req.resultMap[ip]
 		if ok {
 			respEntry.LogInfo = logInfo
 		}
 	}
+
 }
 
-func getLogInfo(commands []string, basicServer *BasicServer) string {
+func (req *request) getPortInfo() {
+	defer req.deferMethod()
+	tailsAdders := strings.Split(req.tailsAddr, ",")
+	for _, addr := range tailsAdders {
+		parts := strings.Split(addr, ":")
+		ip := parts[0]
+		respEntry, ok := req.resultMap[ip]
+		if !ok {
+			continue
+		}
+		split := strings.Split(respEntry.Addr, ":")
+		port := split[1]
+		command := fmt.Sprintf("'lsof -i:%s'", port)
+		commands := []string{
+			"command_exec",
+			cons.LOWER_C.GetCommandName(),
+			command,
+			"--f",
+			addr,
+		}
+		portInfo := forward(commands, req.basicServer)
+		lines := strings.Split(portInfo, "\n")
+		// 去除可能的空行（由于字符串末尾可能有一个额外的换行符）
+		var cleanedLines []string
+		for _, line := range lines {
+			if line != "" {
+				cleanedLines = append(cleanedLines, line)
+			}
+		}
+		respEntry.PortInfo = cleanedLines
+	}
+}
+
+func (req *request) getInterfaceInfo() {
+	defer req.deferMethod()
+}
+
+func forward(commands []string, basicServer *BasicServer) string {
 	args, err := basicServer.context.LoadSystemParams(commands)
 	if err != nil {
-		return "log 转发失败 加载参数失败"
+		return "加载参数失败"
 	}
 	resp, err := basicServer.context.Servlet(args, false)
 	if err != nil {
 		return err.Error()
 	}
 	return string(resp)
+}
+
+func (req *request) deferMethod() {
+	req.wg.Done()
 }

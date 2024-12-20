@@ -6,6 +6,7 @@ import (
 	"basic/tool/utils"
 	"encoding/json"
 	"errors"
+	"sync"
 )
 
 const (
@@ -67,7 +68,7 @@ func (b *BasicServer) Do(params map[string]any) (resp []byte) {
 		tailsAddr:   params["tailsAddr"].(string),
 		groupName:   params["groupName"].(string),
 		projectName: params["projectName"].(string),
-		c:           make(chan string),
+		basicServer: b,
 	}
 	//检查groupName 并且获取log地址
 	err := req.getLogPath()
@@ -76,9 +77,17 @@ func (b *BasicServer) Do(params map[string]any) (resp []byte) {
 	}
 	//初始化返回体
 	req.initResp()
-	//获取日志信息
-	req.getLog(b)
-	//返回
+
+	//并发执行
+	var wg sync.WaitGroup
+	wg.Add(3)
+	req.wg = wg
+	go req.getLogInfo()
+	go req.getPortInfo()
+	go req.getInterfaceInfo()
+
+	//等待返回
+	req.wg.Wait()
 	basicRespByte, err := json.Marshal(req.resp)
 	if err != nil {
 		return []byte("解码失败: " + err.Error())
