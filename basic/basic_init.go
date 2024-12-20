@@ -2,6 +2,7 @@ package basic
 
 import (
 	iface "basic/interfaces"
+	"extension/basic_check"
 	"extension/batch_retry"
 	"extension/command_exec"
 	"extension/config_update"
@@ -42,6 +43,7 @@ func InitComponent() {
 	addInitComponent(file_upload.GetInstance(globalContext))
 	addInitComponent(file_download.GetInstance(globalContext))
 	addInitComponent(config_update.GetInstance(globalContext))
+	addInitComponent(basic_check.GetInstance(globalContext))
 }
 
 func InitGlobalContext(ctx iface.Context) {
