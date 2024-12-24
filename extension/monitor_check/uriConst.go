@@ -175,7 +175,7 @@ func (f findResult) a4() {
 	queryParams.Add("orderMethodId", "0")
 	queryParams.Add("selectTimeDimension", "2")
 	//当日时间
-	//queryParams.Add("selectTime", currentDay())
+	queryParams.Add("selectTime", currentDay())
 	f.result.A4.Desc = "子系统交易成功率"
 	A1Resp, err := findSuccessRate(f, queryParams)
 	if err != nil {

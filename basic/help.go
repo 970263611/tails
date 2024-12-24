@@ -21,8 +21,8 @@ func (c *Context) findHelp(key string) string {
 		blank = utils.GetBlankByNum(2, " ")
 		arr := []string{
 			"tails组件使用方法为'启动命令 组件名称 参数列表'，在windows下启动命令为tails.exe,在linux下启动命令为./tails,以下以linux内容均已linux命令为例。",
-			"获取全组件列表信息：./tails --help 或 ./tails，其中--help可省略",
-			"获取指定组件帮助信息: ./tails 组件名称 --help 或 ./tails 组件名称，其中--help可省略",
+			"获取全组件列表信息：./tails",
+			"获取指定组件帮助信息: ./tails 组件名称",
 			"调用指定组件: ./tails 组件名称 参数列表",
 			"通过web调用: http://ip:port/do?params=组件名称 参数列表",
 			"指定配置文件: ./tails 组件名称 参数列表 --config或--c 配置文件全路径或相对路径，相对路径以tails文件所在目录为根路径，配置文件仅支持yml格式，--path与参数列表无前后顺序要求",
@@ -57,7 +57,7 @@ func (c *Context) findHelp(key string) string {
 	} else {
 		cm := globalContext.findComponent(key, false)
 		if cm == nil {
-			sb.WriteString(fmt.Sprintf("组件 %v 不存在，'./root --help' 查看组件列表", key))
+			sb.WriteString(fmt.Sprintf("组件 %v 不存在，'./root ' 查看组件列表", key))
 		} else {
 			sb.WriteString(lineBreak)
 			sb.WriteString(fmt.Sprintf("组件 %v 参数列表:", key))

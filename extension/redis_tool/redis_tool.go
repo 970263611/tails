@@ -44,8 +44,8 @@ func (r *RedisServer) Register(cm iface.ComponentMeta) {
 	cm.AddParameters(cons.STRING, cons.UPPER_H, "", "hash_get", false, nil, "获取某个元素，例：redis_tool -a 127.0.0.1:6379 -k hash -H name")
 	cm.AddParameters(cons.STRING, cons.UPPER_S, "", "set_is", false, nil, "判断元素是否在集合中，例：redis_tool -a 127.0.0.1:6379 -k set -S abc")
 	cm.AddParameters(cons.NO_VALUE, cons.UPPER_D, "", "db_size", false, nil, "查看当前数据库key的数量，例：redis_tool -a 127.0.0.1:6379 -D")
-	cm.AddParameters(cons.STRING, cons.UPPER_M, "masterName", "masterName", false, nil, "redis哨兵模式主节点名称，例：redis_tool -a 127.0.0.1:6379 -m sentinel -M mymaster")
-	cm.AddParameters(cons.STRING, cons.UPPER_W, "sentinelPassword", "sentinelPassword", false, nil, "redis哨兵模式哨兵密码，例：redis_tool -a 127.0.0.1:6379 -m sentinel -M mymaster -W Psbc@2023")
+	cm.AddParameters(cons.STRING, cons.UPPER_M, "masterName", "masterName", false, nil, "redis哨兵模式下必填，主节点名称，例：redis_tool -a 127.0.0.1:6379 -m sentinel -M mymaster")
+	cm.AddParameters(cons.STRING, cons.UPPER_W, "sentinelPassword", "sentinelPassword", false, nil, "redis哨兵模式下必填，哨兵密码，例：redis_tool -a 127.0.0.1:6379 -m sentinel -M mymaster -W Psbc@2023")
 }
 
 func (r *RedisServer) Do(params map[string]any) (resp []byte) {
