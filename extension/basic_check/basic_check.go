@@ -9,21 +9,6 @@ import (
 	"sync"
 )
 
-const (
-	CPYY        string = "CPYY"
-	cpyyLogPath string = "/appcpyy/project/logs"
-
-	GSCF        string = "GSCF"
-	gscfLogPath string = "/appcpyy/project/logs"
-
-	GRCF        string = "GRCF"
-	grcfLogPath string = "/appcpyy/project/logs"
-
-	logFileName string = "app.log"
-
-	SUCCESS string = "应用启动成功"
-)
-
 type BasicServer struct {
 	context iface.Context
 }
@@ -39,9 +24,9 @@ func (b *BasicServer) GetName() string {
 }
 
 func (b *BasicServer) GetDescribe() string {
-	return "基础组项目投产检查(只支持基础组项目) " +
-		"\n例：检查cfzt-edb项目是否一体化成功, 配置好cfzt-edb集群节点,因为当前节点需要到其他节点检查进程和日志,所以其他节点需要启动tails web" +
-		"\n例：basic_check -a 127.0.0.1:6379,127.0.0.2:6379 -H 127.0.0.1:17001,127.0.0.2:17002 -n cfzt-edb -g CPYY"
+	return "基础组项目投产检查(检查三点 1.日志是否包含应用成功启动标志 2. 端口是否存在 3.接口是否畅通  ) " +
+		"\n例：检查cfzt-xxx项目是否一体化成功, 配置好cfzt-xxx集群节点,因为当前节点需要到其他节点检查进程和日志,所以其他节点需要启动tails web" +
+		"\n例：basic_check -a 127.0.0.1:6379,127.0.0.2:6379 -H 127.0.0.1:17001,127.0.0.2:17002 -n cfzt-access -i /appcpyy/logs/cfzt-xxx/app.log"
 }
 
 func (b *BasicServer) Register(cm iface.ComponentMeta) {
@@ -58,20 +43,21 @@ func (b *BasicServer) Register(cm iface.ComponentMeta) {
 		}
 		return nil
 	}, "cfzt-xxx tailsWeb地址")
+	cm.AddParameters(cons.STRING, cons.LOWER_I, "logPath", "logPath", true, nil, "日志地址")
 	cm.AddParameters(cons.STRING, cons.LOWER_N, "projectName", "projectName", true, nil, "基础组项目名称")
-	cm.AddParameters(cons.STRING, cons.LOWER_G, "groupName", "groupName", true, nil, "部署到哪个项目组 CPYY,GSCF,GRCF")
 }
 
 func (b *BasicServer) Do(params map[string]any) (resp []byte) {
 	req := &request{
 		addr:        params["addr"].(string),
 		tailsAddr:   params["tailsAddr"].(string),
-		groupName:   params["groupName"].(string),
+		logPath:     params["logPath"].(string),
 		projectName: params["projectName"].(string),
 		basicServer: b,
 	}
-	//检查groupName 并且获取log地址
-	err := req.getLogPath()
+
+	//检查
+	err := req.check()
 	if err != nil {
 		return []byte(err.Error())
 	}
